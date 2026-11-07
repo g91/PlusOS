@@ -1,0 +1,70 @@
+#pragma once
+#ifndef SEROM_RESOURCES_RES_CDEF_1_HPP
+#define SEROM_RESOURCES_RES_CDEF_1_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/resources/res_cdef_1.s  (62 entry points)
+namespace serom { namespace resources { namespace res_cdef_1 { 
+    void Resource_CDEF_0001();
+    void Resource_CDEF_0001_Header();
+    void CDEF1_ENTRY();
+    void _CDEF_1_();
+    void CDEF1_START();
+    void CDEF1_GOSCROLLBAR();
+    void CDEF1_RIGHTARROW();
+    void CDEF1_RIGHTARROWHILITED();
+    void CDEF1_LEFTARROW();
+    void CDEF1_LEFTARROWHILITED();
+    void CDEF1_DOWNARROW();
+    void CDEF1_DOWNARROWHILITED();
+    void CDEF1_UPARROW();
+    void CDEF1_UPARROWHILITED();
+    void CDEF1_DRAWSBAR();
+    void CDEF1_DRAWSBAR_GO();
+    void CDEF1_SKIPUP();
+    void CDEF1_SKIPDOWN();
+    void CDEF1_DRAWSBAR_BODY();
+    void CDEF1_DRAWSBAR_INSET();
+    void CDEF1_SHOULDIDRAW();
+    void CDEF1_STUBSBAR();
+    void CDEF1_ISDISABLED();
+    void CDEF1_DONECHECKING();
+    void CDEF1_DOINDICATOR();
+    void CDEF1_FRAMECTL();
+    void CDEF1_TESTHV();
+    void CDEF1_TESTHV_HORIZ();
+    void CDEF1_DRAWARROWBOX();
+    void CDEF1_DRAWARROWBOX_VERT();
+    void CDEF1_DRAWARROWBOX_PLOT();
+    void CDEF1_PLOTSYMBOL();
+    void CDEF1_CALCIBOX();
+    void CDEF1_UPDATEIRECT();
+    void CDEF1_SCALE0();
+    void CDEF1_GETTCTLRECT();
+    void CDEF1_GETCTLRECT();
+    void CDEF1_NOSBARHIT();
+    void CDEF1_HITSBAR();
+    void CDEF1_HITSBAR_INCTL();
+    void CDEF1_HITSBAR_DOWN();
+    void CDEF1_UPDATERESULT();
+    void CDEF1_RETURN254();
+    void CDEF1_CHECKIND();
+    void CDEF1_CHECKPAGE();
+    void CDEF1_PAGEITUP();
+    void CDEF1_NORMALIZEPT();
+    void CDEF1_NORMALIZEPT_DONE();
+    void CDEF1_CALCSBAR();
+    void CDEF1_GETINDRGN();
+    void CDEF1_GETLTGRAY();
+    void CDEF1_MOVESBAR();
+    void CDEF1_MOVESBAR_VERT();
+    void CDEF1_INITSBAR();
+    void CDEF1_DISPSBAR();
+    void CDEF1_ROUNDOFF();
+    void CDEF1_ROUNDDONE();
+    void CDEF1_TRUNCATEIT();
+    void CDEF1_THUMBSBAR();
+    void CDEF1_THUMBSBAR_VERT();
+    void CDEF1_THUMBSBAR_INSET();
+    void CDEF1_THUMBSBAR_SLOP();
+}}}  // namespace serom::resources::res_cdef_1
+#endif  // SEROM_RESOURCES_RES_CDEF_1_HPP

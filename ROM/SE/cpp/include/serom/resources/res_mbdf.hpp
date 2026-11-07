@@ -1,0 +1,65 @@
+#pragma once
+#ifndef SEROM_RESOURCES_RES_MBDF_HPP
+#define SEROM_RESOURCES_RES_MBDF_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/resources/res_mbdf.s  (57 entry points)
+namespace serom { namespace resources { namespace res_mbdf { 
+    void Resource_MBDF_0000();
+    void Resource_MBDF_0000_Header();
+    void _MBDF_0_();
+    void MBDF0_START();
+    void MBDF0_MENULISTOK();
+    void MBDF0_GOBARPROC();
+    void MBDF0_INITBAR();
+    void MBDF0_DISPOSEBAR();
+    void MBDF0_HEIGHTBAR();
+    void MBDF0_GETMENUINFO();
+    void MBDF0_GETMENUASCENT();
+    void MBDF0_DRAWBAR();
+    void MBDF0_DRAWMLOOP();
+    void MBDF0_NEXTDRAW();
+    void MBDF0_DRAWDONE();
+    void MBDF0_HITBAR();
+    void MBDF0_HITLOOP();
+    void MBDF0_HITTHISONE();
+    void MBDF0_HITDONE();
+    void MBDF0_NOTITLE();
+    void MBDF0_NOTINBAR();
+    void MBDF0_CALCBAR();
+    void MBDF0_ENTIREBAR();
+    void MBDF0_CALCLOOP();
+    void MBDF0_CALCLOOPDONE();
+    void MBDF0_CALCDONE();
+    void MBDF0_HILITEBAR();
+    void MBDF0_DRAW1TITLE();
+    void MBDF0_DOSELECTED();
+    void MBDF0_PAINTBUSY();
+    void MBDF0_PAINTDISABLED();
+    void MBDF0_PAINTTITLE();
+    void MBDF0_UNLOCKTITLE();
+    void MBDF0_DONEHILITE();
+    void MBDF0_FLIPBAR();
+    void MBDF0_GETTITLERECT();
+    void MBDF0_GTLASTMENU();
+    void MBDF0_GTMARGIN();
+    void MBDF0_GTDONE();
+    void MBDF0_WHOLEBAR();
+    void MBDF0_SAVEBITSBAR();
+    void MBDF0_SKIPCALCSIZE();
+    void MBDF0_DRAWSTRUCT();
+    void MBDF0_SAVEBITSDONE();
+    void MBDF0_MAKEMRECT();
+    void MBDF0_STORERECT();
+    void MBDF0_COPYSAVED();
+    void MBDF0_NOSAVEMEM();
+    void MBDF0_RESTOREBITSBAR();
+    void MBDF0_MAKEUPDATE();
+    void MBDF0_UPDSIZEOK();
+    void MBDF0_BUSYPAT();
+    void MBDF0_GRAYPAT();
+    void MBDF0_APPLE4BIT();
+    void MBDF0_APPLE4BITINV();
+    void MBDF0_APPLE1BIT();
+    void MBDF0_APPLE1BITINV();
+}}}  // namespace serom::resources::res_mbdf
+#endif  // SEROM_RESOURCES_RES_MBDF_HPP

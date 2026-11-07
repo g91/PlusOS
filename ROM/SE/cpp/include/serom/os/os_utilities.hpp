@@ -1,0 +1,64 @@
+#pragma once
+#ifndef SEROM_OS_OS_UTILITIES_HPP
+#define SEROM_OS_OS_UTILITIES_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/os/os_utilities.s  (56 entry points)
+namespace serom { namespace os { namespace os_utilities { 
+    void SGLDREND();
+    void SYSUTIL();
+    void ASYNCPATCH();
+    void READPARAM();
+    void READPARAM_CONT();
+    void READPARAM_LOOP();
+    void READPARAM_SKIP();
+    void WRITEPARAM();
+    void WRITEPARAM_LOOP();
+    void WRITEPARAM_ERR();
+    void READDATETIME();
+    void SETDATETIME();
+    void DELAY();
+    void DELAY_LOOP();
+    void CMPSTRING();
+    void CMPSTRING_CONT();
+    void CMPSTRING_NOTEQUAL();
+    void RELSTRING();
+    void RELSTRING_OK();
+    void RELSTRING_LOOP();
+    void RELSTRING_LOOP_2();
+    void RELSTRING_EXIT();
+    void RELSTRING_EXIT_2();
+    void RELSTRING_EXIT_3();
+    void RELSTRING_CONT();
+    void RELSTRING_CONT_2();
+    void RELSTRING_CONT_3();
+    void RELSTRING_CONT_4();
+    void RELSTRING_EXIT_4();
+    void UPRSTRING();
+    void UPPERSTRING_LOOP();
+    void UPPERSTRING_LOOP_2();
+    void DIAC_STRIP_TBL();
+    void UPPER_FOLD_TBL();
+    void STRIP_TBL();
+    void READPRAM();
+    void READPRAM_LOOP();
+    void READPRAM_CONT();
+    void INITUTIL();
+    void INITUTIL_LOOP();
+    void INITUTIL_OK();
+    void INITUTIL_DONE();
+    void INITUTIL_NO();
+    void INITUTIL_ERR();
+    void INITUTIL_CONT();
+    void INITUTIL_LOOP_2();
+    void INITUTIL_LOOP_3();
+    void INITUTIL_FOUND();
+    void INITUTIL_CONT_2();
+    void INITUTIL_LOOP_4();
+    void INITUTIL_LOOP_5();
+    void INITUTIL_ERR_2();
+    void WPON();
+    void WPOFF();
+    void WPOFF_CONT();
+    void WPOFF_LOOP();
+}}}  // namespace serom::os::os_utilities
+#endif  // SEROM_OS_OS_UTILITIES_HPP

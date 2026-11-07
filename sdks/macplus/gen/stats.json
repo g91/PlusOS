@@ -1,0 +1,17 @@
+{
+ "headers": 68,
+ "cfiles": 63,
+ "calls_ok": 641,
+ "calls_no": 1044,
+ "traps": 626,
+ "toolbox": 482,
+ "os": 144,
+ "lowmem": 382,
+ "hw": 74,
+ "equ": 1580,
+ "glue": [
+  "BinaryDecimal",
+  "MemoryMgr",
+  "OSUtil"
+ ]
+}

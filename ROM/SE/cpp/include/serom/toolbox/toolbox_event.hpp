@@ -1,0 +1,51 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_TOOLBOX_EVENT_HPP
+#define SEROM_TOOLBOX_TOOLBOX_EVENT_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/toolbox_event.s  (43 entry points)
+namespace serom { namespace toolbox { namespace toolbox_event { 
+    void MISCMGR();
+    void GETKEYS();
+    void BUTTON();
+    void BTN_DONE();
+    void TICKCOUNT();
+    void JOURNAL_DISPATCH();
+    void JRNL_RECORD();
+    void JRNL_CONTROL();
+    void JRNL_DISABLE();
+    void JRNL_RTS();
+    void GETMOUSE();
+    void STILLDOWN();
+    void STILLDN_DONE();
+    void WAITMOUSEUP();
+    void WAITMUP_DONE();
+    void EVENTAVAIL();
+    void GETNEXTEVENT();
+    void GNE_CALL_FILTER();
+    void TBOX_GET_EVENT();
+    void TGEVT_BEGIN();
+    void TGEVT_POLL_OS();
+    void TGEVT_GET_OS();
+    void TGEVT_JOURNAL();
+    void TGEVT_CHK_UPDATE();
+    void TGEVT_SYSEVT();
+    void GNE_FKEY_CALL();
+    void TGEVT_RUN_FKEY();
+    void TGEVT_SWALLOW();
+    void TGEVT_CALL_SYSEVENT();
+    void TGEVT_CLEAR_RESULT();
+    void TGEVT_SCSI_POLL_CHECK();
+    void TGEVT_CLEANUP();
+    void TGEVT_RETURN();
+    void SYNTH_ACTIVATE();
+    void SACT_BUILD_EVT();
+    void SACT_SET_MODS();
+    void SACT_HAS_EVENT();
+    void SACT_NO_EVENT();
+    void SACT_MARK_DEACT();
+    void SACT_DO_DEACT();
+    void SE_SCSI_BG_POLL();
+    void SCSI_POLL_SELECT();
+    void SCSI_POLL_EXIT();
+}}}  // namespace serom::toolbox::toolbox_event
+#endif  // SEROM_TOOLBOX_TOOLBOX_EVENT_HPP

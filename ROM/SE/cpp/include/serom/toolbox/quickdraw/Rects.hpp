@@ -1,0 +1,63 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_QUICKDRAW_RECTS_HPP
+#define SEROM_TOOLBOX_QUICKDRAW_RECTS_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/Rects.s  (55 entry points)
+namespace serom { namespace toolbox { namespace quickdraw { namespace Rects { 
+    void STDRECT();
+    void STDRECT_NOTPIC();
+    void STDRECT_NOTRGN();
+    void STDRECT_NOTFR();
+    void STDRECT_GOHOME();
+    void PUSHVERB();
+    void PUSHVERB_ERASE1();
+    void PUSHVERB_ERASE1_CONT();
+    void PUSHVERB_PAINT1();
+    void PUSHVERB_DONE();
+    void FILLRECT();
+    void FRAMERECT();
+    void PAINTRECT();
+    void ERASERECT();
+    void INVERTRECT();
+    void CALLRECT();
+    void CALLRECT_USESTD();
+    void DRAWRECT();
+    void DRAWRECT_EXIT();
+    void FRRECT();
+    void FRRECT_OK();
+    void DORECT();
+    void FILLED();
+    void FILLED_SKIP();
+    void SETRECT();
+    void EQUALRECT();
+    void FALSE();
+    void EQUALRECT_DONE();
+    void EMPTYRECT();
+    void EMPTYRECT_EMPTY();
+    void EMPTYRECT_DONE();
+    void OFFSETRECT();
+    void INSETRECT();
+    void SECTRECT();
+    void RSECT();
+    void NEXTRECT();
+    void SECTRECT_TOPOK();
+    void SECTRECT_LEFTOK();
+    void SECTRECT_BOTOK();
+    void RTOK();
+    void SECTRECT_EMPTY();
+    void SECTRECT_DONE();
+    void UNIONRECT();
+    void UNIONRECT_TOPOK();
+    void UNIONRECT_LEFTOK();
+    void UNIONRECT_BOTOK();
+    void UNIONRECT_RIGHTOK();
+    void PT2RECT();
+    void HOK();
+    void HOK_NO();
+    void PT2RECT_SHARE();
+    void PTINRECT();
+    void PTINRECT_EXIT();
+    void PUTRECT();
+    void PUTRECT_SIZEOK();
+}}}}  // namespace serom::toolbox::quickdraw::Rects
+#endif  // SEROM_TOOLBOX_QUICKDRAW_RECTS_HPP

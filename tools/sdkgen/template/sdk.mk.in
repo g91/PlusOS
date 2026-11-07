@@ -1,0 +1,66 @@
+# sdk.mk - use the PlusOS SDK for the @MACHINE@ from your own Makefile:
+#
+#     PLUSOS_SDK := /path/to/@sdkdir@
+#     include $(PLUSOS_SDK)/sdk.mk
+#
+#     hello.pex: hello.c.o
+#         $(call plusos_link_app,$@,$^,HELLO)
+#
+# Provides the toolchain, compiler flags, start-up objects and libraries:
+#   libc.a          freestanding C library (string, stdio, stdlib, setjmp)
+#   lib@prefix@.a   @MACHINE@ ROM layer: per-manager call catalogs + glue
+#   libplusos.a     PlusOS runtime (C/C++ start-up support, font)
+#   librt_app.a     app side of the runtime (talks to the kernel's service table)
+#   libplusgfx.a    PlusGFX rendering framework (surfaces, blits, text, present)
+#   crt0_app.o / crt0_kernel.o   self-relocating start-up code
+
+PLUSOS_SDK ?= $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+PLUSOS_SDK_MACHINE := @machine@
+PLUSOS_ROM_PREFIX  := @prefix@
+
+# Retro68 cross toolchain (m68k-apple-macos-gcc)
+TOOLCHAIN ?= /home/evil/Retro68-build/toolchain
+CROSS     := $(TOOLCHAIN)/bin/m68k-apple-macos-
+CC        := $(CROSS)gcc
+CXX       := $(CROSS)g++
+LD        := $(CROSS)ld.real
+AR        := $(CROSS)ar
+OBJCOPY   := $(CROSS)objcopy
+SIZE      := $(CROSS)size
+PY        ?= python3
+GCCINC    := $(shell $(CC) -print-file-name=include)
+LIBGCC    := $(shell $(CC) -m68000 -print-libgcc-file-name)
+
+PLUSOS_WARN     := -Wall -Wextra -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers
+PLUSOS_CPPFLAGS := -nostdinc -isystem $(GCCINC) -I$(PLUSOS_SDK)/include/libc -I$(PLUSOS_SDK)/include
+PLUSOS_COMMON   := -m68000 -Os -ffreestanding -ffixed-a5 -ffunction-sections -fdata-sections \
+                   --param=min-pagesize=0 $(PLUSOS_WARN)
+PLUSOS_CFLAGS   := $(PLUSOS_COMMON) -std=gnu11 -fno-common
+PLUSOS_CXXFLAGS := $(PLUSOS_COMMON) -std=gnu++20 -fno-exceptions -fno-rtti -fno-threadsafe-statics \
+                   -fno-use-cxa-atexit
+PLUSOS_ASFLAGS  := -m68000
+PLUSOS_LDFLAGS  := -T $(PLUSOS_SDK)/ld/plusos.ld -q --gc-sections --no-warn-rwx-segments
+
+PLUSOS_LIBDIR       := $(PLUSOS_SDK)/build/lib
+PLUSOS_APP_START    := $(PLUSOS_LIBDIR)/crt0_app.o
+PLUSOS_KERNEL_START := $(PLUSOS_LIBDIR)/crt0_kernel.o
+PLUSOS_ROM_LIB      := $(PLUSOS_LIBDIR)/lib@prefix@.a
+PLUSOS_APP_LIBS     := --start-group $(PLUSOS_LIBDIR)/librt_app.a $(PLUSOS_LIBDIR)/libplusgfx.a $(PLUSOS_LIBDIR)/libplusos.a \
+                       $(PLUSOS_ROM_LIB) $(PLUSOS_LIBDIR)/libc.a $(LIBGCC) --end-group
+PLUSOS_KERNEL_LIBS  := --start-group $(PLUSOS_LIBDIR)/libplusos.a $(PLUSOS_ROM_LIB) \
+                       $(PLUSOS_LIBDIR)/libc.a $(LIBGCC) $(PLUSOS_EXTRA_LIBS) --end-group
+PLUSOS_LIBS_DEPS    := $(addprefix $(PLUSOS_LIBDIR)/,libc.a lib@prefix@.a libplusos.a librt_app.a libplusgfx.a \
+                       crt0_app.o crt0_kernel.o)
+MKEXE               := $(PY) $(PLUSOS_SDK)/tools/mkexe.py
+
+# $(call plusos_link_app,OUTPUT.pex,OBJECTS,NAME)
+define plusos_link_app
+	$(LD) $(PLUSOS_LDFLAGS) -o $(1:.pex=.elf) $(PLUSOS_APP_START) $(2) $(PLUSOS_APP_LIBS)
+	$(MKEXE) $(1:.pex=.elf) $(1) --name $(3)
+endef
+
+# $(call plusos_link_kernel,OUTPUT.pex,OBJECTS,NAME)
+define plusos_link_kernel
+	$(LD) $(PLUSOS_LDFLAGS) -Map=$(1:.pex=.map) -o $(1:.pex=.elf) $(PLUSOS_KERNEL_START) $(2) $(PLUSOS_KERNEL_LIBS)
+	$(MKEXE) $(1:.pex=.elf) $(1) --name $(3)
+endef

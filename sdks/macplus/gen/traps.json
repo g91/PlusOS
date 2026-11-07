@@ -1,0 +1,4426 @@
+{
+ "rom_checksum": "0x4D1F8172",
+ "rom_version": "0x0075",
+ "rom_size": 131072,
+ "table_bytes": 1133,
+ "toolbox_count": 482,
+ "os_count": 144,
+ "traps": [
+  {
+   "trap": 43021,
+   "rom_offset": 81014,
+   "rom_labels": [
+    "Count1Resources"
+   ]
+  },
+  {
+   "trap": 43022,
+   "rom_offset": 81056,
+   "rom_labels": [
+    "Get1IxResource"
+   ]
+  },
+  {
+   "trap": 43023,
+   "rom_offset": 81286,
+   "rom_labels": [
+    "Get1IxType"
+   ]
+  },
+  {
+   "trap": 43024,
+   "rom_offset": 81324,
+   "rom_labels": [
+    "Unique1ID"
+   ]
+  },
+  {
+   "trap": 43025,
+   "rom_offset": 93376,
+   "rom_labels": [
+    "TESelView"
+   ]
+  },
+  {
+   "trap": 43026,
+   "rom_offset": 93268,
+   "rom_labels": [
+    "TEPinScroll"
+   ]
+  },
+  {
+   "trap": 43027,
+   "rom_offset": 93484,
+   "rom_labels": [
+    "TEAutoView"
+   ]
+  },
+  {
+   "trap": 43029,
+   "rom_offset": 94508,
+   "rom_labels": [
+    "SCSIDispatch"
+   ]
+  },
+  {
+   "trap": 43030,
+   "rom_offset": 94274,
+   "rom_labels": [
+    "Pack8"
+   ]
+  },
+  {
+   "trap": 43031,
+   "rom_offset": 51952,
+   "rom_labels": [
+    "CopyMask"
+   ]
+  },
+  {
+   "trap": 43032,
+   "rom_offset": 88662,
+   "rom_labels": [
+    "FixATan2"
+   ]
+  },
+  {
+   "trap": 43033,
+   "rom_offset": 87478,
+   "rom_labels": [
+    "XMunger"
+   ]
+  },
+  {
+   "trap": 43034,
+   "rom_offset": 65444,
+   "rom_labels": [
+    "Trap1_1A",
+    "GetZone"
+   ]
+  },
+  {
+   "trap": 43035,
+   "rom_offset": 65450,
+   "rom_labels": [
+    "Trap1_1B",
+    "SetZone"
+   ]
+  },
+  {
+   "trap": 43036,
+   "rom_offset": 81212,
+   "rom_labels": [
+    "Count1Types"
+   ]
+  },
+  {
+   "trap": 43037,
+   "rom_offset": 65596,
+   "rom_labels": [
+    "Trap1_1D",
+    "MaxMem"
+   ]
+  },
+  {
+   "trap": 43038,
+   "rom_offset": 65750,
+   "rom_labels": [
+    "Trap1_1E",
+    "NewPtr"
+   ]
+  },
+  {
+   "trap": 43039,
+   "rom_offset": 81386,
+   "rom_labels": [
+    "Get1Resource"
+   ]
+  },
+  {
+   "trap": 43040,
+   "rom_offset": 81454,
+   "rom_labels": [
+    "Get1NamedResour",
+    "Get1NamedResource"
+   ]
+  },
+  {
+   "trap": 43041,
+   "rom_offset": 84102,
+   "rom_labels": [
+    "MaxSizeRsrc"
+   ]
+  },
+  {
+   "trap": 43042,
+   "rom_offset": 65870,
+   "rom_labels": [
+    "Trap1_22",
+    "NewHandle"
+   ]
+  },
+  {
+   "trap": 43043,
+   "rom_offset": 65904,
+   "rom_labels": [
+    "Trap1_23",
+    "DisposHandle"
+   ]
+  },
+  {
+   "trap": 43044,
+   "rom_offset": 65948,
+   "rom_labels": [
+    "Trap1_24",
+    "SetHandleSize"
+   ]
+  },
+  {
+   "trap": 43045,
+   "rom_offset": 65936,
+   "rom_labels": [
+    "Trap1_25",
+    "GetHandleSize"
+   ]
+  },
+  {
+   "trap": 43046,
+   "rom_offset": 76322,
+   "rom_labels": [
+    "InsMenuItem"
+   ]
+  },
+  {
+   "trap": 43047,
+   "rom_offset": 85906,
+   "rom_labels": [
+    "HideDItem"
+   ]
+  },
+  {
+   "trap": 43048,
+   "rom_offset": 86000,
+   "rom_labels": [
+    "ShowDItem"
+   ]
+  },
+  {
+   "trap": 43049,
+   "rom_offset": 66096,
+   "rom_labels": [
+    "Trap1_29",
+    "HLock"
+   ]
+  },
+  {
+   "trap": 43050,
+   "rom_offset": 66106,
+   "rom_labels": [
+    "Trap1_2A",
+    "HUnlock"
+   ]
+  },
+  {
+   "trap": 43051,
+   "rom_offset": 94276,
+   "rom_labels": [
+    "Pack9"
+   ]
+  },
+  {
+   "trap": 43052,
+   "rom_offset": 94278,
+   "rom_labels": [
+    "Pack10"
+   ]
+  },
+  {
+   "trap": 43053,
+   "rom_offset": 94280,
+   "rom_labels": [
+    "Pack11"
+   ]
+  },
+  {
+   "trap": 43054,
+   "rom_offset": 94282,
+   "rom_labels": [
+    "Pack12"
+   ]
+  },
+  {
+   "trap": 43055,
+   "rom_offset": 94284,
+   "rom_labels": [
+    "Pack13"
+   ]
+  },
+  {
+   "trap": 43056,
+   "rom_offset": 94286,
+   "rom_labels": [
+    "Pack14"
+   ]
+  },
+  {
+   "trap": 43057,
+   "rom_offset": 94288,
+   "rom_labels": [
+    "Pack15"
+   ]
+  },
+  {
+   "trap": 43058,
+   "rom_offset": 10250,
+   "rom_labels": [
+    "Trap1_32",
+    "FlushEvents"
+   ]
+  },
+  {
+   "trap": 43059,
+   "rom_offset": 7794,
+   "rom_labels": [
+    "ScrnBitMap"
+   ]
+  },
+  {
+   "trap": 43060,
+   "rom_offset": 62048,
+   "rom_labels": [
+    "SetFScaleDisabl",
+    "SetFScaleDisable"
+   ]
+  },
+  {
+   "trap": 43061,
+   "rom_offset": 62068,
+   "rom_labels": [
+    "FontMetrics"
+   ]
+  },
+  {
+   "trap": 43062,
+   "rom_offset": 33806,
+   "rom_labels": [
+    "GetMaskTable"
+   ]
+  },
+  {
+   "trap": 43063,
+   "rom_offset": 36342,
+   "rom_labels": [
+    "MeasureText"
+   ]
+  },
+  {
+   "trap": 43064,
+   "rom_offset": 52536,
+   "rom_labels": [
+    "CalcMask"
+   ]
+  },
+  {
+   "trap": 43065,
+   "rom_offset": 52528,
+   "rom_labels": [
+    "SeedFill"
+   ]
+  },
+  {
+   "trap": 43066,
+   "rom_offset": 72472,
+   "rom_labels": [
+    "ZoomWindow"
+   ]
+  },
+  {
+   "trap": 43067,
+   "rom_offset": 72582,
+   "rom_labels": [
+    "TrackBox"
+   ]
+  },
+  {
+   "trap": 43071,
+   "rom_offset": 89036,
+   "rom_labels": [
+    "Long2Fix"
+   ]
+  },
+  {
+   "trap": 43072,
+   "rom_offset": 89004,
+   "rom_labels": [
+    "Fix2Long"
+   ]
+  },
+  {
+   "trap": 43073,
+   "rom_offset": 89040,
+   "rom_labels": [
+    "Fix2Frac"
+   ]
+  },
+  {
+   "trap": 43074,
+   "rom_offset": 89008,
+   "rom_labels": [
+    "Frac2Fix"
+   ]
+  },
+  {
+   "trap": 43075,
+   "rom_offset": 88856,
+   "rom_labels": [
+    "Fix2X"
+   ]
+  },
+  {
+   "trap": 43076,
+   "rom_offset": 88906,
+   "rom_labels": [
+    "X2Fix"
+   ]
+  },
+  {
+   "trap": 43077,
+   "rom_offset": 88862,
+   "rom_labels": [
+    "Frac2X"
+   ]
+  },
+  {
+   "trap": 43078,
+   "rom_offset": 88912,
+   "rom_labels": [
+    "X2Frac"
+   ]
+  },
+  {
+   "trap": 43079,
+   "rom_offset": 88486,
+   "rom_labels": [
+    "FracCos"
+   ]
+  },
+  {
+   "trap": 43080,
+   "rom_offset": 88494,
+   "rom_labels": [
+    "FracSin"
+   ]
+  },
+  {
+   "trap": 43081,
+   "rom_offset": 88320,
+   "rom_labels": [
+    "FracSqrt"
+   ]
+  },
+  {
+   "trap": 43082,
+   "rom_offset": 88030,
+   "rom_labels": [
+    "FracMul"
+   ]
+  },
+  {
+   "trap": 43083,
+   "rom_offset": 88240,
+   "rom_labels": [
+    "FracDiv"
+   ]
+  },
+  {
+   "trap": 43084,
+   "rom_offset": 65470,
+   "rom_labels": [
+    "Trap1_4C",
+    "CompactMem"
+   ]
+  },
+  {
+   "trap": 43085,
+   "rom_offset": 88246,
+   "rom_labels": [
+    "FixDiv"
+   ]
+  },
+  {
+   "trap": 43088,
+   "rom_offset": 33478,
+   "rom_labels": [
+    "InitCursor"
+   ]
+  },
+  {
+   "trap": 43089,
+   "rom_offset": 33494,
+   "rom_labels": [
+    "SetCursor"
+   ]
+  },
+  {
+   "trap": 43090,
+   "rom_offset": 33522,
+   "rom_labels": [
+    "HideCursor"
+   ]
+  },
+  {
+   "trap": 43091,
+   "rom_offset": 33528,
+   "rom_labels": [
+    "ShowCursor"
+   ]
+  },
+  {
+   "trap": 43092,
+   "rom_offset": 63608,
+   "rom_labels": [
+    "Trap1_54",
+    "UprString"
+   ]
+  },
+  {
+   "trap": 43093,
+   "rom_offset": 33534,
+   "rom_labels": [
+    "ShieldCursor"
+   ]
+  },
+  {
+   "trap": 43094,
+   "rom_offset": 33582,
+   "rom_labels": [
+    "ObscureCursor"
+   ]
+  },
+  {
+   "trap": 43096,
+   "rom_offset": 33596,
+   "rom_labels": [
+    "BitAnd"
+   ]
+  },
+  {
+   "trap": 43097,
+   "rom_offset": 33604,
+   "rom_labels": [
+    "BitXor"
+   ]
+  },
+  {
+   "trap": 43098,
+   "rom_offset": 33588,
+   "rom_labels": [
+    "BitNot"
+   ]
+  },
+  {
+   "trap": 43099,
+   "rom_offset": 33614,
+   "rom_labels": [
+    "BitOr"
+   ]
+  },
+  {
+   "trap": 43100,
+   "rom_offset": 33622,
+   "rom_labels": [
+    "BitShift"
+   ]
+  },
+  {
+   "trap": 43101,
+   "rom_offset": 33644,
+   "rom_labels": [
+    "BitTst"
+   ]
+  },
+  {
+   "trap": 43102,
+   "rom_offset": 33658,
+   "rom_labels": [
+    "BitSet"
+   ]
+  },
+  {
+   "trap": 43103,
+   "rom_offset": 33668,
+   "rom_labels": [
+    "BitClr"
+   ]
+  },
+  {
+   "trap": 43105,
+   "rom_offset": 33692,
+   "rom_labels": [
+    "Random"
+   ]
+  },
+  {
+   "trap": 43106,
+   "rom_offset": 33774,
+   "rom_labels": [
+    "ForeColor"
+   ]
+  },
+  {
+   "trap": 43107,
+   "rom_offset": 33778,
+   "rom_labels": [
+    "BackColor"
+   ]
+  },
+  {
+   "trap": 43108,
+   "rom_offset": 33792,
+   "rom_labels": [
+    "ColorBit"
+   ]
+  },
+  {
+   "trap": 43109,
+   "rom_offset": 34260,
+   "rom_labels": [
+    "GetPixel"
+   ]
+  },
+  {
+   "trap": 43110,
+   "rom_offset": 34312,
+   "rom_labels": [
+    "StuffHex"
+   ]
+  },
+  {
+   "trap": 43111,
+   "rom_offset": 87986,
+   "rom_labels": [
+    "LongMul"
+   ]
+  },
+  {
+   "trap": 43112,
+   "rom_offset": 88038,
+   "rom_labels": [
+    "FixMul"
+   ]
+  },
+  {
+   "trap": 43113,
+   "rom_offset": 88378,
+   "rom_labels": [
+    "FixRatio"
+   ]
+  },
+  {
+   "trap": 43114,
+   "rom_offset": 88444,
+   "rom_labels": [
+    "HiWord"
+   ]
+  },
+  {
+   "trap": 43115,
+   "rom_offset": 88436,
+   "rom_labels": [
+    "LoWord"
+   ]
+  },
+  {
+   "trap": 43116,
+   "rom_offset": 88454,
+   "rom_labels": [
+    "FixRound"
+   ]
+  },
+  {
+   "trap": 43117,
+   "rom_offset": 34948,
+   "rom_labels": [
+    "InitPort"
+   ]
+  },
+  {
+   "trap": 43118,
+   "rom_offset": 34726,
+   "rom_labels": [
+    "InitGraf"
+   ]
+  },
+  {
+   "trap": 43119,
+   "rom_offset": 34924,
+   "rom_labels": [
+    "OpenPort"
+   ]
+  },
+  {
+   "trap": 43120,
+   "rom_offset": 35158,
+   "rom_labels": [
+    "LocalToGlobal"
+   ]
+  },
+  {
+   "trap": 43121,
+   "rom_offset": 35166,
+   "rom_labels": [
+    "GlobalToLocal"
+   ]
+  },
+  {
+   "trap": 43122,
+   "rom_offset": 35266,
+   "rom_labels": [
+    "GrafDevice"
+   ]
+  },
+  {
+   "trap": 43123,
+   "rom_offset": 35248,
+   "rom_labels": [
+    "SetPort"
+   ]
+  },
+  {
+   "trap": 43124,
+   "rom_offset": 35256,
+   "rom_labels": [
+    "GetPort"
+   ]
+  },
+  {
+   "trap": 43125,
+   "rom_offset": 35272,
+   "rom_labels": [
+    "SetPBits"
+   ]
+  },
+  {
+   "trap": 43126,
+   "rom_offset": 35310,
+   "rom_labels": [
+    "PortSize"
+   ]
+  },
+  {
+   "trap": 43127,
+   "rom_offset": 35342,
+   "rom_labels": [
+    "MovePortTo"
+   ]
+  },
+  {
+   "trap": 43128,
+   "rom_offset": 35386,
+   "rom_labels": [
+    "SetOrigin"
+   ]
+  },
+  {
+   "trap": 43129,
+   "rom_offset": 35456,
+   "rom_labels": [
+    "SetClip"
+   ]
+  },
+  {
+   "trap": 43130,
+   "rom_offset": 35468,
+   "rom_labels": [
+    "GetClip"
+   ]
+  },
+  {
+   "trap": 43131,
+   "rom_offset": 35438,
+   "rom_labels": [
+    "ClipRect"
+   ]
+  },
+  {
+   "trap": 43132,
+   "rom_offset": 35296,
+   "rom_labels": [
+    "BackPat"
+   ]
+  },
+  {
+   "trap": 43133,
+   "rom_offset": 35076,
+   "rom_labels": [
+    "ClosePort"
+   ]
+  },
+  {
+   "trap": 43134,
+   "rom_offset": 35210,
+   "rom_labels": [
+    "AddPt"
+   ]
+  },
+  {
+   "trap": 43135,
+   "rom_offset": 35218,
+   "rom_labels": [
+    "SubPt"
+   ]
+  },
+  {
+   "trap": 43136,
+   "rom_offset": 35488,
+   "rom_labels": [
+    "SetPt"
+   ]
+  },
+  {
+   "trap": 43137,
+   "rom_offset": 35498,
+   "rom_labels": [
+    "EqualPt"
+   ]
+  },
+  {
+   "trap": 43138,
+   "rom_offset": 35510,
+   "rom_labels": [
+    "StdText"
+   ]
+  },
+  {
+   "trap": 43139,
+   "rom_offset": 35950,
+   "rom_labels": [
+    "DrawChar"
+   ]
+  },
+  {
+   "trap": 43140,
+   "rom_offset": 36014,
+   "rom_labels": [
+    "DrawString"
+   ]
+  },
+  {
+   "trap": 43141,
+   "rom_offset": 36032,
+   "rom_labels": [
+    "DrawText"
+   ]
+  },
+  {
+   "trap": 43142,
+   "rom_offset": 36072,
+   "rom_labels": [
+    "TextWidth"
+   ]
+  },
+  {
+   "trap": 43143,
+   "rom_offset": 35988,
+   "rom_labels": [
+    "TextFont"
+   ]
+  },
+  {
+   "trap": 43144,
+   "rom_offset": 35938,
+   "rom_labels": [
+    "TextFace"
+   ]
+  },
+  {
+   "trap": 43145,
+   "rom_offset": 35992,
+   "rom_labels": [
+    "TextMode"
+   ]
+  },
+  {
+   "trap": 43146,
+   "rom_offset": 35996,
+   "rom_labels": [
+    "TextSize"
+   ]
+  },
+  {
+   "trap": 43147,
+   "rom_offset": 36484,
+   "rom_labels": [
+    "GetFontInfo"
+   ]
+  },
+  {
+   "trap": 43148,
+   "rom_offset": 36056,
+   "rom_labels": [
+    "StringWidth"
+   ]
+  },
+  {
+   "trap": 43149,
+   "rom_offset": 35964,
+   "rom_labels": [
+    "CharWidth"
+   ]
+  },
+  {
+   "trap": 43150,
+   "rom_offset": 36002,
+   "rom_labels": [
+    "SpaceExtra"
+   ]
+  },
+  {
+   "trap": 43152,
+   "rom_offset": 38504,
+   "rom_labels": [
+    "StdLine"
+   ]
+  },
+  {
+   "trap": 43153,
+   "rom_offset": 38650,
+   "rom_labels": [
+    "LineTo"
+   ]
+  },
+  {
+   "trap": 43154,
+   "rom_offset": 38672,
+   "rom_labels": [
+    "Line"
+   ]
+  },
+  {
+   "trap": 43155,
+   "rom_offset": 38696,
+   "rom_labels": [
+    "MoveTo"
+   ]
+  },
+  {
+   "trap": 43156,
+   "rom_offset": 38708,
+   "rom_labels": [
+    "Move"
+   ]
+  },
+  {
+   "trap": 43158,
+   "rom_offset": 38848,
+   "rom_labels": [
+    "HidePen"
+   ]
+  },
+  {
+   "trap": 43159,
+   "rom_offset": 38852,
+   "rom_labels": [
+    "ShowPen"
+   ]
+  },
+  {
+   "trap": 43160,
+   "rom_offset": 38864,
+   "rom_labels": [
+    "GetPenState"
+   ]
+  },
+  {
+   "trap": 43161,
+   "rom_offset": 38868,
+   "rom_labels": [
+    "SetPenState"
+   ]
+  },
+  {
+   "trap": 43162,
+   "rom_offset": 38902,
+   "rom_labels": [
+    "GetPen"
+   ]
+  },
+  {
+   "trap": 43163,
+   "rom_offset": 38918,
+   "rom_labels": [
+    "PenSize"
+   ]
+  },
+  {
+   "trap": 43164,
+   "rom_offset": 38932,
+   "rom_labels": [
+    "PenMode"
+   ]
+  },
+  {
+   "trap": 43165,
+   "rom_offset": 38938,
+   "rom_labels": [
+    "PenPat"
+   ]
+  },
+  {
+   "trap": 43166,
+   "rom_offset": 38958,
+   "rom_labels": [
+    "PenNormal"
+   ]
+  },
+  {
+   "trap": 43168,
+   "rom_offset": 40574,
+   "rom_labels": [
+    "StdRect"
+   ]
+  },
+  {
+   "trap": 43169,
+   "rom_offset": 40744,
+   "rom_labels": [
+    "FrameRect"
+   ]
+  },
+  {
+   "trap": 43170,
+   "rom_offset": 40748,
+   "rom_labels": [
+    "PaintRect"
+   ]
+  },
+  {
+   "trap": 43171,
+   "rom_offset": 40752,
+   "rom_labels": [
+    "EraseRect"
+   ]
+  },
+  {
+   "trap": 43172,
+   "rom_offset": 40756,
+   "rom_labels": [
+    "InverRect"
+   ]
+  },
+  {
+   "trap": 43173,
+   "rom_offset": 40722,
+   "rom_labels": [
+    "FillRect"
+   ]
+  },
+  {
+   "trap": 43174,
+   "rom_offset": 41104,
+   "rom_labels": [
+    "EqualRect"
+   ]
+  },
+  {
+   "trap": 43175,
+   "rom_offset": 41090,
+   "rom_labels": [
+    "SetRect"
+   ]
+  },
+  {
+   "trap": 43176,
+   "rom_offset": 41156,
+   "rom_labels": [
+    "OffsetRect"
+   ]
+  },
+  {
+   "trap": 43177,
+   "rom_offset": 41174,
+   "rom_labels": [
+    "InsetRect"
+   ]
+  },
+  {
+   "trap": 43178,
+   "rom_offset": 41192,
+   "rom_labels": [
+    "SectRect"
+   ]
+  },
+  {
+   "trap": 43179,
+   "rom_offset": 41348,
+   "rom_labels": [
+    "UnionRect"
+   ]
+  },
+  {
+   "trap": 43180,
+   "rom_offset": 41410,
+   "rom_labels": [
+    "Pt2Rect"
+   ]
+  },
+  {
+   "trap": 43181,
+   "rom_offset": 41464,
+   "rom_labels": [
+    "PtInRect"
+   ]
+  },
+  {
+   "trap": 43182,
+   "rom_offset": 41130,
+   "rom_labels": [
+    "EmptyRect"
+   ]
+  },
+  {
+   "trap": 43183,
+   "rom_offset": 44144,
+   "rom_labels": [
+    "StdRRect"
+   ]
+  },
+  {
+   "trap": 43184,
+   "rom_offset": 44290,
+   "rom_labels": [
+    "FrameRoundRect"
+   ]
+  },
+  {
+   "trap": 43185,
+   "rom_offset": 44294,
+   "rom_labels": [
+    "PaintRoundRect"
+   ]
+  },
+  {
+   "trap": 43186,
+   "rom_offset": 44298,
+   "rom_labels": [
+    "EraseRoundRect"
+   ]
+  },
+  {
+   "trap": 43187,
+   "rom_offset": 44302,
+   "rom_labels": [
+    "InverRoundRect"
+   ]
+  },
+  {
+   "trap": 43188,
+   "rom_offset": 44306,
+   "rom_labels": [
+    "FillRoundRect"
+   ]
+  },
+  {
+   "trap": 43190,
+   "rom_offset": 44364,
+   "rom_labels": [
+    "StdOval"
+   ]
+  },
+  {
+   "trap": 43191,
+   "rom_offset": 44500,
+   "rom_labels": [
+    "FrameOval"
+   ]
+  },
+  {
+   "trap": 43192,
+   "rom_offset": 44504,
+   "rom_labels": [
+    "PaintOval"
+   ]
+  },
+  {
+   "trap": 43193,
+   "rom_offset": 44508,
+   "rom_labels": [
+    "EraseOval"
+   ]
+  },
+  {
+   "trap": 43194,
+   "rom_offset": 44512,
+   "rom_labels": [
+    "InvertOval"
+   ]
+  },
+  {
+   "trap": 43195,
+   "rom_offset": 44516,
+   "rom_labels": [
+    "FillOval"
+   ]
+  },
+  {
+   "trap": 43196,
+   "rom_offset": 47054,
+   "rom_labels": [
+    "SlopeFromAngle"
+   ]
+  },
+  {
+   "trap": 43197,
+   "rom_offset": 44888,
+   "rom_labels": [
+    "StdArc"
+   ]
+  },
+  {
+   "trap": 43198,
+   "rom_offset": 45014,
+   "rom_labels": [
+    "FrameArc"
+   ]
+  },
+  {
+   "trap": 43199,
+   "rom_offset": 45018,
+   "rom_labels": [
+    "PaintArc"
+   ]
+  },
+  {
+   "trap": 43200,
+   "rom_offset": 45022,
+   "rom_labels": [
+    "EraseArc"
+   ]
+  },
+  {
+   "trap": 43201,
+   "rom_offset": 45026,
+   "rom_labels": [
+    "InvertArc"
+   ]
+  },
+  {
+   "trap": 43202,
+   "rom_offset": 45030,
+   "rom_labels": [
+    "FillArc"
+   ]
+  },
+  {
+   "trap": 43203,
+   "rom_offset": 47346,
+   "rom_labels": [
+    "PtToAngle"
+   ]
+  },
+  {
+   "trap": 43204,
+   "rom_offset": 46992,
+   "rom_labels": [
+    "AngleFromSlope"
+   ]
+  },
+  {
+   "trap": 43205,
+   "rom_offset": 47490,
+   "rom_labels": [
+    "StdPoly"
+   ]
+  },
+  {
+   "trap": 43206,
+   "rom_offset": 47608,
+   "rom_labels": [
+    "FramePoly"
+   ]
+  },
+  {
+   "trap": 43207,
+   "rom_offset": 47612,
+   "rom_labels": [
+    "PaintPoly"
+   ]
+  },
+  {
+   "trap": 43208,
+   "rom_offset": 47616,
+   "rom_labels": [
+    "ErasePoly"
+   ]
+  },
+  {
+   "trap": 43209,
+   "rom_offset": 47620,
+   "rom_labels": [
+    "InvertPoly"
+   ]
+  },
+  {
+   "trap": 43210,
+   "rom_offset": 47624,
+   "rom_labels": [
+    "FillPoly"
+   ]
+  },
+  {
+   "trap": 43211,
+   "rom_offset": 47678,
+   "rom_labels": [
+    "OpenPoly"
+   ]
+  },
+  {
+   "trap": 43212,
+   "rom_offset": 47730,
+   "rom_labels": [
+    "ClosePoly"
+   ]
+  },
+  {
+   "trap": 43213,
+   "rom_offset": 47840,
+   "rom_labels": [
+    "KillPoly"
+   ]
+  },
+  {
+   "trap": 43214,
+   "rom_offset": 47848,
+   "rom_labels": [
+    "OffsetPoly"
+   ]
+  },
+  {
+   "trap": 43215,
+   "rom_offset": 53132,
+   "rom_labels": [
+    "PackBits"
+   ]
+  },
+  {
+   "trap": 43216,
+   "rom_offset": 53276,
+   "rom_labels": [
+    "UnpackBits"
+   ]
+  },
+  {
+   "trap": 43217,
+   "rom_offset": 48118,
+   "rom_labels": [
+    "StdRgn"
+   ]
+  },
+  {
+   "trap": 43218,
+   "rom_offset": 48220,
+   "rom_labels": [
+    "FrameRgn"
+   ]
+  },
+  {
+   "trap": 43219,
+   "rom_offset": 48224,
+   "rom_labels": [
+    "PaintRgn"
+   ]
+  },
+  {
+   "trap": 43220,
+   "rom_offset": 48228,
+   "rom_labels": [
+    "EraseRgn"
+   ]
+  },
+  {
+   "trap": 43221,
+   "rom_offset": 48232,
+   "rom_labels": [
+    "InverRgn"
+   ]
+  },
+  {
+   "trap": 43222,
+   "rom_offset": 48236,
+   "rom_labels": [
+    "FillRgn"
+   ]
+  },
+  {
+   "trap": 43224,
+   "rom_offset": 48462,
+   "rom_labels": [
+    "NewRgn"
+   ]
+  },
+  {
+   "trap": 43225,
+   "rom_offset": 48498,
+   "rom_labels": [
+    "DisposRgn"
+   ]
+  },
+  {
+   "trap": 43226,
+   "rom_offset": 48506,
+   "rom_labels": [
+    "OpenRgn"
+   ]
+  },
+  {
+   "trap": 43227,
+   "rom_offset": 48552,
+   "rom_labels": [
+    "CloseRgn"
+   ]
+  },
+  {
+   "trap": 43228,
+   "rom_offset": 48638,
+   "rom_labels": [
+    "CopyRgn"
+   ]
+  },
+  {
+   "trap": 43229,
+   "rom_offset": 48716,
+   "rom_labels": [
+    "SetEmptyRgn"
+   ]
+  },
+  {
+   "trap": 43230,
+   "rom_offset": 48728,
+   "rom_labels": [
+    "SetRecRgn"
+   ]
+  },
+  {
+   "trap": 43231,
+   "rom_offset": 48820,
+   "rom_labels": [
+    "RectRgn"
+   ]
+  },
+  {
+   "trap": 43232,
+   "rom_offset": 48834,
+   "rom_labels": [
+    "OfsetRgn"
+   ]
+  },
+  {
+   "trap": 43233,
+   "rom_offset": 48884,
+   "rom_labels": [
+    "InsetRgn"
+   ]
+  },
+  {
+   "trap": 43234,
+   "rom_offset": 49040,
+   "rom_labels": [
+    "EmptyRgn"
+   ]
+  },
+  {
+   "trap": 43235,
+   "rom_offset": 49056,
+   "rom_labels": [
+    "EqualRgn"
+   ]
+  },
+  {
+   "trap": 43236,
+   "rom_offset": 49118,
+   "rom_labels": [
+    "SectRgn"
+   ]
+  },
+  {
+   "trap": 43237,
+   "rom_offset": 49122,
+   "rom_labels": [
+    "UnionRgn"
+   ]
+  },
+  {
+   "trap": 43238,
+   "rom_offset": 49126,
+   "rom_labels": [
+    "DiffRgn"
+   ]
+  },
+  {
+   "trap": 43239,
+   "rom_offset": 49130,
+   "rom_labels": [
+    "XorRgn"
+   ]
+  },
+  {
+   "trap": 43240,
+   "rom_offset": 49364,
+   "rom_labels": [
+    "PtInRgn"
+   ]
+  },
+  {
+   "trap": 43241,
+   "rom_offset": 49460,
+   "rom_labels": [
+    "RectInRgn"
+   ]
+  },
+  {
+   "trap": 43242,
+   "rom_offset": 35100,
+   "rom_labels": [
+    "SetStdProcs"
+   ]
+  },
+  {
+   "trap": 43243,
+   "rom_offset": 51404,
+   "rom_labels": [
+    "StdBits"
+   ]
+  },
+  {
+   "trap": 43244,
+   "rom_offset": 51786,
+   "rom_labels": [
+    "CopyBits"
+   ]
+  },
+  {
+   "trap": 43245,
+   "rom_offset": 36176,
+   "rom_labels": [
+    "StdTxMeas"
+   ]
+  },
+  {
+   "trap": 43246,
+   "rom_offset": 55600,
+   "rom_labels": [
+    "StdGetPic"
+   ]
+  },
+  {
+   "trap": 43247,
+   "rom_offset": 52878,
+   "rom_labels": [
+    "ScrollRect"
+   ]
+  },
+  {
+   "trap": 43248,
+   "rom_offset": 55638,
+   "rom_labels": [
+    "StdPutPic"
+   ]
+  },
+  {
+   "trap": 43249,
+   "rom_offset": 55504,
+   "rom_labels": [
+    "StdComment"
+   ]
+  },
+  {
+   "trap": 43250,
+   "rom_offset": 55766,
+   "rom_labels": [
+    "PicComment"
+   ]
+  },
+  {
+   "trap": 43251,
+   "rom_offset": 55788,
+   "rom_labels": [
+    "OpenPicture"
+   ]
+  },
+  {
+   "trap": 43252,
+   "rom_offset": 55976,
+   "rom_labels": [
+    "ClosePicture"
+   ]
+  },
+  {
+   "trap": 43253,
+   "rom_offset": 56036,
+   "rom_labels": [
+    "KillPicture"
+   ]
+  },
+  {
+   "trap": 43254,
+   "rom_offset": 56044,
+   "rom_labels": [
+    "DrawPicture"
+   ]
+  },
+  {
+   "trap": 43256,
+   "rom_offset": 58642,
+   "rom_labels": [
+    "ScalePt"
+   ]
+  },
+  {
+   "trap": 43257,
+   "rom_offset": 58730,
+   "rom_labels": [
+    "MapPt"
+   ]
+  },
+  {
+   "trap": 43258,
+   "rom_offset": 58828,
+   "rom_labels": [
+    "MapRect"
+   ]
+  },
+  {
+   "trap": 43259,
+   "rom_offset": 49688,
+   "rom_labels": [
+    "MapRgn"
+   ]
+  },
+  {
+   "trap": 43260,
+   "rom_offset": 47876,
+   "rom_labels": [
+    "MapPoly"
+   ]
+  },
+  {
+   "trap": 43262,
+   "rom_offset": 58852,
+   "rom_labels": [
+    "InitFonts"
+   ]
+  },
+  {
+   "trap": 43263,
+   "rom_offset": 61632,
+   "rom_labels": [
+    "GetFName"
+   ]
+  },
+  {
+   "trap": 43264,
+   "rom_offset": 61798,
+   "rom_labels": [
+    "GetFNum"
+   ]
+  },
+  {
+   "trap": 43265,
+   "rom_offset": 59072,
+   "rom_labels": [
+    "FMSwapFont"
+   ]
+  },
+  {
+   "trap": 43266,
+   "rom_offset": 61966,
+   "rom_labels": [
+    "RealFont"
+   ]
+  },
+  {
+   "trap": 43267,
+   "rom_offset": 61912,
+   "rom_labels": [
+    "SetFontLock"
+   ]
+  },
+  {
+   "trap": 43268,
+   "rom_offset": 74106,
+   "rom_labels": [
+    "DrawGrowIcon"
+   ]
+  },
+  {
+   "trap": 43269,
+   "rom_offset": 73306,
+   "rom_labels": [
+    "DragGrayRgn"
+   ]
+  },
+  {
+   "trap": 43270,
+   "rom_offset": 70060,
+   "rom_labels": [
+    "NewString"
+   ]
+  },
+  {
+   "trap": 43271,
+   "rom_offset": 70084,
+   "rom_labels": [
+    "SetString"
+   ]
+  },
+  {
+   "trap": 43272,
+   "rom_offset": 70812,
+   "rom_labels": [
+    "ShowHide"
+   ]
+  },
+  {
+   "trap": 43273,
+   "rom_offset": 70200,
+   "rom_labels": [
+    "CalcVis"
+   ]
+  },
+  {
+   "trap": 43274,
+   "rom_offset": 70288,
+   "rom_labels": [
+    "CalcVBehind"
+   ]
+  },
+  {
+   "trap": 43275,
+   "rom_offset": 70356,
+   "rom_labels": [
+    "ClipAbove"
+   ]
+  },
+  {
+   "trap": 43276,
+   "rom_offset": 70392,
+   "rom_labels": [
+    "PaintOne"
+   ]
+  },
+  {
+   "trap": 43277,
+   "rom_offset": 70562,
+   "rom_labels": [
+    "PaintBehind"
+   ]
+  },
+  {
+   "trap": 43278,
+   "rom_offset": 70670,
+   "rom_labels": [
+    "SaveOld"
+   ]
+  },
+  {
+   "trap": 43279,
+   "rom_offset": 70716,
+   "rom_labels": [
+    "DrawNew"
+   ]
+  },
+  {
+   "trap": 43280,
+   "rom_offset": 70878,
+   "rom_labels": [
+    "GetWMgrPort"
+   ]
+  },
+  {
+   "trap": 43281,
+   "rom_offset": 70888,
+   "rom_labels": [
+    "CheckUpdate"
+   ]
+  },
+  {
+   "trap": 43282,
+   "rom_offset": 71036,
+   "rom_labels": [
+    "InitWindows"
+   ]
+  },
+  {
+   "trap": 43283,
+   "rom_offset": 71234,
+   "rom_labels": [
+    "NewWindow"
+   ]
+  },
+  {
+   "trap": 43284,
+   "rom_offset": 71684,
+   "rom_labels": [
+    "DisposWindow"
+   ]
+  },
+  {
+   "trap": 43285,
+   "rom_offset": 71698,
+   "rom_labels": [
+    "ShowWindow"
+   ]
+  },
+  {
+   "trap": 43286,
+   "rom_offset": 71738,
+   "rom_labels": [
+    "HideWindow"
+   ]
+  },
+  {
+   "trap": 43287,
+   "rom_offset": 71780,
+   "rom_labels": [
+    "GetWRefCon"
+   ]
+  },
+  {
+   "trap": 43288,
+   "rom_offset": 71794,
+   "rom_labels": [
+    "SetWRefCon"
+   ]
+  },
+  {
+   "trap": 43289,
+   "rom_offset": 71822,
+   "rom_labels": [
+    "GetWTitle"
+   ]
+  },
+  {
+   "trap": 43290,
+   "rom_offset": 71846,
+   "rom_labels": [
+    "SetWTitle"
+   ]
+  },
+  {
+   "trap": 43291,
+   "rom_offset": 72052,
+   "rom_labels": [
+    "MoveWindow"
+   ]
+  },
+  {
+   "trap": 43292,
+   "rom_offset": 72324,
+   "rom_labels": [
+    "HiliteWindow"
+   ]
+  },
+  {
+   "trap": 43293,
+   "rom_offset": 72388,
+   "rom_labels": [
+    "SizeWindow"
+   ]
+  },
+  {
+   "trap": 43294,
+   "rom_offset": 72574,
+   "rom_labels": [
+    "TrackGoAway"
+   ]
+  },
+  {
+   "trap": 43295,
+   "rom_offset": 72692,
+   "rom_labels": [
+    "SelectWindow"
+   ]
+  },
+  {
+   "trap": 43296,
+   "rom_offset": 72740,
+   "rom_labels": [
+    "BringToFront"
+   ]
+  },
+  {
+   "trap": 43297,
+   "rom_offset": 72896,
+   "rom_labels": [
+    "SendBehind"
+   ]
+  },
+  {
+   "trap": 43298,
+   "rom_offset": 72982,
+   "rom_labels": [
+    "BeginUpdate"
+   ]
+  },
+  {
+   "trap": 43299,
+   "rom_offset": 73040,
+   "rom_labels": [
+    "EndUpdate"
+   ]
+  },
+  {
+   "trap": 43300,
+   "rom_offset": 73074,
+   "rom_labels": [
+    "FrontWindow"
+   ]
+  },
+  {
+   "trap": 43301,
+   "rom_offset": 73116,
+   "rom_labels": [
+    "DragWindow"
+   ]
+  },
+  {
+   "trap": 43302,
+   "rom_offset": 73318,
+   "rom_labels": [
+    "DragTheRgn"
+   ]
+  },
+  {
+   "trap": 43303,
+   "rom_offset": 73614,
+   "rom_labels": [
+    "InvalRgn"
+   ]
+  },
+  {
+   "trap": 43304,
+   "rom_offset": 73678,
+   "rom_labels": [
+    "InvalRect"
+   ]
+  },
+  {
+   "trap": 43305,
+   "rom_offset": 73708,
+   "rom_labels": [
+    "ValidRgn"
+   ]
+  },
+  {
+   "trap": 43306,
+   "rom_offset": 73712,
+   "rom_labels": [
+    "ValidRect"
+   ]
+  },
+  {
+   "trap": 43307,
+   "rom_offset": 73716,
+   "rom_labels": [
+    "GrowWindow"
+   ]
+  },
+  {
+   "trap": 43308,
+   "rom_offset": 73974,
+   "rom_labels": [
+    "FindWindow"
+   ]
+  },
+  {
+   "trap": 43309,
+   "rom_offset": 71542,
+   "rom_labels": [
+    "CloseWindow"
+   ]
+  },
+  {
+   "trap": 43310,
+   "rom_offset": 71810,
+   "rom_labels": [
+    "SetWindowPic"
+   ]
+  },
+  {
+   "trap": 43311,
+   "rom_offset": 71816,
+   "rom_labels": [
+    "GetWindowPic"
+   ]
+  },
+  {
+   "trap": 43312,
+   "rom_offset": 74136,
+   "rom_labels": [
+    "InitMenus"
+   ]
+  },
+  {
+   "trap": 43313,
+   "rom_offset": 76234,
+   "rom_labels": [
+    "NewMenu"
+   ]
+  },
+  {
+   "trap": 43314,
+   "rom_offset": 75714,
+   "rom_labels": [
+    "DisposMenu"
+   ]
+  },
+  {
+   "trap": 43315,
+   "rom_offset": 76314,
+   "rom_labels": [
+    "AppendMenu"
+   ]
+  },
+  {
+   "trap": 43316,
+   "rom_offset": 74238,
+   "rom_labels": [
+    "ClearMenuBar"
+   ]
+  },
+  {
+   "trap": 43317,
+   "rom_offset": 74254,
+   "rom_labels": [
+    "InsertMenu"
+   ]
+  },
+  {
+   "trap": 43318,
+   "rom_offset": 74414,
+   "rom_labels": [
+    "DeleteMenu"
+   ]
+  },
+  {
+   "trap": 43319,
+   "rom_offset": 74576,
+   "rom_labels": [
+    "DrawMenuBar"
+   ]
+  },
+  {
+   "trap": 43320,
+   "rom_offset": 74714,
+   "rom_labels": [
+    "HiliteMenu"
+   ]
+  },
+  {
+   "trap": 43321,
+   "rom_offset": 74756,
+   "rom_labels": [
+    "EnableItem"
+   ]
+  },
+  {
+   "trap": 43322,
+   "rom_offset": 74784,
+   "rom_labels": [
+    "DisableItem"
+   ]
+  },
+  {
+   "trap": 43323,
+   "rom_offset": 75678,
+   "rom_labels": [
+    "GetMenuBar"
+   ]
+  },
+  {
+   "trap": 43324,
+   "rom_offset": 75698,
+   "rom_labels": [
+    "SetMenuBar"
+   ]
+  },
+  {
+   "trap": 43325,
+   "rom_offset": 74862,
+   "rom_labels": [
+    "MenuSelect"
+   ]
+  },
+  {
+   "trap": 43326,
+   "rom_offset": 76004,
+   "rom_labels": [
+    "MenuKey"
+   ]
+  },
+  {
+   "trap": 43327,
+   "rom_offset": 75948,
+   "rom_labels": [
+    "GetItmIcon"
+   ]
+  },
+  {
+   "trap": 43328,
+   "rom_offset": 75952,
+   "rom_labels": [
+    "SetItmIcon"
+   ]
+  },
+  {
+   "trap": 43329,
+   "rom_offset": 75956,
+   "rom_labels": [
+    "GetItmStyle"
+   ]
+  },
+  {
+   "trap": 43330,
+   "rom_offset": 75960,
+   "rom_labels": [
+    "SetItmStyle"
+   ]
+  },
+  {
+   "trap": 43331,
+   "rom_offset": 75964,
+   "rom_labels": [
+    "GetItmMark"
+   ]
+  },
+  {
+   "trap": 43332,
+   "rom_offset": 75968,
+   "rom_labels": [
+    "SetItmMark"
+   ]
+  },
+  {
+   "trap": 43333,
+   "rom_offset": 75972,
+   "rom_labels": [
+    "CheckItem"
+   ]
+  },
+  {
+   "trap": 43334,
+   "rom_offset": 76128,
+   "rom_labels": [
+    "GetItem"
+   ]
+  },
+  {
+   "trap": 43335,
+   "rom_offset": 76752,
+   "rom_labels": [
+    "SetItem"
+   ]
+  },
+  {
+   "trap": 43336,
+   "rom_offset": 76180,
+   "rom_labels": [
+    "CalcMenuSize"
+   ]
+  },
+  {
+   "trap": 43337,
+   "rom_offset": 76670,
+   "rom_labels": [
+    "GetMHandle"
+   ]
+  },
+  {
+   "trap": 43338,
+   "rom_offset": 76822,
+   "rom_labels": [
+    "SetMFlash"
+   ]
+  },
+  {
+   "trap": 43339,
+   "rom_offset": 77080,
+   "rom_labels": [
+    "PlotIcon"
+   ]
+  },
+  {
+   "trap": 43340,
+   "rom_offset": 75736,
+   "rom_labels": [
+    "FlashMenuBar"
+   ]
+  },
+  {
+   "trap": 43341,
+   "rom_offset": 76832,
+   "rom_labels": [
+    "AddResMenu"
+   ]
+  },
+  {
+   "trap": 43342,
+   "rom_offset": 7992,
+   "rom_labels": [
+    "PinRect"
+   ]
+  },
+  {
+   "trap": 43343,
+   "rom_offset": 71972,
+   "rom_labels": [
+    "DeltaPoint"
+   ]
+  },
+  {
+   "trap": 43344,
+   "rom_offset": 77052,
+   "rom_labels": [
+    "CountMItems"
+   ]
+  },
+  {
+   "trap": 43345,
+   "rom_offset": 76840,
+   "rom_labels": [
+    "InsertResMenu"
+   ]
+  },
+  {
+   "trap": 43346,
+   "rom_offset": 76702,
+   "rom_labels": [
+    "DelMenuItem"
+   ]
+  },
+  {
+   "trap": 43347,
+   "rom_offset": 78414,
+   "rom_labels": [
+    "UpdtControls"
+   ]
+  },
+  {
+   "trap": 43348,
+   "rom_offset": 77140,
+   "rom_labels": [
+    "NewControl"
+   ]
+  },
+  {
+   "trap": 43349,
+   "rom_offset": 77462,
+   "rom_labels": [
+    "DisposControl"
+   ]
+  },
+  {
+   "trap": 43350,
+   "rom_offset": 77498,
+   "rom_labels": [
+    "KillControls"
+   ]
+  },
+  {
+   "trap": 43351,
+   "rom_offset": 77526,
+   "rom_labels": [
+    "ShowControl"
+   ]
+  },
+  {
+   "trap": 43352,
+   "rom_offset": 77556,
+   "rom_labels": [
+    "HideControl"
+   ]
+  },
+  {
+   "trap": 43353,
+   "rom_offset": 77582,
+   "rom_labels": [
+    "MoveControl"
+   ]
+  },
+  {
+   "trap": 43354,
+   "rom_offset": 77644,
+   "rom_labels": [
+    "GetCRefCon"
+   ]
+  },
+  {
+   "trap": 43355,
+   "rom_offset": 77658,
+   "rom_labels": [
+    "SetCRefCon"
+   ]
+  },
+  {
+   "trap": 43356,
+   "rom_offset": 77682,
+   "rom_labels": [
+    "SizeControl"
+   ]
+  },
+  {
+   "trap": 43357,
+   "rom_offset": 77722,
+   "rom_labels": [
+    "HiliteControl"
+   ]
+  },
+  {
+   "trap": 43358,
+   "rom_offset": 77766,
+   "rom_labels": [
+    "GetCTitle"
+   ]
+  },
+  {
+   "trap": 43359,
+   "rom_offset": 77790,
+   "rom_labels": [
+    "SetCTitle"
+   ]
+  },
+  {
+   "trap": 43360,
+   "rom_offset": 77856,
+   "rom_labels": [
+    "GetCtlValue"
+   ]
+  },
+  {
+   "trap": 43361,
+   "rom_offset": 77870,
+   "rom_labels": [
+    "GetMinCtl"
+   ]
+  },
+  {
+   "trap": 43362,
+   "rom_offset": 77874,
+   "rom_labels": [
+    "GetMaxCtl"
+   ]
+  },
+  {
+   "trap": 43363,
+   "rom_offset": 77878,
+   "rom_labels": [
+    "SetCtlValue"
+   ]
+  },
+  {
+   "trap": 43364,
+   "rom_offset": 77944,
+   "rom_labels": [
+    "SetMinCtl"
+   ]
+  },
+  {
+   "trap": 43365,
+   "rom_offset": 77948,
+   "rom_labels": [
+    "SetMaxCtl"
+   ]
+  },
+  {
+   "trap": 43366,
+   "rom_offset": 77952,
+   "rom_labels": [
+    "TestControl"
+   ]
+  },
+  {
+   "trap": 43367,
+   "rom_offset": 77998,
+   "rom_labels": [
+    "DragControl"
+   ]
+  },
+  {
+   "trap": 43368,
+   "rom_offset": 78176,
+   "rom_labels": [
+    "TrackControl"
+   ]
+  },
+  {
+   "trap": 43369,
+   "rom_offset": 78430,
+   "rom_labels": [
+    "DrawControls"
+   ]
+  },
+  {
+   "trap": 43370,
+   "rom_offset": 77674,
+   "rom_labels": [
+    "GetCtlAction"
+   ]
+  },
+  {
+   "trap": 43371,
+   "rom_offset": 77678,
+   "rom_labels": [
+    "SetCtlAction"
+   ]
+  },
+  {
+   "trap": 43372,
+   "rom_offset": 78566,
+   "rom_labels": [
+    "FindControl"
+   ]
+  },
+  {
+   "trap": 43373,
+   "rom_offset": 77516,
+   "rom_labels": [
+    "Trap1_16D",
+    "Draw1Control"
+   ]
+  },
+  {
+   "trap": 43374,
+   "rom_offset": 6640,
+   "rom_labels": [
+    "Dequeue"
+   ]
+  },
+  {
+   "trap": 43375,
+   "rom_offset": 6602,
+   "rom_labels": [
+    "Enqueue"
+   ]
+  },
+  {
+   "trap": 43376,
+   "rom_offset": 69632,
+   "rom_labels": [
+    "GetNextEvent"
+   ]
+  },
+  {
+   "trap": 43377,
+   "rom_offset": 69628,
+   "rom_labels": [
+    "EventAvail"
+   ]
+  },
+  {
+   "trap": 43378,
+   "rom_offset": 69536,
+   "rom_labels": [
+    "GetMouse"
+   ]
+  },
+  {
+   "trap": 43379,
+   "rom_offset": 69558,
+   "rom_labels": [
+    "StillDown"
+   ]
+  },
+  {
+   "trap": 43380,
+   "rom_offset": 69452,
+   "rom_labels": [
+    "Button"
+   ]
+  },
+  {
+   "trap": 43381,
+   "rom_offset": 69470,
+   "rom_labels": [
+    "TickCount"
+   ]
+  },
+  {
+   "trap": 43382,
+   "rom_offset": 69424,
+   "rom_labels": [
+    "GetKeys"
+   ]
+  },
+  {
+   "trap": 43383,
+   "rom_offset": 69598,
+   "rom_labels": [
+    "WaitMouseUp"
+   ]
+  },
+  {
+   "trap": 43384,
+   "rom_offset": 85120,
+   "rom_labels": [
+    "UpdtDialog"
+   ]
+  },
+  {
+   "trap": 43385,
+   "rom_offset": 85338,
+   "rom_labels": [
+    "CouldDialog"
+   ]
+  },
+  {
+   "trap": 43386,
+   "rom_offset": 85428,
+   "rom_labels": [
+    "FreeDialog"
+   ]
+  },
+  {
+   "trap": 43387,
+   "rom_offset": 84146,
+   "rom_labels": [
+    "InitDialogs"
+   ]
+  },
+  {
+   "trap": 43388,
+   "rom_offset": 84624,
+   "rom_labels": [
+    "GetNewDialog"
+   ]
+  },
+  {
+   "trap": 43389,
+   "rom_offset": 84680,
+   "rom_labels": [
+    "NewDialog"
+   ]
+  },
+  {
+   "trap": 43390,
+   "rom_offset": 85816,
+   "rom_labels": [
+    "SelIText"
+   ]
+  },
+  {
+   "trap": 43391,
+   "rom_offset": 84832,
+   "rom_labels": [
+    "IsDialogEvent"
+   ]
+  },
+  {
+   "trap": 43392,
+   "rom_offset": 84890,
+   "rom_labels": [
+    "DialogSelect"
+   ]
+  },
+  {
+   "trap": 43393,
+   "rom_offset": 85096,
+   "rom_labels": [
+    "DrawDialog"
+   ]
+  },
+  {
+   "trap": 43394,
+   "rom_offset": 85150,
+   "rom_labels": [
+    "CloseDialog"
+   ]
+  },
+  {
+   "trap": 43395,
+   "rom_offset": 85284,
+   "rom_labels": [
+    "DisposDialog"
+   ]
+  },
+  {
+   "trap": 43396,
+   "rom_offset": 86116,
+   "rom_labels": [
+    "FindDItem"
+   ]
+  },
+  {
+   "trap": 43397,
+   "rom_offset": 84340,
+   "rom_labels": [
+    "Alert"
+   ]
+  },
+  {
+   "trap": 43398,
+   "rom_offset": 84328,
+   "rom_labels": [
+    "StopAlert"
+   ]
+  },
+  {
+   "trap": 43399,
+   "rom_offset": 84332,
+   "rom_labels": [
+    "NoteAlert"
+   ]
+  },
+  {
+   "trap": 43400,
+   "rom_offset": 84336,
+   "rom_labels": [
+    "CautionAlert"
+   ]
+  },
+  {
+   "trap": 43401,
+   "rom_offset": 85352,
+   "rom_labels": [
+    "CouldAlert"
+   ]
+  },
+  {
+   "trap": 43402,
+   "rom_offset": 85442,
+   "rom_labels": [
+    "FreeAlert"
+   ]
+  },
+  {
+   "trap": 43403,
+   "rom_offset": 85518,
+   "rom_labels": [
+    "ParamText"
+   ]
+  },
+  {
+   "trap": 43404,
+   "rom_offset": 85554,
+   "rom_labels": [
+    "ErrorSound"
+   ]
+  },
+  {
+   "trap": 43405,
+   "rom_offset": 85562,
+   "rom_labels": [
+    "GetDItem"
+   ]
+  },
+  {
+   "trap": 43406,
+   "rom_offset": 85632,
+   "rom_labels": [
+    "SetDItem"
+   ]
+  },
+  {
+   "trap": 43407,
+   "rom_offset": 85718,
+   "rom_labels": [
+    "SetIText"
+   ]
+  },
+  {
+   "trap": 43408,
+   "rom_offset": 85686,
+   "rom_labels": [
+    "GetIText"
+   ]
+  },
+  {
+   "trap": 43409,
+   "rom_offset": 84954,
+   "rom_labels": [
+    "ModalDialog"
+   ]
+  },
+  {
+   "trap": 43410,
+   "rom_offset": 82996,
+   "rom_labels": [
+    "DetachResource"
+   ]
+  },
+  {
+   "trap": 43411,
+   "rom_offset": 83172,
+   "rom_labels": [
+    "SetResPurge"
+   ]
+  },
+  {
+   "trap": 43412,
+   "rom_offset": 83214,
+   "rom_labels": [
+    "CurResFile"
+   ]
+  },
+  {
+   "trap": 43413,
+   "rom_offset": 78710,
+   "rom_labels": [
+    "InitResources"
+   ]
+  },
+  {
+   "trap": 43414,
+   "rom_offset": 79624,
+   "rom_labels": [
+    "RsrcZoneInit"
+   ]
+  },
+  {
+   "trap": 43415,
+   "rom_offset": 79856,
+   "rom_labels": [
+    "OpenResFile"
+   ]
+  },
+  {
+   "trap": 43416,
+   "rom_offset": 79918,
+   "rom_labels": [
+    "UseResFile"
+   ]
+  },
+  {
+   "trap": 43417,
+   "rom_offset": 80144,
+   "rom_labels": [
+    "UpdateResFIle"
+   ]
+  },
+  {
+   "trap": 43418,
+   "rom_offset": 80850,
+   "rom_labels": [
+    "CloseResFile"
+   ]
+  },
+  {
+   "trap": 43419,
+   "rom_offset": 83204,
+   "rom_labels": [
+    "SetResLoad"
+   ]
+  },
+  {
+   "trap": 43420,
+   "rom_offset": 81018,
+   "rom_labels": [
+    "CountResources"
+   ]
+  },
+  {
+   "trap": 43421,
+   "rom_offset": 81060,
+   "rom_labels": [
+    "GetIndResource"
+   ]
+  },
+  {
+   "trap": 43422,
+   "rom_offset": 81216,
+   "rom_labels": [
+    "CountTypes"
+   ]
+  },
+  {
+   "trap": 43423,
+   "rom_offset": 81290,
+   "rom_labels": [
+    "GetIndType"
+   ]
+  },
+  {
+   "trap": 43424,
+   "rom_offset": 81390,
+   "rom_labels": [
+    "GetResource"
+   ]
+  },
+  {
+   "trap": 43425,
+   "rom_offset": 81458,
+   "rom_labels": [
+    "GetNamedResource"
+   ]
+  },
+  {
+   "trap": 43426,
+   "rom_offset": 82892,
+   "rom_labels": [
+    "LoadResource"
+   ]
+  },
+  {
+   "trap": 43427,
+   "rom_offset": 82954,
+   "rom_labels": [
+    "ReleaseResource"
+   ]
+  },
+  {
+   "trap": 43428,
+   "rom_offset": 83132,
+   "rom_labels": [
+    "HomeResFile"
+   ]
+  },
+  {
+   "trap": 43429,
+   "rom_offset": 84068,
+   "rom_labels": [
+    "SizeRsrc"
+   ]
+  },
+  {
+   "trap": 43430,
+   "rom_offset": 83256,
+   "rom_labels": [
+    "GetResAttrs"
+   ]
+  },
+  {
+   "trap": 43431,
+   "rom_offset": 83276,
+   "rom_labels": [
+    "SetResAttrs"
+   ]
+  },
+  {
+   "trap": 43432,
+   "rom_offset": 83326,
+   "rom_labels": [
+    "GetResInfo"
+   ]
+  },
+  {
+   "trap": 43433,
+   "rom_offset": 83396,
+   "rom_labels": [
+    "SetResInfo"
+   ]
+  },
+  {
+   "trap": 43434,
+   "rom_offset": 83020,
+   "rom_labels": [
+    "ChangedResource"
+   ]
+  },
+  {
+   "trap": 43435,
+   "rom_offset": 83470,
+   "rom_labels": [
+    "AddResource"
+   ]
+  },
+  {
+   "trap": 43436,
+   "rom_offset": 83230,
+   "rom_labels": [
+    "Trap1_1AC",
+    "AddReference"
+   ]
+  },
+  {
+   "trap": 43437,
+   "rom_offset": 83688,
+   "rom_labels": [
+    "RmveResource"
+   ]
+  },
+  {
+   "trap": 43438,
+   "rom_offset": 83246,
+   "rom_labels": [
+    "Trap1_1AE",
+    "RmveReference"
+   ]
+  },
+  {
+   "trap": 43439,
+   "rom_offset": 83222,
+   "rom_labels": [
+    "ResError"
+   ]
+  },
+  {
+   "trap": 43440,
+   "rom_offset": 83074,
+   "rom_labels": [
+    "WriteResource"
+   ]
+  },
+  {
+   "trap": 43441,
+   "rom_offset": 79782,
+   "rom_labels": [
+    "CreateResFile"
+   ]
+  },
+  {
+   "trap": 43442,
+   "rom_offset": 89056,
+   "rom_labels": [
+    "SystemEvent"
+   ]
+  },
+  {
+   "trap": 43443,
+   "rom_offset": 89248,
+   "rom_labels": [
+    "SystemClick"
+   ]
+  },
+  {
+   "trap": 43444,
+   "rom_offset": 89458,
+   "rom_labels": [
+    "SystemTask"
+   ]
+  },
+  {
+   "trap": 43445,
+   "rom_offset": 89582,
+   "rom_labels": [
+    "SystemMenu"
+   ]
+  },
+  {
+   "trap": 43446,
+   "rom_offset": 89700,
+   "rom_labels": [
+    "OpenDeskAcc"
+   ]
+  },
+  {
+   "trap": 43447,
+   "rom_offset": 89778,
+   "rom_labels": [
+    "CloseDeskAcc"
+   ]
+  },
+  {
+   "trap": 43448,
+   "rom_offset": 89804,
+   "rom_labels": [
+    "GetPattern"
+   ]
+  },
+  {
+   "trap": 43449,
+   "rom_offset": 89830,
+   "rom_labels": [
+    "GetCursor"
+   ]
+  },
+  {
+   "trap": 43450,
+   "rom_offset": 89838,
+   "rom_labels": [
+    "GetString"
+   ]
+  },
+  {
+   "trap": 43451,
+   "rom_offset": 89846,
+   "rom_labels": [
+    "GetIcon"
+   ]
+  },
+  {
+   "trap": 43452,
+   "rom_offset": 89854,
+   "rom_labels": [
+    "GetPicture"
+   ]
+  },
+  {
+   "trap": 43453,
+   "rom_offset": 89862,
+   "rom_labels": [
+    "GetNewWindow"
+   ]
+  },
+  {
+   "trap": 43454,
+   "rom_offset": 89948,
+   "rom_labels": [
+    "GetNewControl"
+   ]
+  },
+  {
+   "trap": 43455,
+   "rom_offset": 90028,
+   "rom_labels": [
+    "GetRMenu"
+   ]
+  },
+  {
+   "trap": 43456,
+   "rom_offset": 90154,
+   "rom_labels": [
+    "GetNewMBar"
+   ]
+  },
+  {
+   "trap": 43457,
+   "rom_offset": 81328,
+   "rom_labels": [
+    "UniqueID"
+   ]
+  },
+  {
+   "trap": 43458,
+   "rom_offset": 89654,
+   "rom_labels": [
+    "SysEdit"
+   ]
+  },
+  {
+   "trap": 43460,
+   "rom_offset": 79898,
+   "rom_labels": [
+    "OpenRFPerm"
+   ]
+  },
+  {
+   "trap": 43461,
+   "rom_offset": 84122,
+   "rom_labels": [
+    "Trap1_1C5",
+    "RsrcMapEntry"
+   ]
+  },
+  {
+   "trap": 43462,
+   "rom_offset": 94290,
+   "rom_labels": [
+    "Secs2Date"
+   ]
+  },
+  {
+   "trap": 43463,
+   "rom_offset": 94410,
+   "rom_labels": [
+    "Date2Secs"
+   ]
+  },
+  {
+   "trap": 43464,
+   "rom_offset": 4572,
+   "rom_labels": [
+    "SysBeep"
+   ]
+  },
+  {
+   "trap": 43465,
+   "rom_offset": 4418,
+   "rom_labels": [
+    "SysError"
+   ]
+  },
+  {
+   "trap": 43466,
+   "rom_offset": 3780,
+   "rom_labels": [
+    "PutIcon"
+   ]
+  },
+  {
+   "trap": 43467,
+   "rom_offset": 90254,
+   "rom_labels": [
+    "TEGetText"
+   ]
+  },
+  {
+   "trap": 43468,
+   "rom_offset": 90266,
+   "rom_labels": [
+    "TEInit"
+   ]
+  },
+  {
+   "trap": 43469,
+   "rom_offset": 90304,
+   "rom_labels": [
+    "TEDispose"
+   ]
+  },
+  {
+   "trap": 43470,
+   "rom_offset": 90334,
+   "rom_labels": [
+    "TextBox"
+   ]
+  },
+  {
+   "trap": 43471,
+   "rom_offset": 90556,
+   "rom_labels": [
+    "TESetText"
+   ]
+  },
+  {
+   "trap": 43472,
+   "rom_offset": 90624,
+   "rom_labels": [
+    "TECalText"
+   ]
+  },
+  {
+   "trap": 43473,
+   "rom_offset": 90682,
+   "rom_labels": [
+    "TESetSelect"
+   ]
+  },
+  {
+   "trap": 43474,
+   "rom_offset": 90726,
+   "rom_labels": [
+    "TENew"
+   ]
+  },
+  {
+   "trap": 43475,
+   "rom_offset": 90848,
+   "rom_labels": [
+    "TEUpdate"
+   ]
+  },
+  {
+   "trap": 43476,
+   "rom_offset": 90894,
+   "rom_labels": [
+    "TEClick"
+   ]
+  },
+  {
+   "trap": 43477,
+   "rom_offset": 92078,
+   "rom_labels": [
+    "TECopy"
+   ]
+  },
+  {
+   "trap": 43478,
+   "rom_offset": 92116,
+   "rom_labels": [
+    "TECut"
+   ]
+  },
+  {
+   "trap": 43479,
+   "rom_offset": 92130,
+   "rom_labels": [
+    "TEDelete"
+   ]
+  },
+  {
+   "trap": 43480,
+   "rom_offset": 92770,
+   "rom_labels": [
+    "TEActivate"
+   ]
+  },
+  {
+   "trap": 43481,
+   "rom_offset": 92804,
+   "rom_labels": [
+    "TEDeactivate"
+   ]
+  },
+  {
+   "trap": 43482,
+   "rom_offset": 92826,
+   "rom_labels": [
+    "TEIdle"
+   ]
+  },
+  {
+   "trap": 43483,
+   "rom_offset": 92866,
+   "rom_labels": [
+    "TEPaste"
+   ]
+  },
+  {
+   "trap": 43484,
+   "rom_offset": 93102,
+   "rom_labels": [
+    "TEKey"
+   ]
+  },
+  {
+   "trap": 43485,
+   "rom_offset": 93202,
+   "rom_labels": [
+    "TEScroll"
+   ]
+  },
+  {
+   "trap": 43486,
+   "rom_offset": 93056,
+   "rom_labels": [
+    "TEInsert"
+   ]
+  },
+  {
+   "trap": 43487,
+   "rom_offset": 93164,
+   "rom_labels": [
+    "TESetJust"
+   ]
+  },
+  {
+   "trap": 43488,
+   "rom_offset": 87432,
+   "rom_labels": [
+    "Munger"
+   ]
+  },
+  {
+   "trap": 43489,
+   "rom_offset": 87788,
+   "rom_labels": [
+    "HandToHand"
+   ]
+  },
+  {
+   "trap": 43490,
+   "rom_offset": 87818,
+   "rom_labels": [
+    "PtrToXHand"
+   ]
+  },
+  {
+   "trap": 43491,
+   "rom_offset": 87826,
+   "rom_labels": [
+    "PtrToHand"
+   ]
+  },
+  {
+   "trap": 43492,
+   "rom_offset": 87852,
+   "rom_labels": [
+    "HandAndHand"
+   ]
+  },
+  {
+   "trap": 43493,
+   "rom_offset": 94096,
+   "rom_labels": [
+    "InitPack"
+   ]
+  },
+  {
+   "trap": 43494,
+   "rom_offset": 94130,
+   "rom_labels": [
+    "InitAllPacks"
+   ]
+  },
+  {
+   "trap": 43495,
+   "rom_offset": 94258,
+   "rom_labels": [
+    "Pack0"
+   ]
+  },
+  {
+   "trap": 43496,
+   "rom_offset": 94260,
+   "rom_labels": [
+    "Pack1"
+   ]
+  },
+  {
+   "trap": 43497,
+   "rom_offset": 94262,
+   "rom_labels": [
+    "Pack2"
+   ]
+  },
+  {
+   "trap": 43498,
+   "rom_offset": 94264,
+   "rom_labels": [
+    "Pack3"
+   ]
+  },
+  {
+   "trap": 43499,
+   "rom_offset": 94266,
+   "rom_labels": [
+    "Pack4"
+   ]
+  },
+  {
+   "trap": 43500,
+   "rom_offset": 94268,
+   "rom_labels": [
+    "Pack5"
+   ]
+  },
+  {
+   "trap": 43501,
+   "rom_offset": 94270,
+   "rom_labels": [
+    "Pack6"
+   ]
+  },
+  {
+   "trap": 43502,
+   "rom_offset": 94272,
+   "rom_labels": [
+    "Pack7"
+   ]
+  },
+  {
+   "trap": 43503,
+   "rom_offset": 87888,
+   "rom_labels": [
+    "PtrAndHand"
+   ]
+  },
+  {
+   "trap": 43504,
+   "rom_offset": 62550,
+   "rom_labels": [
+    "LoadSeg"
+   ]
+  },
+  {
+   "trap": 43505,
+   "rom_offset": 62688,
+   "rom_labels": [
+    "UnloadSeg"
+   ]
+  },
+  {
+   "trap": 43506,
+   "rom_offset": 62812,
+   "rom_labels": [
+    "Launch"
+   ]
+  },
+  {
+   "trap": 43507,
+   "rom_offset": 62806,
+   "rom_labels": [
+    "Chain"
+   ]
+  },
+  {
+   "trap": 43508,
+   "rom_offset": 63192,
+   "rom_labels": [
+    "ExitToShell"
+   ]
+  },
+  {
+   "trap": 43509,
+   "rom_offset": 63248,
+   "rom_labels": [
+    "GetAppParms"
+   ]
+  },
+  {
+   "trap": 43510,
+   "rom_offset": 79928,
+   "rom_labels": [
+    "GetResFileAttrs"
+   ]
+  },
+  {
+   "trap": 43511,
+   "rom_offset": 79940,
+   "rom_labels": [
+    "SetResFileAttrs"
+   ]
+  },
+  {
+   "trap": 43512,
+   "rom_offset": 87904,
+   "rom_labels": [
+    "MethodDispatch"
+   ]
+  },
+  {
+   "trap": 43513,
+   "rom_offset": 93612,
+   "rom_labels": [
+    "InfoScrap"
+   ]
+  },
+  {
+   "trap": 43514,
+   "rom_offset": 93734,
+   "rom_labels": [
+    "UnloadScrap"
+   ]
+  },
+  {
+   "trap": 43515,
+   "rom_offset": 93786,
+   "rom_labels": [
+    "LodeScrap"
+   ]
+  },
+  {
+   "trap": 43516,
+   "rom_offset": 93838,
+   "rom_labels": [
+    "ZeroScrap"
+   ]
+  },
+  {
+   "trap": 43517,
+   "rom_offset": 93914,
+   "rom_labels": [
+    "GetScrap"
+   ]
+  },
+  {
+   "trap": 43518,
+   "rom_offset": 94026,
+   "rom_labels": [
+    "PutScrap"
+   ]
+  },
+  {
+   "trap": 40960,
+   "rom_offset": 8692,
+   "rom_labels": [
+    "Open"
+   ]
+  },
+  {
+   "trap": 40961,
+   "rom_offset": 9094,
+   "rom_labels": [
+    "Close"
+   ]
+  },
+  {
+   "trap": 40962,
+   "rom_offset": 9150,
+   "rom_labels": [
+    "Read"
+   ]
+  },
+  {
+   "trap": 40963,
+   "rom_offset": 9262,
+   "rom_labels": [
+    "Write"
+   ]
+  },
+  {
+   "trap": 40964,
+   "rom_offset": 9282,
+   "rom_labels": [
+    "Control"
+   ]
+  },
+  {
+   "trap": 40965,
+   "rom_offset": 9296,
+   "rom_labels": [
+    "Status"
+   ]
+  },
+  {
+   "trap": 40966,
+   "rom_offset": 9334,
+   "rom_labels": [
+    "KillIO"
+   ]
+  },
+  {
+   "trap": 40967,
+   "rom_offset": 14372,
+   "rom_labels": [
+    "GetVolInfo"
+   ]
+  },
+  {
+   "trap": 40968,
+   "rom_offset": 16866,
+   "rom_labels": [
+    "Create"
+   ]
+  },
+  {
+   "trap": 40969,
+   "rom_offset": 17420,
+   "rom_labels": [
+    "Delete"
+   ]
+  },
+  {
+   "trap": 40970,
+   "rom_offset": 16410,
+   "rom_labels": [
+    "OpenRF"
+   ]
+  },
+  {
+   "trap": 40971,
+   "rom_offset": 17538,
+   "rom_labels": [
+    "Rename"
+   ]
+  },
+  {
+   "trap": 40972,
+   "rom_offset": 19170,
+   "rom_labels": [
+    "GetFileInfo"
+   ]
+  },
+  {
+   "trap": 40973,
+   "rom_offset": 18646,
+   "rom_labels": [
+    "SetFileInfo"
+   ]
+  },
+  {
+   "trap": 40974,
+   "rom_offset": 13748,
+   "rom_labels": [
+    "UnmountVol"
+   ]
+  },
+  {
+   "trap": 40975,
+   "rom_offset": 11768,
+   "rom_labels": [
+    "MountVol"
+   ]
+  },
+  {
+   "trap": 40976,
+   "rom_offset": 21646,
+   "rom_labels": [
+    "Allocate"
+   ]
+  },
+  {
+   "trap": 40977,
+   "rom_offset": 21312,
+   "rom_labels": [
+    "GetEOF"
+   ]
+  },
+  {
+   "trap": 40978,
+   "rom_offset": 21696,
+   "rom_labels": [
+    "SetEOF"
+   ]
+  },
+  {
+   "trap": 40979,
+   "rom_offset": 13820,
+   "rom_labels": [
+    "FlushVol"
+   ]
+  },
+  {
+   "trap": 40980,
+   "rom_offset": 14986,
+   "rom_labels": [
+    "GetVol"
+   ]
+  },
+  {
+   "trap": 40981,
+   "rom_offset": 15066,
+   "rom_labels": [
+    "SetVol"
+   ]
+  },
+  {
+   "trap": 40982,
+   "rom_offset": 10860,
+   "rom_labels": [
+    "InitQueue"
+   ]
+  },
+  {
+   "trap": 40983,
+   "rom_offset": 13536,
+   "rom_labels": [
+    "Eject"
+   ]
+  },
+  {
+   "trap": 40984,
+   "rom_offset": 20240,
+   "rom_labels": [
+    "GetFPos"
+   ]
+  },
+  {
+   "trap": 40985,
+   "rom_offset": 65336,
+   "rom_labels": [
+    "InitZone"
+   ]
+  },
+  {
+   "trap": 40986,
+   "rom_offset": 65444,
+   "rom_labels": [
+    "Trap1_1A",
+    "GetZone"
+   ]
+  },
+  {
+   "trap": 40987,
+   "rom_offset": 65450,
+   "rom_labels": [
+    "Trap1_1B",
+    "SetZone"
+   ]
+  },
+  {
+   "trap": 40988,
+   "rom_offset": 65556,
+   "rom_labels": [
+    "FreeMem"
+   ]
+  },
+  {
+   "trap": 40989,
+   "rom_offset": 65596,
+   "rom_labels": [
+    "Trap1_1D",
+    "MaxMem"
+   ]
+  },
+  {
+   "trap": 40990,
+   "rom_offset": 65750,
+   "rom_labels": [
+    "Trap1_1E",
+    "NewPtr"
+   ]
+  },
+  {
+   "trap": 40991,
+   "rom_offset": 65778,
+   "rom_labels": [
+    "DisposPtr"
+   ]
+  },
+  {
+   "trap": 40992,
+   "rom_offset": 65810,
+   "rom_labels": [
+    "SetPtrSize"
+   ]
+  },
+  {
+   "trap": 40993,
+   "rom_offset": 65800,
+   "rom_labels": [
+    "GetPtrSize"
+   ]
+  },
+  {
+   "trap": 40994,
+   "rom_offset": 65870,
+   "rom_labels": [
+    "Trap1_22",
+    "NewHandle"
+   ]
+  },
+  {
+   "trap": 40995,
+   "rom_offset": 65904,
+   "rom_labels": [
+    "Trap1_23",
+    "DisposHandle"
+   ]
+  },
+  {
+   "trap": 40996,
+   "rom_offset": 65948,
+   "rom_labels": [
+    "Trap1_24",
+    "SetHandleSize"
+   ]
+  },
+  {
+   "trap": 40997,
+   "rom_offset": 65936,
+   "rom_labels": [
+    "Trap1_25",
+    "GetHandleSize"
+   ]
+  },
+  {
+   "trap": 40998,
+   "rom_offset": 65966,
+   "rom_labels": [
+    "HandleZone"
+   ]
+  },
+  {
+   "trap": 40999,
+   "rom_offset": 66028,
+   "rom_labels": [
+    "ReallocHandle"
+   ]
+  },
+  {
+   "trap": 41000,
+   "rom_offset": 65974,
+   "rom_labels": [
+    "RecoverHandle"
+   ]
+  },
+  {
+   "trap": 41001,
+   "rom_offset": 66096,
+   "rom_labels": [
+    "Trap1_29",
+    "HLock"
+   ]
+  },
+  {
+   "trap": 41002,
+   "rom_offset": 66106,
+   "rom_labels": [
+    "Trap1_2A",
+    "HUnlock"
+   ]
+  },
+  {
+   "trap": 41003,
+   "rom_offset": 66012,
+   "rom_labels": [
+    "EmptyHandle"
+   ]
+  },
+  {
+   "trap": 41004,
+   "rom_offset": 65252,
+   "rom_labels": [
+    "InitApplZone"
+   ]
+  },
+  {
+   "trap": 41005,
+   "rom_offset": 65658,
+   "rom_labels": [
+    "SetApplLimit"
+   ]
+  },
+  {
+   "trap": 41006,
+   "rom_offset": 68800,
+   "rom_labels": [
+    "BlockMove"
+   ]
+  },
+  {
+   "trap": 41007,
+   "rom_offset": 9964,
+   "rom_labels": [
+    "PostEvent"
+   ]
+  },
+  {
+   "trap": 41008,
+   "rom_offset": 10084,
+   "rom_labels": [
+    "OSEventAvail"
+   ]
+  },
+  {
+   "trap": 41009,
+   "rom_offset": 10220,
+   "rom_labels": [
+    "GetOSEvent"
+   ]
+  },
+  {
+   "trap": 41010,
+   "rom_offset": 10250,
+   "rom_labels": [
+    "Trap1_32",
+    "FlushEvents"
+   ]
+  },
+  {
+   "trap": 41011,
+   "rom_offset": 7210,
+   "rom_labels": [
+    "VInstall"
+   ]
+  },
+  {
+   "trap": 41012,
+   "rom_offset": 7284,
+   "rom_labels": [
+    "VRemove"
+   ]
+  },
+  {
+   "trap": 41013,
+   "rom_offset": 13370,
+   "rom_labels": [
+    "Offline"
+   ]
+  },
+  {
+   "trap": 41014,
+   "rom_offset": 66164,
+   "rom_labels": [
+    "MoreMasters"
+   ]
+  },
+  {
+   "trap": 41015,
+   "rom_offset": 63376,
+   "rom_labels": [
+    "Trap0_37",
+    "ReadParam"
+   ]
+  },
+  {
+   "trap": 41016,
+   "rom_offset": 63402,
+   "rom_labels": [
+    "WriteParam"
+   ]
+  },
+  {
+   "trap": 41017,
+   "rom_offset": 63434,
+   "rom_labels": [
+    "ReadDateTime"
+   ]
+  },
+  {
+   "trap": 41018,
+   "rom_offset": 63444,
+   "rom_labels": [
+    "SetDateTime"
+   ]
+  },
+  {
+   "trap": 41019,
+   "rom_offset": 63452,
+   "rom_labels": [
+    "Delay"
+   ]
+  },
+  {
+   "trap": 41020,
+   "rom_offset": 63470,
+   "rom_labels": [
+    "CmpString"
+   ]
+  },
+  {
+   "trap": 41021,
+   "rom_offset": 9418,
+   "rom_labels": [
+    "DrvrInstall"
+   ]
+  },
+  {
+   "trap": 41022,
+   "rom_offset": 9512,
+   "rom_labels": [
+    "DrvrRemove"
+   ]
+  },
+  {
+   "trap": 41023,
+   "rom_offset": 64706,
+   "rom_labels": [
+    "InitUtil"
+   ]
+  },
+  {
+   "trap": 41024,
+   "rom_offset": 65566,
+   "rom_labels": [
+    "ResrvMem"
+   ]
+  },
+  {
+   "trap": 41025,
+   "rom_offset": 18570,
+   "rom_labels": [
+    "SetFilLock"
+   ]
+  },
+  {
+   "trap": 41026,
+   "rom_offset": 18580,
+   "rom_labels": [
+    "RstFilLock"
+   ]
+  },
+  {
+   "trap": 41027,
+   "rom_offset": 18514,
+   "rom_labels": [
+    "SetFilType"
+   ]
+  },
+  {
+   "trap": 41028,
+   "rom_offset": 20244,
+   "rom_labels": [
+    "SetFPos"
+   ]
+  },
+  {
+   "trap": 41029,
+   "rom_offset": 20804,
+   "rom_labels": [
+    "FlushFile"
+   ]
+  },
+  {
+   "trap": 41030,
+   "rom_offset": 8202,
+   "rom_labels": [
+    "GetTrapAddress"
+   ]
+  },
+  {
+   "trap": 41031,
+   "rom_offset": 8122,
+   "rom_labels": [
+    "SetTrapAddress"
+   ]
+  },
+  {
+   "trap": 41032,
+   "rom_offset": 65820,
+   "rom_labels": [
+    "PtrZone"
+   ]
+  },
+  {
+   "trap": 41033,
+   "rom_offset": 66116,
+   "rom_labels": [
+    "HPurge"
+   ]
+  },
+  {
+   "trap": 41034,
+   "rom_offset": 66126,
+   "rom_labels": [
+    "HNoPurge"
+   ]
+  },
+  {
+   "trap": 41035,
+   "rom_offset": 65648,
+   "rom_labels": [
+    "SetGrowZone"
+   ]
+  },
+  {
+   "trap": 41036,
+   "rom_offset": 65470,
+   "rom_labels": [
+    "Trap1_4C",
+    "CompactMem"
+   ]
+  },
+  {
+   "trap": 41037,
+   "rom_offset": 65518,
+   "rom_labels": [
+    "PurgeMem"
+   ]
+  },
+  {
+   "trap": 41038,
+   "rom_offset": 9560,
+   "rom_labels": [
+    "AddDrive"
+   ]
+  },
+  {
+   "trap": 41039,
+   "rom_offset": 63276,
+   "rom_labels": [
+    "RDrvrInstall"
+   ]
+  },
+  {
+   "trap": 41040,
+   "rom_offset": 63492,
+   "rom_labels": [
+    "RelString"
+   ]
+  },
+  {
+   "trap": 41041,
+   "rom_offset": 65048,
+   "rom_labels": [
+    "ReadXPRam"
+   ]
+  },
+  {
+   "trap": 41042,
+   "rom_offset": 65058,
+   "rom_labels": [
+    "WriteXPRam"
+   ]
+  },
+  {
+   "trap": 41043,
+   "rom_offset": 504,
+   "rom_labels": [
+    "ClkNoMem",
+    "Trap0_53"
+   ]
+  },
+  {
+   "trap": 41044,
+   "rom_offset": 63608,
+   "rom_labels": [
+    "Trap1_54",
+    "UprString"
+   ]
+  },
+  {
+   "trap": 41047,
+   "rom_offset": 65142,
+   "rom_labels": [
+    "SetAppBase"
+   ]
+  },
+  {
+   "trap": 41048,
+   "rom_offset": 95698,
+   "rom_labels": [
+    "InsTime"
+   ]
+  },
+  {
+   "trap": 41049,
+   "rom_offset": 95712,
+   "rom_labels": [
+    "RmvTime"
+   ]
+  },
+  {
+   "trap": 41050,
+   "rom_offset": 95738,
+   "rom_labels": [
+    "PrimeTime"
+   ]
+  },
+  {
+   "trap": 41056,
+   "rom_offset": 10322,
+   "rom_labels": [
+    "FSDispatch"
+   ]
+  },
+  {
+   "trap": 41057,
+   "rom_offset": 65456,
+   "rom_labels": [
+    "MaxBlock"
+   ]
+  },
+  {
+   "trap": 41058,
+   "rom_offset": 65546,
+   "rom_labels": [
+    "PurgeSpace"
+   ]
+  },
+  {
+   "trap": 41059,
+   "rom_offset": 65710,
+   "rom_labels": [
+    "MaxApplZone"
+   ]
+  },
+  {
+   "trap": 41060,
+   "rom_offset": 66188,
+   "rom_labels": [
+    "MoveHHi"
+   ]
+  },
+  {
+   "trap": 41061,
+   "rom_offset": 65694,
+   "rom_labels": [
+    "StackSpace"
+   ]
+  },
+  {
+   "trap": 41062,
+   "rom_offset": 65850,
+   "rom_labels": [
+    "NewEmptyHandle"
+   ]
+  },
+  {
+   "trap": 41068,
+   "rom_offset": 3194,
+   "rom_labels": [
+    "InitFS"
+   ]
+  },
+  {
+   "trap": 41069,
+   "rom_offset": 3404,
+   "rom_labels": [
+    "InitEvents"
+   ]
+  },
+  {
+   "trap": 41151,
+   "rom_offset": 21990,
+   "rom_labels": [
+    "Lg2Phys"
+   ]
+  },
+  {
+   "trap": 41152,
+   "rom_offset": 30412,
+   "rom_labels": [
+    "FlushCache"
+   ]
+  },
+  {
+   "trap": 41153,
+   "rom_offset": 30646,
+   "rom_labels": [
+    "GetBlock"
+   ]
+  },
+  {
+   "trap": 41154,
+   "rom_offset": 31226,
+   "rom_labels": [
+    "MarkBlock"
+   ]
+  },
+  {
+   "trap": 41155,
+   "rom_offset": 31248,
+   "rom_labels": [
+    "RelBlock"
+   ]
+  },
+  {
+   "trap": 41156,
+   "rom_offset": 31464,
+   "rom_labels": [
+    "TrashBlocks"
+   ]
+  },
+  {
+   "trap": 41157,
+   "rom_offset": 31330,
+   "rom_labels": [
+    "TrashVBlks"
+   ]
+  },
+  {
+   "trap": 41158,
+   "rom_offset": 31580,
+   "rom_labels": [
+    "CacheWRIP"
+   ]
+  },
+  {
+   "trap": 41159,
+   "rom_offset": 31536,
+   "rom_labels": [
+    "CacheRDIP"
+   ]
+  },
+  {
+   "trap": 41160,
+   "rom_offset": 31770,
+   "rom_labels": [
+    "BasicIO"
+   ]
+  },
+  {
+   "trap": 41161,
+   "rom_offset": 31890,
+   "rom_labels": [
+    "RdBlocks"
+   ]
+  },
+  {
+   "trap": 41162,
+   "rom_offset": 31968,
+   "rom_labels": [
+    "WrBlocks"
+   ]
+  },
+  {
+   "trap": 41163,
+   "rom_offset": 31986,
+   "rom_labels": [
+    "SetUpTags"
+   ]
+  },
+  {
+   "trap": 41164,
+   "rom_offset": 26338,
+   "rom_labels": [
+    "BTClose"
+   ]
+  },
+  {
+   "trap": 41165,
+   "rom_offset": 26402,
+   "rom_labels": [
+    "BTDelete"
+   ]
+  },
+  {
+   "trap": 41166,
+   "rom_offset": 26824,
+   "rom_labels": [
+    "BTFlush"
+   ]
+  },
+  {
+   "trap": 41167,
+   "rom_offset": 26926,
+   "rom_labels": [
+    "BTGetRecord"
+   ]
+  },
+  {
+   "trap": 41168,
+   "rom_offset": 27120,
+   "rom_labels": [
+    "BTInsert"
+   ]
+  },
+  {
+   "trap": 41169,
+   "rom_offset": 27792,
+   "rom_labels": [
+    "BTOpen"
+   ]
+  },
+  {
+   "trap": 41170,
+   "rom_offset": 27984,
+   "rom_labels": [
+    "BTSearch"
+   ]
+  },
+  {
+   "trap": 41171,
+   "rom_offset": 28124,
+   "rom_labels": [
+    "BTUpdate"
+   ]
+  },
+  {
+   "trap": 41172,
+   "rom_offset": 29704,
+   "rom_labels": [
+    "GetNode"
+   ]
+  },
+  {
+   "trap": 41173,
+   "rom_offset": 30166,
+   "rom_labels": [
+    "RelNode"
+   ]
+  },
+  {
+   "trap": 41174,
+   "rom_offset": 28222,
+   "rom_labels": [
+    "AllocNode"
+   ]
+  },
+  {
+   "trap": 41175,
+   "rom_offset": 28602,
+   "rom_labels": [
+    "FreeNode"
+   ]
+  },
+  {
+   "trap": 41176,
+   "rom_offset": 28372,
+   "rom_labels": [
+    "ExtBTFile"
+   ]
+  },
+  {
+   "trap": 41177,
+   "rom_offset": 23214,
+   "rom_labels": [
+    "DeallocFile"
+   ]
+  },
+  {
+   "trap": 41178,
+   "rom_offset": 23426,
+   "rom_labels": [
+    "ExtendFile"
+   ]
+  },
+  {
+   "trap": 41179,
+   "rom_offset": 23966,
+   "rom_labels": [
+    "TruncateFile"
+   ]
+  },
+  {
+   "trap": 41180,
+   "rom_offset": 26022,
+   "rom_labels": [
+    "CMSetUp"
+   ]
+  },
+  {
+   "trap": 41182,
+   "rom_offset": 13910,
+   "rom_labels": [
+    "DTRMV1"
+   ]
+  },
+  {
+   "trap": 41183,
+   "rom_offset": 22492,
+   "rom_labels": [
+    "BlkAlloc"
+   ]
+  },
+  {
+   "trap": 41184,
+   "rom_offset": 22840,
+   "rom_labels": [
+    "BlkDealloc"
+   ]
+  },
+  {
+   "trap": 41185,
+   "rom_offset": 16426,
+   "rom_labels": [
+    "FileOpen"
+   ]
+  },
+  {
+   "trap": 41186,
+   "rom_offset": 16754,
+   "rom_labels": [
+    "PermssnChk"
+   ]
+  },
+  {
+   "trap": 41187,
+   "rom_offset": 18838,
+   "rom_labels": [
+    "FndFilName"
+   ]
+  },
+  {
+   "trap": 41188,
+   "rom_offset": 21336,
+   "rom_labels": [
+    "RFNCall"
+   ]
+  },
+  {
+   "trap": 41189,
+   "rom_offset": 21814,
+   "rom_labels": [
+    "AdjEof"
+   ]
+  },
+  {
+   "trap": 41208,
+   "rom_offset": 63098,
+   "rom_labels": [
+    "SegStack"
+   ]
+  },
+  {
+   "trap": 41209,
+   "rom_offset": 79060,
+   "rom_labels": [
+    "SuperLoad"
+   ]
+  },
+  {
+   "trap": 41210,
+   "rom_offset": 80348,
+   "rom_labels": [
+    "CmpFrm"
+   ]
+  },
+  {
+   "trap": 41211,
+   "rom_offset": 79384,
+   "rom_labels": [
+    "NewMap"
+   ]
+  },
+  {
+   "trap": 41212,
+   "rom_offset": 82230,
+   "rom_labels": [
+    "CheckLoad"
+   ]
+  },
+  {
+   "trap": 41213,
+   "rom_offset": 91642,
+   "rom_labels": [
+    "XTrimMeasure"
+   ]
+  },
+  {
+   "trap": 41214,
+   "rom_offset": 92244,
+   "rom_labels": [
+    "TEFindWord"
+   ]
+  },
+  {
+   "trap": 41215,
+   "rom_offset": 92360,
+   "rom_labels": [
+    "TEFindLine"
+   ]
+  }
+ ]
+}

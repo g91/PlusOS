@@ -1,0 +1,73 @@
+#pragma once
+#ifndef SEROM_RESOURCES_RES_WDEF_0_HPP
+#define SEROM_RESOURCES_RES_WDEF_0_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/resources/res_wdef_0.s  (65 entry points)
+namespace serom { namespace resources { namespace res_wdef_0 { 
+    void Resource_WDEF_0000();
+    void Resource_WDEF_0000_Header();
+    void _WDEF_0_();
+    void WDEF_ENTRY();
+    void WDEF_HEIGHT_OK();
+    void WDEF_JMPTABLE();
+    void WDEF_NEW();
+    void WDEF_COPY_PORTRECT();
+    void WDEF_NEW_DONE();
+    void WDEF_CHECK_ZOOM_ST();
+    void WDEF_STATE_CHANGED();
+    void WDEF_STATE_DONE();
+    void WDEF_PT_IN_EXPANDED();
+    void WDEF_HAS_ZOOM();
+    void WDEF_HAS_ZOOM_RTS();
+    void WDEF_DISPOSE();
+    void WDEF_DISPOSE_DONE();
+    void WDEF_DRAW();
+    void WDEF_ZOOM_CLAMP_OK();
+    void WDEF_DRAW_ZOOM();
+    void WDEF_DRAW_FRAME();
+    void WDEF_DRAW_STRUCT();
+    void WDEF_DRAW_SHADOW();
+    void WDEF_CHECK_DBOX();
+    void WDEF_RESTORE_STRUCT();
+    void WDEF_DRAW_RTS();
+    void WDEF_STRIPE_PAT();
+    void WDEF_TITLE_RECT();
+    void WDEF_TOGGLE_BOX();
+    void WDEF_ICON_RIGHT();
+    void WDEF_TOGGLE_CLOSE();
+    void WDEF_ICON_LEFT();
+    void WDEF_ICON_DRAW();
+    void WDEF_TOGGLE_DONE();
+    void WDEF_DRAW_NONDOC();
+    void WDEF_DRAW_TITLE();
+    void WDEF_TITLE_MARGIN();
+    void WDEF_TITLE_ABS();
+    void WDEF_TITLE_CLIP();
+    void WDEF_TITLE_GAP();
+    void WDEF_ZOOM_NORMAL();
+    void WDEF_ZOOM_TOGGLE();
+    void WDEF_CLOSE_NORMAL();
+    void WDEF_CLOSE_TOGGLE();
+    void WDEF_HIT();
+    void WDEF_HIT_CONTENT();
+    void WDEF_HIT_TITLEBAR();
+    void WDEF_HIT_ZOOM();
+    void WDEF_HIT_ZOOM_IN();
+    void WDEF_HIT_DRAG();
+    void WDEF_HIT_RETURN();
+    void WDEF_HIT_NOHIT();
+    void WDEF_CALCRGNS();
+    void WDEF_CALC_CONT();
+    void WDEF_CALC_STRUCT();
+    void WDEF_CALC_SHADOW();
+    void WDEF_CALC_DONE();
+    void WDEF_CALC_DBOX();
+    void WDEF_GROW();
+    void WDEF_DROP_SHADOW();
+    void WDEF_COPYBITS();
+    void WDEF_GICON();
+    void WDEF_GICON_DIVIDERS();
+    void WDEF_GICON_INACTIVE();
+    void WDEF_SIZEBOX_ICON();
+}}}  // namespace serom::resources::res_wdef_0
+#endif  // SEROM_RESOURCES_RES_WDEF_0_HPP

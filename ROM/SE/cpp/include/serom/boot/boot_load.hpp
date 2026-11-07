@@ -1,0 +1,57 @@
+#pragma once
+#ifndef SEROM_BOOT_BOOT_LOAD_HPP
+#define SEROM_BOOT_BOOT_LOAD_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/boot/boot_load.s  (49 entry points)
+namespace serom { namespace boot { namespace boot_load { 
+    void MYBOOT();
+    void BOOTME();
+    void CALL_SECONDARY_BOOT();
+    void SELECT_HEAP_SIZE();
+    void USE_BOOT_HEAP();
+    void USE_FIXED_HEAP();
+    void CAP_APPL_BASE();
+    void SET_APPL_BASE2();
+    void COPY_SYSRES_NAME();
+    void OPEN_SYSTEM_FILE();
+    void LOAD_DSAT_RESOURCE();
+    void GOT_DSAT();
+    void INIT_FONTS();
+    void RESERVE_PRINT_BUF();
+    void RESERVE_STACK_BUF();
+    void EXEC_PATCH1();
+    void OPEN_SYSRES();
+    void LAUNCH_FINDER();
+    void INIT_LOAD_LOOP();
+    void INIT_LOAD_DONE();
+    void LAUNCH_APP();
+    void BOOT_FAIL();
+    void MOUNT_FAILED_EJECT();
+    void CLEAR_BOOT_MASK();
+    void RETRY_BOOT();
+    void CHECK_BOOT_ERROR();
+    void CHECK_BOOT_ERROR_RTS();
+    void CHECK_FILE_EXISTS();
+    void OPEN_BOOT_PATCH();
+    void OPEN_AND_READ_FILE();
+    void SETUP_READ_PARAMS();
+    void CLOSE_FILE();
+    void FILE_LOAD_RETURN();
+    void ALLOC_BOOT_BUF();
+    void ALLOC_SYS_PTR();
+    void SETVOL_BLESSED_FOLDER();
+    void SETVOL_BLESSED_FOLDER_RTS();
+    void MOUSEINIT();
+    void LOAD_MCKY_RSRC();
+    void MOUSEINIT_DONE();
+    void INITFS();
+    void CLEAR_CKDDB_LOOP();
+    void INITFS_ALLOC_FCB();
+    void ALLOC_VOL_CACHE();
+    void ALLOC_CTL_CACHE();
+    void INITFS_OK();
+    void INITFS_FAIL();
+    void INITEVENTS();
+    void FILL_EVTBUF_LOOP();
+}}}  // namespace serom::boot::boot_load
+#endif  // SEROM_BOOT_BOOT_LOAD_HPP

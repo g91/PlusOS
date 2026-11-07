@@ -1,0 +1,62 @@
+#pragma once
+#ifndef SEROM_RESOURCES_RES_MDEF_HPP
+#define SEROM_RESOURCES_RES_MDEF_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/resources/res_mdef.s  (54 entry points)
+namespace serom { namespace resources { namespace res_mdef { 
+    void Resource_MDEF_0000();
+    void Resource_MDEF_0000_Header();
+    void _MDEF_0_();
+    void MDEF_ENTRY();
+    void MDEF_SCROLL();
+    void MDEF_CHK_BELOW();
+    void MDEF_FIND_ITEM();
+    void MDEF_SCAN_ITEMS();
+    void MDEF_HITTEST();
+    void MDEF_UPD_HILITE();
+    void MDEF_EXIT();
+    void MDEF_SETUP_FONT();
+    void MDEF_NOT_CHICAGO();
+    void MDEF_ITEM_HEIGHT();
+    void MDEF_GOT_HEIGHT();
+    void MDEF_CHK_ENABLED();
+    void MDEF_TEST_MENU_BIT();
+    void MDEF_CHK_ENABLE();
+    void MDEF_INVERT_ITEM();
+    void MDEF_WALK_ITEMS();
+    void MDEF_BUILD_RECT();
+    void MDEF_HILITE_RTS();
+    void MDEF_DIM_ITEM();
+    void MDEF_TWEAKPOS();
+    void MDEF_TWEAKPOS_RTS();
+    void MDEF_DRAW_MSG();
+    void MDEF_AT_BOTTOM();
+    void MDEF_DRAW_ALL();
+    void MDEF_DRAW_LOOP();
+    void MDEF_DRAW_MARK();
+    void MDEF_DRAW_TEXT();
+    void MDEF_DRAW_KEY();
+    void MDEF_KEY_MOVETO();
+    void MDEF_APPLY_STYLE();
+    void MDEF_DRAW_RTL();
+    void MDEF_RESET_FACE();
+    void MDEF_CHK_ICON();
+    void MDEF_NEXT_ITEM();
+    void MDEF_DRAW_SEP();
+    void MDEF_FIND_NTH();
+    void MDEF_WALK_LOOP();
+    void MDEF_NOT_FOUND();
+    void MDEF_FOUND_ITEM();
+    void MDEF_SIZE_MSG();
+    void MDEF_DFLT_MBAR();
+    void MDEF_MEASURE_INIT();
+    void MDEF_MEASURE_LOOP();
+    void MDEF_NO_ICON_W();
+    void MDEF_CHK_MAXHT();
+    void MDEF_NO_KEY_W();
+    void MDEF_UPD_MAXW();
+    void MDEF_END_MEASURE();
+    void MDEF_STORE_SIZE();
+    void MDEF_GRAY_ITEM();
+}}}  // namespace serom::resources::res_mdef
+#endif  // SEROM_RESOURCES_RES_MDEF_HPP

@@ -1,0 +1,50 @@
+#pragma once
+#ifndef SEROM_OS_SYS_ERROR_HPP
+#define SEROM_OS_SYS_ERROR_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/os/sys_error.s  (42 entry points)
+namespace serom { namespace os { namespace sys_error { 
+    void SYSTEMERROR();
+    void SYSERR2();
+    void DBG_SKIP_SP_SAVE();
+    void SYSERR_TRY_DEBUGGER();
+    void SYSERR_USE_DS();
+    void SYSERR_DISPATCH();
+    void ALLOCFAKERGNS();
+    void INSTALL_INF_RGN();
+    void DT_INF_RGN();
+    void COPY_ALERT_RECT();
+    void DSERRORHANDLER();
+    void DSERR_HAS_TABLE();
+    void DSERR_SETUP_RECT();
+    void DSERR_DRAW_ALERT();
+    void DSERR_SKIP_ICON();
+    void DSERR_SKIP_PROC();
+    void DSERR_SHOW_BTNS();
+    void DSERR_RESUME();
+    void DSERR_RESTART();
+    void LOOKUP_ALERT_ID();
+    void LOOKUP_LOOP();
+    void LOOKUP_NEXT();
+    void LOOKUP_FOUND();
+    void DRAW_ALERT_TEXT();
+    void DRAWTEXT_SCAN();
+    void DRAWTEXT_SEGMENT();
+    void DRAWTEXT_DONE();
+    void CALL_DS_DRAWPROC();
+    void INIT_ALERT_RECT();
+    void SET_DEFAULT_RECT();
+    void REPOS_ALERT_PORT();
+    void DRAW_ALERT_FRAME();
+    void DRAW_FRAME_RTS();
+    void SHOW_ALERT_BTNS();
+    void DRAW_BTN_LOOP();
+    void WAIT_MOUSE_DOWN();
+    void HITTEST_BTN_LOOP();
+    void TRACK_BTN_DOWN();
+    void TRACK_BTN_LOOP();
+    void TRACK_BTN_CHECK();
+    void BTN_PT_IN_RECT();
+    void BTN_INVERT();
+}}}  // namespace serom::os::sys_error
+#endif  // SEROM_OS_SYS_ERROR_HPP

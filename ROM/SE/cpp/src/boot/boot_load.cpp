@@ -1,0 +1,53 @@
+#include "serom/boot/boot_load.hpp"
+// Scaffold for SE ROM module: se/boot/boot_load.s
+namespace serom { namespace boot { namespace boot_load { 
+    void MYBOOT() { serom::serom_unimplemented("boot::boot_load::MYBOOT"); }
+    void BOOTME() { serom::serom_unimplemented("boot::boot_load::BOOTME"); }
+    void CALL_SECONDARY_BOOT() { serom::serom_unimplemented("boot::boot_load::CALL_SECONDARY_BOOT"); }
+    void SELECT_HEAP_SIZE() { serom::serom_unimplemented("boot::boot_load::SELECT_HEAP_SIZE"); }
+    void USE_BOOT_HEAP() { serom::serom_unimplemented("boot::boot_load::USE_BOOT_HEAP"); }
+    void USE_FIXED_HEAP() { serom::serom_unimplemented("boot::boot_load::USE_FIXED_HEAP"); }
+    void CAP_APPL_BASE() { serom::serom_unimplemented("boot::boot_load::CAP_APPL_BASE"); }
+    void SET_APPL_BASE2() { serom::serom_unimplemented("boot::boot_load::SET_APPL_BASE2"); }
+    void COPY_SYSRES_NAME() { serom::serom_unimplemented("boot::boot_load::COPY_SYSRES_NAME"); }
+    void OPEN_SYSTEM_FILE() { serom::serom_unimplemented("boot::boot_load::OPEN_SYSTEM_FILE"); }
+    void LOAD_DSAT_RESOURCE() { serom::serom_unimplemented("boot::boot_load::LOAD_DSAT_RESOURCE"); }
+    void GOT_DSAT() { serom::serom_unimplemented("boot::boot_load::GOT_DSAT"); }
+    void INIT_FONTS() { serom::serom_unimplemented("boot::boot_load::INIT_FONTS"); }
+    void RESERVE_PRINT_BUF() { serom::serom_unimplemented("boot::boot_load::RESERVE_PRINT_BUF"); }
+    void RESERVE_STACK_BUF() { serom::serom_unimplemented("boot::boot_load::RESERVE_STACK_BUF"); }
+    void EXEC_PATCH1() { serom::serom_unimplemented("boot::boot_load::EXEC_PATCH1"); }
+    void OPEN_SYSRES() { serom::serom_unimplemented("boot::boot_load::OPEN_SYSRES"); }
+    void LAUNCH_FINDER() { serom::serom_unimplemented("boot::boot_load::LAUNCH_FINDER"); }
+    void INIT_LOAD_LOOP() { serom::serom_unimplemented("boot::boot_load::INIT_LOAD_LOOP"); }
+    void INIT_LOAD_DONE() { serom::serom_unimplemented("boot::boot_load::INIT_LOAD_DONE"); }
+    void LAUNCH_APP() { serom::serom_unimplemented("boot::boot_load::LAUNCH_APP"); }
+    void BOOT_FAIL() { serom::serom_unimplemented("boot::boot_load::BOOT_FAIL"); }
+    void MOUNT_FAILED_EJECT() { serom::serom_unimplemented("boot::boot_load::MOUNT_FAILED_EJECT"); }
+    void CLEAR_BOOT_MASK() { serom::serom_unimplemented("boot::boot_load::CLEAR_BOOT_MASK"); }
+    void RETRY_BOOT() { serom::serom_unimplemented("boot::boot_load::RETRY_BOOT"); }
+    void CHECK_BOOT_ERROR() { serom::serom_unimplemented("boot::boot_load::CHECK_BOOT_ERROR"); }
+    void CHECK_BOOT_ERROR_RTS() { serom::serom_unimplemented("boot::boot_load::CHECK_BOOT_ERROR_RTS"); }
+    void CHECK_FILE_EXISTS() { serom::serom_unimplemented("boot::boot_load::CHECK_FILE_EXISTS"); }
+    void OPEN_BOOT_PATCH() { serom::serom_unimplemented("boot::boot_load::OPEN_BOOT_PATCH"); }
+    void OPEN_AND_READ_FILE() { serom::serom_unimplemented("boot::boot_load::OPEN_AND_READ_FILE"); }
+    void SETUP_READ_PARAMS() { serom::serom_unimplemented("boot::boot_load::SETUP_READ_PARAMS"); }
+    void CLOSE_FILE() { serom::serom_unimplemented("boot::boot_load::CLOSE_FILE"); }
+    void FILE_LOAD_RETURN() { serom::serom_unimplemented("boot::boot_load::FILE_LOAD_RETURN"); }
+    void ALLOC_BOOT_BUF() { serom::serom_unimplemented("boot::boot_load::ALLOC_BOOT_BUF"); }
+    void ALLOC_SYS_PTR() { serom::serom_unimplemented("boot::boot_load::ALLOC_SYS_PTR"); }
+    void SETVOL_BLESSED_FOLDER() { serom::serom_unimplemented("boot::boot_load::SETVOL_BLESSED_FOLDER"); }
+    void SETVOL_BLESSED_FOLDER_RTS() { serom::serom_unimplemented("boot::boot_load::SETVOL_BLESSED_FOLDER_RTS"); }
+    void MOUSEINIT() { serom::serom_unimplemented("boot::boot_load::MOUSEINIT"); }
+    void LOAD_MCKY_RSRC() { serom::serom_unimplemented("boot::boot_load::LOAD_MCKY_RSRC"); }
+    void MOUSEINIT_DONE() { serom::serom_unimplemented("boot::boot_load::MOUSEINIT_DONE"); }
+    void INITFS() { serom::serom_unimplemented("boot::boot_load::INITFS"); }
+    void CLEAR_CKDDB_LOOP() { serom::serom_unimplemented("boot::boot_load::CLEAR_CKDDB_LOOP"); }
+    void INITFS_ALLOC_FCB() { serom::serom_unimplemented("boot::boot_load::INITFS_ALLOC_FCB"); }
+    void ALLOC_VOL_CACHE() { serom::serom_unimplemented("boot::boot_load::ALLOC_VOL_CACHE"); }
+    void ALLOC_CTL_CACHE() { serom::serom_unimplemented("boot::boot_load::ALLOC_CTL_CACHE"); }
+    void INITFS_OK() { serom::serom_unimplemented("boot::boot_load::INITFS_OK"); }
+    void INITFS_FAIL() { serom::serom_unimplemented("boot::boot_load::INITFS_FAIL"); }
+    void INITEVENTS() { serom::serom_unimplemented("boot::boot_load::INITEVENTS"); }
+    void FILL_EVTBUF_LOOP() { serom::serom_unimplemented("boot::boot_load::FILL_EVTBUF_LOOP"); }
+}}}  // namespace serom::boot::boot_load

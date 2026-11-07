@@ -1,0 +1,61 @@
+#pragma once
+#ifndef SEROM_RESOURCES_RES_DRVR_SOUND_HPP
+#define SEROM_RESOURCES_RES_DRVR_SOUND_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/resources/res_drvr_sound.s  (53 entry points)
+namespace serom { namespace resources { namespace res_drvr_sound { 
+    void Resource_DRVR_0003_DotSound();
+    void Resource_DRVR_0003_DotSound_Header();
+    void Driver_Sound();
+    void E_Sound_Open();
+    void SND_OPEN_OK();
+    void E_Sound_KillIO();
+    void E_Sound_Close();
+    void SND_SILENCE_AND_RELEASE();
+    void SND_RELEASE_T1_ONLY();
+    void SND_T1_RELEASED();
+    void SND_REMOVE_VBL();
+    void SND_REMOVE_VBL_NOT_ACTIVE();
+    void SND_FILL_FROM_LOWMEM();
+    void SND_FILL_BUF();
+    void SND_FILL_LOOP();
+    void SND_SET_VOLUME();
+    void E_Sound_Control();
+    void E_Sound_Status();
+    void SND_CTL_VOLUME();
+    void E_Sound_Prime();
+    void SND_SQWAVE_NEXT();
+    void SND_CLAIM_T1();
+    void SND_T1_READY();
+    void SND_PRIME_DONE();
+    void SND_VBL_IMMEDIATE();
+    void SND_VBL_INSTALL();
+    void SND_VBL_INSTALLED();
+    void P_SoundVBL_taskSquareWave();
+    void SND_SQWAVE_FINISH();
+    void SND_REMOVE_AND_IODONE();
+    void SND_IODONE_NOERR();
+    void SND_4TONE_ENTRY();
+    void SND_INSTALL_VBL_IMM();
+    void SND_4TONE_DONE();
+    void P_SoundVBL_task4Tone();
+    void SND_4TONE_MIX_START();
+    void SND_MIX_SAMPLE();
+    void SND_SOLO_VOICE1();
+    void SND_SOLO_LOOP();
+    void SND_SAVE_VOICES();
+    void SND_FREEFORM_ENTRY();
+    void P_SoundVBL_taskFreeForm();
+    void SND_FREEFORM_CHECK_DONE();
+    void SND_FREEFORM_RESAMPLE_INIT();
+    void SND_RESAMPLE_OUTER();
+    void SND_RESAMPLE_INNER();
+    void SND_FILL_SILENCE();
+    void SND_SILENCE_LOOP();
+    void SND_SILENCE_LOOP_INNER();
+    void SND_FREEFORM_DONE();
+    void SND_FREEFORM_OK_EXIT();
+    void SND_FREEFORM_NEXT_BUF();
+    void SND_FREEFORM_WRAP();
+}}}  // namespace serom::resources::res_drvr_sound
+#endif  // SEROM_RESOURCES_RES_DRVR_SOUND_HPP

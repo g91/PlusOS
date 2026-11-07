@@ -1,0 +1,57 @@
+#include "serom/resources/res_drvr_sound.hpp"
+// Scaffold for SE ROM module: se/resources/res_drvr_sound.s
+namespace serom { namespace resources { namespace res_drvr_sound { 
+    void Resource_DRVR_0003_DotSound() { serom::serom_unimplemented("resources::res_drvr_sound::Resource_DRVR_0003_DotSound"); }
+    void Resource_DRVR_0003_DotSound_Header() { serom::serom_unimplemented("resources::res_drvr_sound::Resource_DRVR_0003_DotSound_Header"); }
+    void Driver_Sound() { serom::serom_unimplemented("resources::res_drvr_sound::Driver_Sound"); }
+    void E_Sound_Open() { serom::serom_unimplemented("resources::res_drvr_sound::E_Sound_Open"); }
+    void SND_OPEN_OK() { serom::serom_unimplemented("resources::res_drvr_sound::SND_OPEN_OK"); }
+    void E_Sound_KillIO() { serom::serom_unimplemented("resources::res_drvr_sound::E_Sound_KillIO"); }
+    void E_Sound_Close() { serom::serom_unimplemented("resources::res_drvr_sound::E_Sound_Close"); }
+    void SND_SILENCE_AND_RELEASE() { serom::serom_unimplemented("resources::res_drvr_sound::SND_SILENCE_AND_RELEASE"); }
+    void SND_RELEASE_T1_ONLY() { serom::serom_unimplemented("resources::res_drvr_sound::SND_RELEASE_T1_ONLY"); }
+    void SND_T1_RELEASED() { serom::serom_unimplemented("resources::res_drvr_sound::SND_T1_RELEASED"); }
+    void SND_REMOVE_VBL() { serom::serom_unimplemented("resources::res_drvr_sound::SND_REMOVE_VBL"); }
+    void SND_REMOVE_VBL_NOT_ACTIVE() { serom::serom_unimplemented("resources::res_drvr_sound::SND_REMOVE_VBL_NOT_ACTIVE"); }
+    void SND_FILL_FROM_LOWMEM() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FILL_FROM_LOWMEM"); }
+    void SND_FILL_BUF() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FILL_BUF"); }
+    void SND_FILL_LOOP() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FILL_LOOP"); }
+    void SND_SET_VOLUME() { serom::serom_unimplemented("resources::res_drvr_sound::SND_SET_VOLUME"); }
+    void E_Sound_Control() { serom::serom_unimplemented("resources::res_drvr_sound::E_Sound_Control"); }
+    void E_Sound_Status() { serom::serom_unimplemented("resources::res_drvr_sound::E_Sound_Status"); }
+    void SND_CTL_VOLUME() { serom::serom_unimplemented("resources::res_drvr_sound::SND_CTL_VOLUME"); }
+    void E_Sound_Prime() { serom::serom_unimplemented("resources::res_drvr_sound::E_Sound_Prime"); }
+    void SND_SQWAVE_NEXT() { serom::serom_unimplemented("resources::res_drvr_sound::SND_SQWAVE_NEXT"); }
+    void SND_CLAIM_T1() { serom::serom_unimplemented("resources::res_drvr_sound::SND_CLAIM_T1"); }
+    void SND_T1_READY() { serom::serom_unimplemented("resources::res_drvr_sound::SND_T1_READY"); }
+    void SND_PRIME_DONE() { serom::serom_unimplemented("resources::res_drvr_sound::SND_PRIME_DONE"); }
+    void SND_VBL_IMMEDIATE() { serom::serom_unimplemented("resources::res_drvr_sound::SND_VBL_IMMEDIATE"); }
+    void SND_VBL_INSTALL() { serom::serom_unimplemented("resources::res_drvr_sound::SND_VBL_INSTALL"); }
+    void SND_VBL_INSTALLED() { serom::serom_unimplemented("resources::res_drvr_sound::SND_VBL_INSTALLED"); }
+    void P_SoundVBL_taskSquareWave() { serom::serom_unimplemented("resources::res_drvr_sound::P_SoundVBL_taskSquareWave"); }
+    void SND_SQWAVE_FINISH() { serom::serom_unimplemented("resources::res_drvr_sound::SND_SQWAVE_FINISH"); }
+    void SND_REMOVE_AND_IODONE() { serom::serom_unimplemented("resources::res_drvr_sound::SND_REMOVE_AND_IODONE"); }
+    void SND_IODONE_NOERR() { serom::serom_unimplemented("resources::res_drvr_sound::SND_IODONE_NOERR"); }
+    void SND_4TONE_ENTRY() { serom::serom_unimplemented("resources::res_drvr_sound::SND_4TONE_ENTRY"); }
+    void SND_INSTALL_VBL_IMM() { serom::serom_unimplemented("resources::res_drvr_sound::SND_INSTALL_VBL_IMM"); }
+    void SND_4TONE_DONE() { serom::serom_unimplemented("resources::res_drvr_sound::SND_4TONE_DONE"); }
+    void P_SoundVBL_task4Tone() { serom::serom_unimplemented("resources::res_drvr_sound::P_SoundVBL_task4Tone"); }
+    void SND_4TONE_MIX_START() { serom::serom_unimplemented("resources::res_drvr_sound::SND_4TONE_MIX_START"); }
+    void SND_MIX_SAMPLE() { serom::serom_unimplemented("resources::res_drvr_sound::SND_MIX_SAMPLE"); }
+    void SND_SOLO_VOICE1() { serom::serom_unimplemented("resources::res_drvr_sound::SND_SOLO_VOICE1"); }
+    void SND_SOLO_LOOP() { serom::serom_unimplemented("resources::res_drvr_sound::SND_SOLO_LOOP"); }
+    void SND_SAVE_VOICES() { serom::serom_unimplemented("resources::res_drvr_sound::SND_SAVE_VOICES"); }
+    void SND_FREEFORM_ENTRY() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FREEFORM_ENTRY"); }
+    void P_SoundVBL_taskFreeForm() { serom::serom_unimplemented("resources::res_drvr_sound::P_SoundVBL_taskFreeForm"); }
+    void SND_FREEFORM_CHECK_DONE() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FREEFORM_CHECK_DONE"); }
+    void SND_FREEFORM_RESAMPLE_INIT() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FREEFORM_RESAMPLE_INIT"); }
+    void SND_RESAMPLE_OUTER() { serom::serom_unimplemented("resources::res_drvr_sound::SND_RESAMPLE_OUTER"); }
+    void SND_RESAMPLE_INNER() { serom::serom_unimplemented("resources::res_drvr_sound::SND_RESAMPLE_INNER"); }
+    void SND_FILL_SILENCE() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FILL_SILENCE"); }
+    void SND_SILENCE_LOOP() { serom::serom_unimplemented("resources::res_drvr_sound::SND_SILENCE_LOOP"); }
+    void SND_SILENCE_LOOP_INNER() { serom::serom_unimplemented("resources::res_drvr_sound::SND_SILENCE_LOOP_INNER"); }
+    void SND_FREEFORM_DONE() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FREEFORM_DONE"); }
+    void SND_FREEFORM_OK_EXIT() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FREEFORM_OK_EXIT"); }
+    void SND_FREEFORM_NEXT_BUF() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FREEFORM_NEXT_BUF"); }
+    void SND_FREEFORM_WRAP() { serom::serom_unimplemented("resources::res_drvr_sound::SND_FREEFORM_WRAP"); }
+}}}  // namespace serom::resources::res_drvr_sound

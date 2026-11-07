@@ -1,0 +1,53 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_TOOLBOX_UTILS_HPP
+#define SEROM_TOOLBOX_TOOLBOX_UTILS_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/toolbox_utils.s  (45 entry points)
+namespace serom { namespace toolbox { namespace toolbox_utils { 
+    void DMGREND();
+    void BYTES();
+    void MUNGER();
+    void MUNGER_CONT();
+    void XMUNGER();
+    void XMUNGER_CONT();
+    void XMUNGER_CONT_2();
+    void XMUNGER_OK();
+    void XMUNGER_RETRY();
+    void XMUNGER_LOOP();
+    void XMUNGER_NEXT();
+    void XMUNGER_NOTFOUND();
+    void XMUNGER_CONT_3();
+    void XMUNGER_CONT_4();
+    void XMUNGER_EXIT();
+    void MungerResizeIfDiff();
+    void XMUNGER_NO();
+    void XMUNGER_CONT_5();
+    void XMUNGER_CONT_6();
+    void XMUNGER_EMPTY();
+    void XMUNGER_EXIT_2();
+    void XMUNGER_NO_2();
+    void XMUNGER_CONT_7();
+    void XMUNGER_RTS();
+    void XMUNGER_EMPTY_2();
+    void XMUNGER_CONT_8();
+    void XMUNGER_CONT_9();
+    void HANDTOHAND();
+    void PTRTOHAND_FINALIZE();
+    void PTRTOXHAND();
+    void PTRTOHAND();
+    void PTRTOHAND_CONT();
+    void PTRTOHAND_CONT_2();
+    void PTRTOHAND_RTS();
+    void HANDANDHAND();
+    void PTRANDHAND();
+    void METHODDISPATCH();
+    void METHODDISPATCH_CONT();
+    void STDOPCODE_PCREL_JMP();
+    void STDOPCODE_SEARCH_TABLE();
+    void METHODDISPATCH_LOOP();
+    void STDOPCODE_NEXT_ENTRY();
+    void METHODDISPATCH_RETRY();
+    void STDOPCODE_PARENT_CLASS();
+    void METHODDISPATCH_FOUND();
+}}}  // namespace serom::toolbox::toolbox_utils
+#endif  // SEROM_TOOLBOX_TOOLBOX_UTILS_HPP

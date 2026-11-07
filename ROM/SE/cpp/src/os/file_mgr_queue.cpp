@@ -1,0 +1,54 @@
+#include "serom/os/file_mgr_queue.hpp"
+// Scaffold for SE ROM module: se/os/file_mgr_queue.s
+namespace serom { namespace os { namespace file_mgr_queue { 
+    void TURBOFS() { serom::serom_unimplemented("os::file_mgr_queue::TURBOFS"); }
+    void TFSDISPATCH() { serom::serom_unimplemented("os::file_mgr_queue::TFSDISPATCH"); }
+    void FSDISPATCH_BAD_SEL() { serom::serom_unimplemented("os::file_mgr_queue::FSDISPATCH_BAD_SEL"); }
+    void FSDISPATCH_VALID() { serom::serom_unimplemented("os::file_mgr_queue::FSDISPATCH_VALID"); }
+    void HFS_DISPATCH_TABLE() { serom::serom_unimplemented("os::file_mgr_queue::HFS_DISPATCH_TABLE"); }
+    void P_hfs0() { serom::serom_unimplemented("os::file_mgr_queue::P_hfs0"); }
+    void FSQUEUE_SETUP_SYNC() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_SETUP_SYNC"); }
+    void FSQUEUE_SETUP() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_SETUP"); }
+    void FSQUEUE_NO_HOOK() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_NO_HOOK"); }
+    void FSQUEUE_STORE_CMD() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_STORE_CMD"); }
+    void FSQUEUE_SYNC_PATH() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_SYNC_PATH"); }
+    void FSQUEUE_SYNC_WAIT() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_SYNC_WAIT"); }
+    void FSQUEUE_SPIN_WAIT() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_SPIN_WAIT"); }
+    void FSQUEUE_RETURN() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_RETURN"); }
+    void FSQUEUE_ENQUEUE() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_ENQUEUE"); }
+    void FSQUEUE_TRY_LOCK() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_TRY_LOCK"); }
+    void FSQUEUE_SERVER() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_SERVER"); }
+    void NOPKG_SYSERROR() { serom::serom_unimplemented("os::file_mgr_queue::NOPKG_SYSERROR"); }
+    void FSQUEUE_DONE() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_DONE"); }
+    void FSQUEUE_STORE_ERR() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_STORE_ERR"); }
+    void FSQUEUE_TRY_SWITCH() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_TRY_SWITCH"); }
+    void FSQUEUE_SCAN_NEXT() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_SCAN_NEXT"); }
+    void FSQUEUE_SCAN_END() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_SCAN_END"); }
+    void FSQUEUE_NO_DRIVE() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_NO_DRIVE"); }
+    void FSQUEUE_CLR_OFFLINE() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_CLR_OFFLINE"); }
+    void FSQUEUE_CHK_EXTFS() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_CHK_EXTFS"); }
+    void FSQUEUE_CALL_EXTFS() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_CALL_EXTFS"); }
+    void FSQUEUE_DEQUEUE() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_DEQUEUE"); }
+    void FSQUEUE_RESTORED_SR() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_RESTORED_SR"); }
+    void FSQUEUE_CHK_MORE() { serom::serom_unimplemented("os::file_mgr_queue::FSQUEUE_CHK_MORE"); }
+    void FINITQUEUE() { serom::serom_unimplemented("os::file_mgr_queue::FINITQUEUE"); }
+    void FINITQ_DONE() { serom::serom_unimplemented("os::file_mgr_queue::FINITQ_DONE"); }
+    void DSHOOK() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK"); }
+    void DSHOOK_SHOW_DLG() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_SHOW_DLG"); }
+    void DSHOOK_SYSERROR() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_SYSERROR"); }
+    void DSHOOK_SCAN_DRV() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_SCAN_DRV"); }
+    void DSHOOK_FOUND_DRV() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_FOUND_DRV"); }
+    void DSHOOK_EJECT_DRV() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_EJECT_DRV"); }
+    void DSHOOK_DO_EJECT() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_DO_EJECT"); }
+    void DSHOOK_EVT_LOOP() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_EVT_LOOP"); }
+    void DSHOOK_POLL_EVT() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_POLL_EVT"); }
+    void DSHOOK_CALL_KBDTASK() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_CALL_KBDTASK"); }
+    void DSHOOK_CHK_CMDPER() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_CHK_CMDPER"); }
+    void DSHOOK_DISK_INSERT() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_DISK_INSERT"); }
+    void DSHOOK_DISMISS() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_DISMISS"); }
+    void DSHOOK_NO_PORT() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_NO_PORT"); }
+    void DSHOOK_SETPORT() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_SETPORT"); }
+    void DSHOOK_CLEANUP() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_CLEANUP"); }
+    void DSHOOK_RETRY_TRAP() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_RETRY_TRAP"); }
+    void DSHOOK_FIX_ALINE() { serom::serom_unimplemented("os::file_mgr_queue::DSHOOK_FIX_ALINE"); }
+}}}  // namespace serom::os::file_mgr_queue

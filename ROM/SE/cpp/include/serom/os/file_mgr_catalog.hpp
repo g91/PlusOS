@@ -1,0 +1,79 @@
+#pragma once
+#ifndef SEROM_OS_FILE_MGR_CATALOG_HPP
+#define SEROM_OS_FILE_MGR_CATALOG_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/os/file_mgr_catalog.s  (71 entry points)
+namespace serom { namespace os { namespace file_mgr_catalog { 
+    void CMSVCS();
+    void CMCREATECN();
+    void CC_CLR_CDR_LOOP();
+    void CC_INIT_FILE();
+    void CC_ADD_REC();
+    void CC_BLD_THD();
+    void CC_CLR_THD_LOOP();
+    void CC_UPD_PAR();
+    void CC_EXIT();
+    void CMDELETECN();
+    void DC_CHK_EMPTY();
+    void CMDELETECN_DODELETE();
+    void DC_UPD_PAR();
+    void DC_EXIT();
+    void CMGETCN();
+    void CMGETOFF();
+    void GO_LOCATE_THD();
+    void GO_GET_OFF();
+    void GO_NOT_FOUND();
+    void GO_INVAL_EXIT();
+    void GO_CHK_PARENT();
+    void GO_EXIT();
+    void CMMOVECN();
+    void MC_CHK_DEST();
+    void MC_CHK_DST_DIR();
+    void MC_CHK_ANCESTOR();
+    void MC_BAD_MOVE();
+    void MC_LOC_SRC();
+    void MC_COPY_SRC();
+    void MC_INSERT_DST();
+    void MC_UPD_DEST();
+    void MC_UPD_SRC();
+    void CMMOVECN_EXIT();
+    void CM_EPILOGUE();
+    void CMRENAMECN();
+    void RC_CHK_FILNUM();
+    void RC_EXISTS_ERR();
+    void RC_CASE_RENAME();
+    void RC_DEL_OLD();
+    void RC_UPD_THD();
+    void CMRENAMECN_EXIT();
+    void CMRENAMECN_EPILOGUE();
+    void CMUPDATECN();
+    void UC_FLUSH();
+    void UC_EXIT();
+    void P_CMSetUp();
+    void VCMSETUP();
+    void UPD_VCNTS();
+    void UPD_VCNTS_FILE();
+    void UPD_ROOT_CNTS();
+    void UPD_ROOT_FILES();
+    void UPD_VCNTS_DONE();
+    void CMMAINT();
+    void BUILDKEY();
+    void BLDKEY_DONE();
+    void CMFLUSH();
+    void CMFLUSH_OK();
+    void CMFLUSH_EXIT();
+    void CMKEYCMP();
+    void KC_IS_LT();
+    void KC_IS_EQ();
+    void KC_IS_GT();
+    void KC_EXIT();
+    void LOCCNODE();
+    void LOCCNODE_RETURN();
+    void LOCCREC();
+    void VLOCCREC();
+    void VLOCCREC_SEARCH();
+    void LOCCREC_EXIT();
+    void UPDCNAME();
+    void UPDCNAME_COPY();
+}}}  // namespace serom::os::file_mgr_catalog
+#endif  // SEROM_OS_FILE_MGR_CATALOG_HPP

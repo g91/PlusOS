@@ -1,0 +1,83 @@
+/* boot.h - ROM calls a bare-metal OS needs that the public Mac interfaces never
+ * declared, because only the ROM's own start-up code (StartBoot) used them.
+ * Hand-written (not generated): register conventions taken from the Macintosh SE ROM
+ * source, boot/boot_load.s and os/memory_mgr.s.
+ */
+#ifndef SEROM_BOOT_H
+#define SEROM_BOOT_H
+#include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* _InitEvents ($A06D): create the OS event queue. D0.W = number of entries
+ * (the ROM passes bbCntEvts from the boot blocks, normally 20). After this the
+ * keyboard and mouse drivers post events that GetOSEvent/GetNextEvent return. */
+static inline void serom_init_events(int16_t count)
+{
+    register int16_t d0 __asm__("d0") = count;
+    __asm__ volatile(".short 0xA06D" : "+d"(d0) : : "d1", "d2", "a0", "a1", "cc", "memory");
+}
+
+/* _InitFS ($A06C): start the File Manager. D0.W = number of file control
+ * blocks, i.e. max open files (bbCntFCBs, normally 10). Returns OSErr. */
+static inline int16_t serom_init_fs(int16_t fcbs)
+{
+    register int16_t d0 __asm__("d0") = fcbs;
+    __asm__ volatile(".short 0xA06C" : "+d"(d0) : : "d1", "d2", "a0", "a1", "cc", "memory");
+    return d0;
+}
+
+/* _InitZone ($A019): make a heap zone in [start, limit). A0 -> parameter block. */
+static inline int16_t serom_init_zone(void *start, void *limit, int16_t more_masters, void *grow_proc)
+{
+    struct __attribute__((packed, aligned(2))) { void *start, *limit; int16_t masters; void *grow; } pb =
+        { start, limit, more_masters, grow_proc };
+    register void *a0 __asm__("a0") = &pb;
+    register int16_t d0 __asm__("d0");
+    __asm__ volatile(".short 0xA019" : "=d"(d0), "+a"(a0) : "m"(pb) : "d1", "d2", "a1", "cc", "memory");
+    return d0;
+}
+
+/* _SetApplBase ($A057): A0 = new start of the application heap. Grows the
+ * system heap up to that address and re-creates the application zone above
+ * it (up to the low-memory ApplLimit). */
+static inline int16_t serom_set_appl_base(void *base)
+{
+    register void *a0 __asm__("a0") = base;
+    register int16_t d0 __asm__("d0");
+    __asm__ volatile(".short 0xA057" : "=d"(d0), "+a"(a0) : : "d1", "d2", "a1", "cc", "memory");
+    return d0;
+}
+
+/* _MaxApplZone ($A063): grow the application zone to ApplLimit. */
+static inline void serom_max_appl_zone(void)
+{
+    __asm__ volatile(".short 0xA063" : : : "d0", "d1", "d2", "a0", "a1", "cc", "memory");
+}
+
+/* _GetOSEvent ($A031): A0 -> EventRecord, D0.W = mask. On return the low byte
+ * of D0 is 0 if an event was returned, -1 (0xFF) for a null event - test
+ * (result & 0xFF) == 0. Low level: no desk accessories, no System file needed;
+ * this is what the PlusOS keyboard driver uses. */
+static inline int16_t serom_get_os_event(int16_t mask, void *event_record)
+{
+    register void *a0 __asm__("a0") = event_record;
+    register int16_t d0 __asm__("d0") = mask;
+    __asm__ volatile(".short 0xA031" : "+d"(d0), "+a"(a0) : : "d1", "d2", "a1", "cc", "memory");
+    return d0;
+}
+
+/* _MountVol ($A00F): A0 -> parameter block with ioVRefNum = drive number. */
+static inline int16_t serom_mount_vol(void *pb)
+{
+    register void *a0 __asm__("a0") = pb;
+    register int16_t d0 __asm__("d0");
+    __asm__ volatile(".short 0xA00F" : "=d"(d0), "+a"(a0) : : "d1", "d2", "a1", "cc", "memory");
+    return d0;
+}
+
+#ifdef __cplusplus
+}
+#endif
+#endif

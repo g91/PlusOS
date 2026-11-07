@@ -1,0 +1,50 @@
+#pragma once
+#ifndef SEROM_OS_SEGMENT_LOADER_HPP
+#define SEROM_OS_SEGMENT_LOADER_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/os/segment_loader.s  (42 entry points)
+namespace serom { namespace os { namespace segment_loader { 
+    void LOADER();
+    void LOADSEG();
+    void LOADER_NO_MOVEHHI();
+    void LOADER_LOCKED();
+    void LOADSEG_LOOP();
+    void LOADSEG_EMPTY();
+    void LOADSEG_EXIT();
+    void LOADSEG_ERR();
+    void GETCODERSRC();
+    void UNLOADSEG();
+    void UNLOADSEG_LOOP();
+    void UNLOADSEG_DONE();
+    void APPHEAP_TEST();
+    void APPHEAP_TEST_RTS();
+    void UNLOADSEG_CONT();
+    void VBL_SCAN_LOOP();
+    void UNLOADSEG_OK();
+    void UNLOADSEG_CONT_2();
+    void CHAIN();
+    void LAUNCH();
+    void LAUNCH_LOOP();
+    void LAUNCH_EMPTY();
+    void LAUNCH_CONT();
+    void LAUNCH_NO_LC();
+    void LAUNCH_EMPTY_2();
+    void LAUNCH_NO();
+    void LAUNCH_NO_2();
+    void LAUNCH_OPEN_RFORK();
+    void LAUNCH_SET_PERM();
+    void LAUNCH_CONT_2();
+    void L_SegStack();
+    void VSEGSTACK();
+    void EXITTOSHELL();
+    void EXITTOSHELL_LOOP();
+    void EXITTOSHELL_ERR();
+    void GETAPPPARMS();
+    void INSTALLRDRIVERS();
+    void RDRVRINSTALL_LOOP_TOP();
+    void RDRVRINSTALL_LOOP();
+    void RDRVRINSTALL_NO();
+    void RDRVRINSTALL_NO_2();
+    void RDRVRINSTALL_SKIP();
+}}}  // namespace serom::os::segment_loader
+#endif  // SEROM_OS_SEGMENT_LOADER_HPP

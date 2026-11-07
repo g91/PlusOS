@@ -1,0 +1,73 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_QUICKDRAW_CRSRCORE_HPP
+#define SEROM_TOOLBOX_QUICKDRAW_CRSRCORE_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/CrsrCore.s  (65 entry points)
+namespace serom { namespace toolbox { namespace quickdraw { namespace CrsrCore { 
+    void CRSRCORE();
+    void INITCRTABLE();
+    void P_CrsrObscure();
+    void P_HideCursor();
+    void HIDE_RESTORE_ROW();
+    void HIDE_CLEAR_VIS();
+    void HIDE_DEC_STATE();
+    void CRSR_CLEAR_BUSY();
+    void P_InitCrsr();
+    void P_ShowCursor();
+    void SHOW_CLIP_RIGHT();
+    void SHOW_CLIP_VERT();
+    void SHOW_CLIP_BOTTOM();
+    void SHOW_SET_RECT();
+    void SHOW_DRAW_ROW();
+    void SHOW_DRAW_TEST();
+    void P_ShieldCursor();
+    void SHIELD_DO_HIDE();
+    void SHIELD_NO_OVERLAP();
+    void SHIELD_RETURN();
+    void P_SetCrsr();
+    void SETCRSR_CMP_LOOP();
+    void SETCRSR_STORE();
+    void SETCRSR_CLAMP_V();
+    void SETCRSR_CHECK_CHG();
+    void SETCRSR_REDRAW();
+    void SETCRSR_RETURN();
+    void SCRNADDRESS();
+    void SCRNSIZE();
+    void STORE_SCRN_WIDTH();
+    void SCRNBITMAP();
+    void CRSRVBLTASK();
+    void CRSVBL_ABS_DV();
+    void CRSVBL_PICK_MAX();
+    void CRSVBL_COMPUTE_MICKEY();
+    void CRSVBL_RING_DISPATCH();
+    void CRSVBL_RING_TBL();
+    void CRSVBL_RING_N2();
+    void CRSVBL_RING_N3();
+    void CRSVBL_RING_N4();
+    void CRSVBL_RING_N5();
+    void CRSVBL_RING_N6();
+    void CRSVBL_RING_N7();
+    void CRSVBL_RING_N8();
+    void CRSVBL_SUM_SLOT1();
+    void CRSVBL_SUM_SLOT2();
+    void CRSVBL_SUM_SLOT3();
+    void CRSVBL_SUM_SLOT4();
+    void CRSVBL_SUM_SLOT5();
+    void CRSVBL_SUM_SLOT6();
+    void CRSVBL_STORE_NEW();
+    void CRSVBL_DELTA_OK();
+    void CRSVBL_AVG_OK();
+    void CRSVBL_THRESHOLD_LOOP();
+    void CRSVBL_UPDATE_POS();
+    void CRSVBL_REDRAW();
+    void CRSVBL_CLEAR_FLAGS();
+    void CRSVBL_RESET_AND_RTS();
+    void CRSVBL_RESET_AND_REDRAW();
+    void PIN_POINT_TO_RECT();
+    void PIN_CHECK_RIGHT();
+    void PIN_CHECK_TOP();
+    void PIN_CHECK_BOTTOM();
+    void PIN_DONE();
+    void PINRECT();
+}}}}  // namespace serom::toolbox::quickdraw::CrsrCore
+#endif  // SEROM_TOOLBOX_QUICKDRAW_CRSRCORE_HPP

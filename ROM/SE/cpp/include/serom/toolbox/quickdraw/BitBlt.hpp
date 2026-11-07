@@ -1,0 +1,64 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_QUICKDRAW_BITBLT_HPP
+#define SEROM_TOOLBOX_QUICKDRAW_BITBLT_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/BitBlt.s  (56 entry points)
+namespace serom { namespace toolbox { namespace quickdraw { namespace BitBlt { 
+    void BITBLT();
+    void MODEOK();
+    void DIREC();
+    void UPSIDE();
+    void GETSRC();
+    void NOTSRC();
+    void DIROK();
+    void DIROK_NO();
+    void DOMAIN();
+    void NEXTROW();
+    void ROWLOOP();
+    void NXTSRC();
+    void NXTSRC_NEXT();
+    void GOHOME();
+    void MODETAB();
+    void LEFT0();
+    void LTWO0();
+    void LONE0();
+    void LMORE0();
+    void SETUP0();
+    void FAST0();
+    void END0();
+    void MAIN0();
+    void COPYBIG();
+    void COPYBIG_LOOP();
+    void COPYBIG_DONE();
+    void COPY32();
+    void END1();
+    void END1_LOOP();
+    void END2();
+    void END2_LOOP();
+    void END3();
+    void END3_LOOP();
+    void WORD8();
+    void WORD8A();
+    void WORD8A_CONT();
+    void CALCLP();
+    void WORD8A_CONT_2();
+    void WORD8A_CONT_3();
+    void WORD8A_CONT_4();
+    void END8();
+    void FILLBIG();
+    void FILLBIG_LOOP();
+    void FILLBIG_DONE();
+    void FILL32();
+    void FILL31_CONT();
+    void MAIN9();
+    void MAIN9_CONT();
+    void MAIN9_CONT_2();
+    void MAIN9_NO();
+    void XORBIG();
+    void XORBIG_LOOP();
+    void XORBIG_DONE();
+    void XOR32();
+    void XOR31_CONT();
+    void MAIN11();
+}}}}  // namespace serom::toolbox::quickdraw::BitBlt
+#endif  // SEROM_TOOLBOX_QUICKDRAW_BITBLT_HPP

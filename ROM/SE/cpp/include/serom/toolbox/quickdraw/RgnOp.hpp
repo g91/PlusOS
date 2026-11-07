@@ -1,0 +1,50 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_QUICKDRAW_RGNOP_HPP
+#define SEROM_TOOLBOX_QUICKDRAW_RGNOP_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/RgnOp.s  (42 entry points)
+namespace serom { namespace toolbox { namespace quickdraw { namespace RgnOp { 
+    void RGNOP();
+    void CASEOK();
+    void STKOK1();
+    void STKOK2();
+    void ALLOC();
+    void RGNOP_NXTVERT();
+    void UPDATEA();
+    void BOTH();
+    void UPDATEB();
+    void CALC();
+    void CHANGES();
+    void CHANGES_NO();
+    void OUTTEST();
+    void OUTTEST_NO();
+    void EXPAND();
+    void RGNOP_NOTRECT();
+    void RGNOP_ABORT();
+    void RGNOP_DONE();
+    void SECTSCAN();
+    void DIFFSCAN();
+    void UNIONSCAN();
+    void UNION2();
+    void SECTSCAN_SHARE();
+    void NEXT();
+    void SKIP0();
+    void ALESS();
+    void SKIP1();
+    void BLESS();
+    void SKIP2();
+    void SKIP2_EXIT();
+    void INSETSCAN();
+    void INSET();
+    void OUTSET();
+    void OUTLOOP();
+    void OUTOK();
+    void OUTOK2();
+    void OUTOK2_LOOP();
+    void OUTOK2_EXIT();
+    void EQUAL();
+    void XORSCAN();
+    void INSETSCAN_NEXT();
+    void INSETSCAN_ALESS();
+}}}}  // namespace serom::toolbox::quickdraw::RgnOp
+#endif  // SEROM_TOOLBOX_QUICKDRAW_RGNOP_HPP

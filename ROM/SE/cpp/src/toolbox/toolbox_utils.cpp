@@ -1,0 +1,49 @@
+#include "serom/toolbox/toolbox_utils.hpp"
+// Scaffold for SE ROM module: se/toolbox/toolbox_utils.s
+namespace serom { namespace toolbox { namespace toolbox_utils { 
+    void DMGREND() { serom::serom_unimplemented("toolbox::toolbox_utils::DMGREND"); }
+    void BYTES() { serom::serom_unimplemented("toolbox::toolbox_utils::BYTES"); }
+    void MUNGER() { serom::serom_unimplemented("toolbox::toolbox_utils::MUNGER"); }
+    void MUNGER_CONT() { serom::serom_unimplemented("toolbox::toolbox_utils::MUNGER_CONT"); }
+    void XMUNGER() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER"); }
+    void XMUNGER_CONT() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_CONT"); }
+    void XMUNGER_CONT_2() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_CONT_2"); }
+    void XMUNGER_OK() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_OK"); }
+    void XMUNGER_RETRY() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_RETRY"); }
+    void XMUNGER_LOOP() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_LOOP"); }
+    void XMUNGER_NEXT() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_NEXT"); }
+    void XMUNGER_NOTFOUND() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_NOTFOUND"); }
+    void XMUNGER_CONT_3() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_CONT_3"); }
+    void XMUNGER_CONT_4() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_CONT_4"); }
+    void XMUNGER_EXIT() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_EXIT"); }
+    void MungerResizeIfDiff() { serom::serom_unimplemented("toolbox::toolbox_utils::MungerResizeIfDiff"); }
+    void XMUNGER_NO() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_NO"); }
+    void XMUNGER_CONT_5() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_CONT_5"); }
+    void XMUNGER_CONT_6() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_CONT_6"); }
+    void XMUNGER_EMPTY() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_EMPTY"); }
+    void XMUNGER_EXIT_2() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_EXIT_2"); }
+    void XMUNGER_NO_2() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_NO_2"); }
+    void XMUNGER_CONT_7() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_CONT_7"); }
+    void XMUNGER_RTS() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_RTS"); }
+    void XMUNGER_EMPTY_2() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_EMPTY_2"); }
+    void XMUNGER_CONT_8() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_CONT_8"); }
+    void XMUNGER_CONT_9() { serom::serom_unimplemented("toolbox::toolbox_utils::XMUNGER_CONT_9"); }
+    void HANDTOHAND() { serom::serom_unimplemented("toolbox::toolbox_utils::HANDTOHAND"); }
+    void PTRTOHAND_FINALIZE() { serom::serom_unimplemented("toolbox::toolbox_utils::PTRTOHAND_FINALIZE"); }
+    void PTRTOXHAND() { serom::serom_unimplemented("toolbox::toolbox_utils::PTRTOXHAND"); }
+    void PTRTOHAND() { serom::serom_unimplemented("toolbox::toolbox_utils::PTRTOHAND"); }
+    void PTRTOHAND_CONT() { serom::serom_unimplemented("toolbox::toolbox_utils::PTRTOHAND_CONT"); }
+    void PTRTOHAND_CONT_2() { serom::serom_unimplemented("toolbox::toolbox_utils::PTRTOHAND_CONT_2"); }
+    void PTRTOHAND_RTS() { serom::serom_unimplemented("toolbox::toolbox_utils::PTRTOHAND_RTS"); }
+    void HANDANDHAND() { serom::serom_unimplemented("toolbox::toolbox_utils::HANDANDHAND"); }
+    void PTRANDHAND() { serom::serom_unimplemented("toolbox::toolbox_utils::PTRANDHAND"); }
+    void METHODDISPATCH() { serom::serom_unimplemented("toolbox::toolbox_utils::METHODDISPATCH"); }
+    void METHODDISPATCH_CONT() { serom::serom_unimplemented("toolbox::toolbox_utils::METHODDISPATCH_CONT"); }
+    void STDOPCODE_PCREL_JMP() { serom::serom_unimplemented("toolbox::toolbox_utils::STDOPCODE_PCREL_JMP"); }
+    void STDOPCODE_SEARCH_TABLE() { serom::serom_unimplemented("toolbox::toolbox_utils::STDOPCODE_SEARCH_TABLE"); }
+    void METHODDISPATCH_LOOP() { serom::serom_unimplemented("toolbox::toolbox_utils::METHODDISPATCH_LOOP"); }
+    void STDOPCODE_NEXT_ENTRY() { serom::serom_unimplemented("toolbox::toolbox_utils::STDOPCODE_NEXT_ENTRY"); }
+    void METHODDISPATCH_RETRY() { serom::serom_unimplemented("toolbox::toolbox_utils::METHODDISPATCH_RETRY"); }
+    void STDOPCODE_PARENT_CLASS() { serom::serom_unimplemented("toolbox::toolbox_utils::STDOPCODE_PARENT_CLASS"); }
+    void METHODDISPATCH_FOUND() { serom::serom_unimplemented("toolbox::toolbox_utils::METHODDISPATCH_FOUND"); }
+}}}  // namespace serom::toolbox::toolbox_utils

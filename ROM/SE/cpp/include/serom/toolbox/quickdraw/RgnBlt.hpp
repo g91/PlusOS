@@ -1,0 +1,55 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_QUICKDRAW_RGNBLT_HPP
+#define SEROM_TOOLBOX_QUICKDRAW_RGNBLT_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/RgnBlt.s  (47 entry points)
+namespace serom { namespace toolbox { namespace quickdraw { namespace RgnBlt { 
+    void RGNBLT();
+    void OKRECT();
+    void OKRECT_NO();
+    void RGNBLT_CLRMASK();
+    void RGNBLT_CLRMASK_SKIP();
+    void RGNBLT_CLRMASK_SKIP_2();
+    void RGNBLT_CLRMASK_CONT();
+    void RGNBLT_CLRMASK_EXIT();
+    void RGNBLT_CLRMASK_NO();
+    void RGNBLT_CLRMASK_NO_2();
+    void RGNBLT_CLRMASK_SKIP_3();
+    void RGNBLT_CLRMASK_SKIP_4();
+    void USESRC();
+    void RGNBLT_UPSIDE();
+    void RGNBLT_SRCOK();
+    void RGNBLT_GETDST();
+    void RGNBLT_GETDST_NO();
+    void RGNBLT_NXTMASK();
+    void RGNBLT_NXTMASK_NEXT();
+    void RGNBLT_NXTMASK_NEXT_2();
+    void BUMPV();
+    void RGNBLT_DONE();
+    void RGNBLT_GOHOME();
+    void RGNBLT_GOHOME_CONT();
+    void RGNBLT_GOHOME_CONT_2();
+    void RGNBLT_GOHOME_CONT_3();
+    void RGNBLT_GOHOME_CONT_4();
+    void RGNBLT_GOHOME_CONT_5();
+    void JMPSEEK();
+    void JMPSEEK_CONT();
+    void JMPSEEK_CONT_2();
+    void JMPSEEK_CONT_3();
+    void CPY2BUF();
+    void BCLOOP();
+    void BCLOOP_DONE();
+    void BCLOOP_CONT();
+    void ABCLOOP();
+    void ABCDONE();
+    void ABCDONE_MODE_TBL();
+    void ABCDONE_LOOP();
+    void ABCDONE_LOOP_2();
+    void ABCDONE_LOOP_3();
+    void ABCDONE_LOOP_4();
+    void ABCDONE_LOOP_5();
+    void ABCDONE_LOOP_6();
+    void ABCDONE_LOOP_7();
+    void ABCDONE_LOOP_8();
+}}}}  // namespace serom::toolbox::quickdraw::RgnBlt
+#endif  // SEROM_TOOLBOX_QUICKDRAW_RGNBLT_HPP

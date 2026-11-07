@@ -1,0 +1,85 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_QUICKDRAW_BITMAPS_HPP
+#define SEROM_TOOLBOX_QUICKDRAW_BITMAPS_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/Bitmaps.s  (77 entry points)
+namespace serom { namespace toolbox { namespace quickdraw { namespace Bitmaps { 
+    void STDBITS();
+    void TOPOK();
+    void BOTOK();
+    void LEFTOK();
+    void LEFTOK_NO();
+    void NOTRGN();
+    void NOPACK();
+    void NOPACK_SKIP();
+    void MORE1();
+    void START1();
+    void MORE2();
+    void START2();
+    void START2_DONE();
+    void STDBITS_NOTPIC();
+    void MASKOK();
+    void STDBITS_GOHOME();
+    void COPYBITS();
+    void SRCOK();
+    void NOTPORT();
+    void COPYBITS_MASKOK();
+    void TOPORT();
+    void COPYBITS_USESTD();
+    void CLEANUP();
+    void COPYBITS_DONE();
+    void COPYMASK();
+    void COPYMASK_NO();
+    void AGAIN();
+    void NOTRECT();
+    void GETDST();
+    void COPYMASK_NEXTROW();
+    void COPYMASK_NEXTROW_LOOP();
+    void COPYMASK_GOHOME();
+    void SEEDFILL();
+    void CALCMASK();
+    void CALCMASK_SHARE();
+    void BLACK1();
+    void BLACK2();
+    void NOSEED();
+    void NEXTBUF();
+    void NXTPASS();
+    void CALCMASK_NEXTROW();
+    void RNEXT();
+    void RDSTOK();
+    void RMORE();
+    void RSTART();
+    void RSAME();
+    void LSMEAR();
+    void LNEXT();
+    void LDSTOK();
+    void LMORE();
+    void LSTART();
+    void LSAME();
+    void LSAME_CONT();
+    void INVERT1();
+    void INVERT2();
+    void INVERT2_EXIT();
+    void SCROLLRECT();
+    void ABORT();
+    void ABORT_DONE();
+    void PACKBITS();
+    void FILLOP();
+    void START();
+    void NXTCOPY();
+    void DOCOPY();
+    void ENDCOPY();
+    void COPYOP();
+    void DOFILL();
+    void NXTFILL();
+    void ENDFILL();
+    void ENDFILL_EXIT();
+    void ENDFILL_EXIT_2();
+    void UNPACKBITS();
+    void UNPACKBITS_CONT();
+    void UNPACKBITS_LOOP();
+    void UNPACKBITS_SKIP();
+    void UNPACKBITS_LOOP_2();
+    void UNPACKBITS_DONE();
+}}}}  // namespace serom::toolbox::quickdraw::Bitmaps
+#endif  // SEROM_TOOLBOX_QUICKDRAW_BITMAPS_HPP

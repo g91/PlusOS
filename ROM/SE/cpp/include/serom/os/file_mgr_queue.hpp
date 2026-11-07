@@ -1,0 +1,58 @@
+#pragma once
+#ifndef SEROM_OS_FILE_MGR_QUEUE_HPP
+#define SEROM_OS_FILE_MGR_QUEUE_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/os/file_mgr_queue.s  (50 entry points)
+namespace serom { namespace os { namespace file_mgr_queue { 
+    void TURBOFS();
+    void TFSDISPATCH();
+    void FSDISPATCH_BAD_SEL();
+    void FSDISPATCH_VALID();
+    void HFS_DISPATCH_TABLE();
+    void P_hfs0();
+    void FSQUEUE_SETUP_SYNC();
+    void FSQUEUE_SETUP();
+    void FSQUEUE_NO_HOOK();
+    void FSQUEUE_STORE_CMD();
+    void FSQUEUE_SYNC_PATH();
+    void FSQUEUE_SYNC_WAIT();
+    void FSQUEUE_SPIN_WAIT();
+    void FSQUEUE_RETURN();
+    void FSQUEUE_ENQUEUE();
+    void FSQUEUE_TRY_LOCK();
+    void FSQUEUE_SERVER();
+    void NOPKG_SYSERROR();
+    void FSQUEUE_DONE();
+    void FSQUEUE_STORE_ERR();
+    void FSQUEUE_TRY_SWITCH();
+    void FSQUEUE_SCAN_NEXT();
+    void FSQUEUE_SCAN_END();
+    void FSQUEUE_NO_DRIVE();
+    void FSQUEUE_CLR_OFFLINE();
+    void FSQUEUE_CHK_EXTFS();
+    void FSQUEUE_CALL_EXTFS();
+    void FSQUEUE_DEQUEUE();
+    void FSQUEUE_RESTORED_SR();
+    void FSQUEUE_CHK_MORE();
+    void FINITQUEUE();
+    void FINITQ_DONE();
+    void DSHOOK();
+    void DSHOOK_SHOW_DLG();
+    void DSHOOK_SYSERROR();
+    void DSHOOK_SCAN_DRV();
+    void DSHOOK_FOUND_DRV();
+    void DSHOOK_EJECT_DRV();
+    void DSHOOK_DO_EJECT();
+    void DSHOOK_EVT_LOOP();
+    void DSHOOK_POLL_EVT();
+    void DSHOOK_CALL_KBDTASK();
+    void DSHOOK_CHK_CMDPER();
+    void DSHOOK_DISK_INSERT();
+    void DSHOOK_DISMISS();
+    void DSHOOK_NO_PORT();
+    void DSHOOK_SETPORT();
+    void DSHOOK_CLEANUP();
+    void DSHOOK_RETRY_TRAP();
+    void DSHOOK_FIX_ALINE();
+}}}  // namespace serom::os::file_mgr_queue
+#endif  // SEROM_OS_FILE_MGR_QUEUE_HPP

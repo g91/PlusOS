@@ -1,0 +1,51 @@
+#include "serom/toolbox/quickdraw/RgnBlt.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/RgnBlt.s
+namespace serom { namespace toolbox { namespace quickdraw { namespace RgnBlt { 
+    void RGNBLT() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT"); }
+    void OKRECT() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::OKRECT"); }
+    void OKRECT_NO() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::OKRECT_NO"); }
+    void RGNBLT_CLRMASK() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_CLRMASK"); }
+    void RGNBLT_CLRMASK_SKIP() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_CLRMASK_SKIP"); }
+    void RGNBLT_CLRMASK_SKIP_2() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_CLRMASK_SKIP_2"); }
+    void RGNBLT_CLRMASK_CONT() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_CLRMASK_CONT"); }
+    void RGNBLT_CLRMASK_EXIT() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_CLRMASK_EXIT"); }
+    void RGNBLT_CLRMASK_NO() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_CLRMASK_NO"); }
+    void RGNBLT_CLRMASK_NO_2() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_CLRMASK_NO_2"); }
+    void RGNBLT_CLRMASK_SKIP_3() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_CLRMASK_SKIP_3"); }
+    void RGNBLT_CLRMASK_SKIP_4() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_CLRMASK_SKIP_4"); }
+    void USESRC() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::USESRC"); }
+    void RGNBLT_UPSIDE() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_UPSIDE"); }
+    void RGNBLT_SRCOK() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_SRCOK"); }
+    void RGNBLT_GETDST() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_GETDST"); }
+    void RGNBLT_GETDST_NO() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_GETDST_NO"); }
+    void RGNBLT_NXTMASK() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_NXTMASK"); }
+    void RGNBLT_NXTMASK_NEXT() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_NXTMASK_NEXT"); }
+    void RGNBLT_NXTMASK_NEXT_2() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_NXTMASK_NEXT_2"); }
+    void BUMPV() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::BUMPV"); }
+    void RGNBLT_DONE() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_DONE"); }
+    void RGNBLT_GOHOME() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_GOHOME"); }
+    void RGNBLT_GOHOME_CONT() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_GOHOME_CONT"); }
+    void RGNBLT_GOHOME_CONT_2() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_GOHOME_CONT_2"); }
+    void RGNBLT_GOHOME_CONT_3() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_GOHOME_CONT_3"); }
+    void RGNBLT_GOHOME_CONT_4() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_GOHOME_CONT_4"); }
+    void RGNBLT_GOHOME_CONT_5() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::RGNBLT_GOHOME_CONT_5"); }
+    void JMPSEEK() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::JMPSEEK"); }
+    void JMPSEEK_CONT() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::JMPSEEK_CONT"); }
+    void JMPSEEK_CONT_2() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::JMPSEEK_CONT_2"); }
+    void JMPSEEK_CONT_3() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::JMPSEEK_CONT_3"); }
+    void CPY2BUF() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::CPY2BUF"); }
+    void BCLOOP() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::BCLOOP"); }
+    void BCLOOP_DONE() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::BCLOOP_DONE"); }
+    void BCLOOP_CONT() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::BCLOOP_CONT"); }
+    void ABCLOOP() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCLOOP"); }
+    void ABCDONE() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCDONE"); }
+    void ABCDONE_MODE_TBL() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCDONE_MODE_TBL"); }
+    void ABCDONE_LOOP() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCDONE_LOOP"); }
+    void ABCDONE_LOOP_2() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCDONE_LOOP_2"); }
+    void ABCDONE_LOOP_3() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCDONE_LOOP_3"); }
+    void ABCDONE_LOOP_4() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCDONE_LOOP_4"); }
+    void ABCDONE_LOOP_5() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCDONE_LOOP_5"); }
+    void ABCDONE_LOOP_6() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCDONE_LOOP_6"); }
+    void ABCDONE_LOOP_7() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCDONE_LOOP_7"); }
+    void ABCDONE_LOOP_8() { serom::serom_unimplemented("toolbox::quickdraw::RgnBlt::ABCDONE_LOOP_8"); }
+}}}}  // namespace serom::toolbox::quickdraw::RgnBlt

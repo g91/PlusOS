@@ -1,0 +1,68 @@
+#pragma once
+#ifndef SEROM_DEBUGGER_MICROBUG_HPP
+#define SEROM_DEBUGGER_MICROBUG_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/debugger/microbug.s  (60 entry points)
+namespace serom { namespace debugger { namespace microbug { 
+    void MICROBUG_ENTRY();
+    void MICROBUG_PROMPT();
+    void MICROBUG_FILL_BUF();
+    void MICROBUG_KEY_LOOP();
+    void MICROBUG_CHECK_KEY();
+    void MICROBUG_STORE_CH();
+    void MICROBUG_EXEC_CMD();
+    void MICROBUG_PARSE_CMD();
+    void MICROBUG_CMD_LOOP();
+    void MICROBUG_CMD_CMP();
+    void MICROBUG_CMD_DONE();
+    void DT_DbgCmdTab();
+    void P_DbgCmd_G();
+    void DBGCMD_G_RESUME();
+    void ERASE_STACK_RECT();
+    void P_DbgCmd_DM();
+    void DM_ROW_LOOP();
+    void DM_WORD_LOOP();
+    void PRINT_HEX_LONG();
+    void PRINT_HEX_WORD();
+    void PRINT_HEX_BYTE();
+    void PRINT_HEX_NIBBLE();
+    void HEX_DIGIT_OK();
+    void P_DbgCmd_FS();
+    void SM_PARSE_LOOP();
+    void SM_STORE_LOOP();
+    void P_DbgCmd_TD();
+    void P_DbgCmd_PC();
+    void P_DbgCmd_SR();
+    void DBGREG_PARSE_NUM();
+    void DBGREG_PARSE_VAL();
+    void DBGREG_SHOW_WORD();
+    void DBGREG_DISPLAY();
+    void DBGREG_PRINT_LOW();
+    void ASCII_TO_NIBBLE();
+    void NIBBLE_IS_DIGIT();
+    void PARSE_ADDR_OR_CONT();
+    void PARSE_ADDR_RTS();
+    void EVAL_EXPR();
+    void EXPR_NEW_TERM();
+    void EXPR_SKIP_SPACE();
+    void EXPR_SCAN_PREFIX();
+    void EXPR_CHECK_OP();
+    void EXPR_CHECK_HEX();
+    void EXPR_HEX_LOOP();
+    void EXPR_FINALIZE();
+    void EXPR_DEREF_LOOP();
+    void EXPR_CHECK_NEG();
+    void EXPR_ACCUMULATE();
+    void EXPR_CHECK_SIZE();
+    void EXPR_CHECK_NEXT();
+    void EXPR_NEXT_TERM();
+    void EXPR_RETURN();
+    void EXPR_CHECK_DOT();
+    void EXPR_TOKEN_DONE();
+    void EXPR_SKIP_CHARS();
+    void EXPR_CHECK_PC();
+    void EXPR_CHECK_REG();
+    void EXPR_READ_REGNUM();
+    void EXPR_CHECK_RD();
+}}}  // namespace serom::debugger::microbug
+#endif  // SEROM_DEBUGGER_MICROBUG_HPP

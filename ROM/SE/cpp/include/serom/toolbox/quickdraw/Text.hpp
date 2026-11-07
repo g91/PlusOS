@@ -1,0 +1,62 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_QUICKDRAW_TEXT_HPP
+#define SEROM_TOOLBOX_QUICKDRAW_TEXT_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/Text.s  (54 entry points)
+namespace serom { namespace toolbox { namespace quickdraw { namespace Text { 
+    void STDTEXT();
+    void TXTLOOP();
+    void COUNTOK();
+    void FONTOK();
+    void FACEOK();
+    void STDTEXT_MODEOK();
+    void STDTEXT_SIZEOK();
+    void SPOK();
+    void STDTEXT_NOTSAME();
+    void STDTEXT_NOTSAME_NO();
+    void STDTEXT_NOTSAME_NO_2();
+    void STDTEXT_NOTSAME_CONT();
+    void SHORT();
+    void DV();
+    void STDTEXT_DHDV();
+    void SHARE1();
+    void STDTEXT_SHARE2();
+    void TEXT2();
+    void STDTEXT_NOTPIC();
+    void STDTEXT_GOHOME();
+    void CALLTEXT();
+    void CALLTEXT_USESTD();
+    void TEXTFACE();
+    void DRAWCHAR();
+    void CHARWIDTH();
+    void CHARWIDTH_SHARE();
+    void TEXTFONT();
+    void TEXTMODE();
+    void TEXTSIZE();
+    void TEXTSIZE_SHARE();
+    void SPACEEXTRA();
+    void DRAWSTRING();
+    void DRAWTEXT();
+    void DRAWTEXT_SHARE();
+    void STRINGWIDTH();
+    void TEXTWIDTH();
+    void STD();
+    void TEXTWIDTH_DONE();
+    void TEXTWIDTH_DONE_EXIT();
+    void STDTXMEAS();
+    void STDTXMEAS_NEXTCH();
+    void STDTXMEAS_MORE();
+    void MEASURETEXT();
+    void MEASURETEXT_CUSTOM_LOOP();
+    void MEASURETEXT_CUSTOM_STORE();
+    void MEASURETEXT_USESTD();
+    void MEASURETEXT_NEXTCH();
+    void NEXTCH2();
+    void NEXTCH2_SKIP();
+    void GETFONTINFO();
+    void GETFONTINFO_USESTD();
+    void GETFONTINFO_USESTD_SKIP();
+    void GETFONTINFO_USESTD_SKIP_2();
+    void SCALE();
+}}}}  // namespace serom::toolbox::quickdraw::Text
+#endif  // SEROM_TOOLBOX_QUICKDRAW_TEXT_HPP

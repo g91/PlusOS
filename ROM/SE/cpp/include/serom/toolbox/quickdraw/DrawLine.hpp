@@ -1,0 +1,64 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_QUICKDRAW_DRAWLINE_HPP
+#define SEROM_TOOLBOX_QUICKDRAW_DRAWLINE_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/DrawLine.s  (56 entry points)
+namespace serom { namespace toolbox { namespace quickdraw { namespace DrawLine { 
+    void DRAWLINE();
+    void DRAWLINE_NOCOLOR();
+    void VOK2();
+    void VOK2_NO();
+    void DRAWLINE_CKPAT();
+    void DRAWLINE_YESFLAG();
+    void DRAWLINE_YESFLAG_CONT();
+    void DRAWLINE_YESFLAG_NO();
+    void HVLINE();
+    void NOTFAST();
+    void VSWAP();
+    void SLANTED();
+    void SLANTED_NO();
+    void NEGSLOPE();
+    void NEGSLOPE_NO();
+    void NEGSLOPE_CONT();
+    void NEGSLOPE_NO_2();
+    void DRAWLINE_CLRMASK();
+    void DRAWLINE_CLRMASK_OK();
+    void DRAWLINE_CLRMASK_CONT();
+    void DRAWLINE_CLRMASK_EXIT();
+    void DRAWLINE_CLRMASK_SKIP();
+    void DRAWLINE_CLRMASK_LOOP();
+    void GOSLOW();
+    void GOSLOW_SKIP();
+    void NXTMASK();
+    void DRAWLINE_DONE();
+    void DRAWLINE_GOHOME();
+    void DRAWLINE_GOHOME_CONT();
+    void DRAWLINE_GOHOME_CONT_2();
+    void DRAWLINE_GOHOME_CONT_3();
+    void DRAWLINE_JSRSEEK();
+    void DRAWLINE_JSRSEEK_CONT();
+    void DRAWLINE_JSRSEEK_CONT_2();
+    void DRAWLINE_JSRSEEK_CONT_3();
+    void DRAWLINE_ABLOOP();
+    void FASTLINE();
+    void CLRTWO();
+    void CLRONE();
+    void CLRMORE();
+    void ENDCLR();
+    void HTOGL();
+    void TOGLTWO();
+    void TOGLONE();
+    void TOGLMORE();
+    void ENDTOGL();
+    void HSET();
+    void SETTWO();
+    void SETONE();
+    void SETMORE();
+    void ENDSET();
+    void VLINE();
+    void VCLR();
+    void VTOGL();
+    void VSET();
+    void HVSETUP();
+}}}}  // namespace serom::toolbox::quickdraw::DrawLine
+#endif  // SEROM_TOOLBOX_QUICKDRAW_DRAWLINE_HPP

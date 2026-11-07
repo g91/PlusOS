@@ -1,0 +1,62 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_QUICKDRAW_DRAWTEXT_HPP
+#define SEROM_TOOLBOX_QUICKDRAW_DRAWTEXT_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/DrawText.s  (54 entry points)
+namespace serom { namespace toolbox { namespace quickdraw { namespace DrawText { 
+    void DRTEXT();
+    void NOSLOP();
+    void NOSTRCH();
+    void DRTEXT_NOCOLOR();
+    void FAST();
+    void VCLIP();
+    void VCLIP_NO();
+    void DRTEXT_NOTFAST();
+    void DRTEXT_NOTFAST_CONT();
+    void DRTEXT_NOTFAST_NO();
+    void CLRLOOP();
+    void GETPTRS();
+    void GETPTRS_NO();
+    void SPACECH();
+    void SKIPCH();
+    void NEXTCH();
+    void MISSING();
+    void OKCHAR();
+    void NOTMISS();
+    void NOTMISS_NO();
+    void NOTMISS_NO_2();
+    void TRIMRT();
+    void HORIZOK();
+    void MAIN1();
+    void WIDE1();
+    void LONG1();
+    void LONG1A();
+    void WORD1();
+    void WORD1B();
+    void STRDONE();
+    void STRDONE_CONT();
+    void BOLDIT();
+    void BOLDLP();
+    void NXTBOLD();
+    void NXTROW();
+    void NXTWORD();
+    void DOSLANT();
+    void CHECKUL();
+    void ONLY2();
+    void UL1();
+    void UL2();
+    void ULTRIM();
+    void UL3();
+    void NOTUL();
+    void CLR2();
+    void COPYLP();
+    void ACROSS1();
+    void ACROSS2();
+    void DOWN1();
+    void DOWN2();
+    void DOWN2_CONT();
+    void NOSHAD();
+    void NOSHAD_NO();
+    void NOSHAD_EXIT();
+}}}}  // namespace serom::toolbox::quickdraw::DrawText
+#endif  // SEROM_TOOLBOX_QUICKDRAW_DRAWTEXT_HPP

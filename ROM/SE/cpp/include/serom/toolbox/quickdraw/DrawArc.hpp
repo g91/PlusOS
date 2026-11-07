@@ -1,0 +1,76 @@
+#pragma once
+#ifndef SEROM_TOOLBOX_QUICKDRAW_DRAWARC_HPP
+#define SEROM_TOOLBOX_QUICKDRAW_DRAWARC_HPP
+#include "serom/support.hpp"
+// Scaffold for SE ROM module: se/toolbox/quickdraw/DrawArc.s  (68 entry points)
+namespace serom { namespace toolbox { namespace quickdraw { namespace DrawArc { 
+    void DRAWARC();
+    void NOCOLOR();
+    void CKPAT();
+    void YESFLAG();
+    void YESFLAG_CONT();
+    void YESFLAG_NO();
+    void POSANG();
+    void STARTOK();
+    void STOPOK();
+    void STOPOK_OK();
+    void STOPOK_CONT();
+    void STOPOK_OK_2();
+    void STOPOK_CONT_2();
+    void ACUTE();
+    void NOTARC();
+    void SOLID();
+    void CLRMASK();
+    void CLRMASK_OK();
+    void CLRMASK_CONT();
+    void CLRMASK_EXIT();
+    void CLRMASK_SKIP();
+    void CLRMASK_NO();
+    void CLRMASK_SKIP_2();
+    void GOFORIT();
+    void DRAWARC_NEXTROW();
+    void YESBUMP();
+    void NOBUMP();
+    void ACUTE1();
+    void ACUTE1_SKIP();
+    void ACUTE1_SKIP_2();
+    void NOMASK();
+    void NOMASK_OK();
+    void NOMASK_SKIP();
+    void NOMASK_SKIP_2();
+    void NOMASK_SKIP_3();
+    void NOMASK_SKIP_4();
+    void NOMASK_NO();
+    void NOMASK_NO_2();
+    void NOMASK_CONT();
+    void NOMASK_NO_3();
+    void ONESLAB();
+    void SARC();
+    void HOVAL();
+    void SOVAL();
+    void DOSLAB();
+    void DOSLAB_SKIP();
+    void NODRAW();
+    void DRAWARC_DONE();
+    void DRAWARC_GOHOME();
+    void DRAWARC_GOHOME_CONT();
+    void DRAWARC_GOHOME_CONT_2();
+    void DRAWARC_GOHOME_CONT_3();
+    void JSRSEEK();
+    void JSRSEEK_CONT();
+    void JSRSEEK_CONT_2();
+    void JSRSEEK_CONT_3();
+    void ABLOOP();
+    void INITOVAL();
+    void OK1();
+    void OK1_NO();
+    void INITOVAL_OK3();
+    void INITOVAL_OK3_NO();
+    void BUMPOVAL();
+    void BUMPOVAL_MORE1();
+    void WHILE1();
+    void BUMPOVAL_MORE2();
+    void WHILE2();
+    void BUMPOVAL_GOHOME();
+}}}}  // namespace serom::toolbox::quickdraw::DrawArc
+#endif  // SEROM_TOOLBOX_QUICKDRAW_DRAWARC_HPP
