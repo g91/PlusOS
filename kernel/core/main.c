@@ -6,6 +6,21 @@
 #include "kernel.h"
 #include "proc.h"
 #include "syscall.h"
+#include "kmem.h"
+#include "gc.h"
+#include "pipe.h"
+#include "sync.h"
+#include "signal.h"
+#include "timer.h"
+#include "klog.h"
+#include "environ.h"
+#include "ramdisk.h"
+#include "shm.h"
+#include "power.h"
+#include "pram.h"
+#include "entropy.h"
+#include "profiler.h"
+#include "security.h"
 
 uint32_t  __plusos_load_addr;
 uint32_t  __plusos_a5world[4];      /* (A5) -> QuickDraw globals (set by InitGraf) */
@@ -74,13 +89,28 @@ __attribute__((noreturn)) void __plusos_kernel_start(void)
     exc_install();
     printf("Starting the ROM:\n");
     rom_init();
+    kmem_init();
+    gc_init();
+    klog_init();
+    env_init();
+    entropy_init();
+    profiler_init();
+    security_init();
     kbd_init((g_flags & PLUSOS_HAVE_EVENTS) != 0);
     sound_init();
+    power_init();
+    pram_init();
     video_init();                   /* allocate the back buffer before api_init wires it */
     api_init();
+    ramdisk_init();
+    shm_init();
 
-    printf("Starting the kernel: scheduler, timer, syscalls\n");
+    printf("Starting the kernel: scheduler, timer, IPC, syscalls\n");
     sched_init();
+    pipe_init();
+    sync_init();
+    signal_init();
+    timer_subsys_init();
     syscall_init();
     tick_init();
     preempt_init();                 /* user programs can no longer hog the CPU */

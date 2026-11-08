@@ -46,6 +46,38 @@ enum {
     SYS_history,       /* a0 = plusos_history_args* -> persistent 20-cmd history */
     SYS_sound,         /* a0 = plusos_sound_args*   -> hardware sound synthesizer */
     SYS_scrap,         /* a0 = plusos_scrap_args*   -> system-wide clipboard/scrap */
+
+    /* --- Extended Kernel Subsystems & Features (34+) --- */
+    SYS_ramstats,      /* 34: a0 = plusos_ram_stats* -> 0 */
+    SYS_gc,            /* 35: a0 = plusos_gc_args*   -> reclaimed bytes */
+    SYS_heapcheck,     /* 36:                        -> 0 if healthy, or corrupt count */
+    SYS_pipecreate,    /* 37: a0 = plusos_pipe_args* -> pipe_id or -1 */
+    SYS_piperead,      /* 38: a0 = plusos_pipe_io*   -> bytes read or -1 */
+    SYS_pipewrite,     /* 39: a0 = plusos_pipe_io*   -> bytes written or -1 */
+    SYS_pipeclose,     /* 40: a0 = pipe_id           -> 0 or -1 */
+    SYS_seminit,       /* 41: a0 = plusos_sem_args*  -> sem_id or -1 */
+    SYS_semwait,       /* 42: a0 = sem_id            -> 0 or -1 */
+    SYS_sempost,       /* 43: a0 = sem_id            -> 0 or -1 */
+    SYS_semdestroy,    /* 44: a0 = sem_id            -> 0 or -1 */
+    SYS_mutexinit,     /* 45:                        -> mutex_id or -1 */
+    SYS_mutexlock,     /* 46: a0 = mutex_id          -> 0 or -1 */
+    SYS_mutexunlock,   /* 47: a0 = mutex_id          -> 0 or -1 */
+    SYS_signal,        /* 48: a0 = plusos_sig_args*  -> 0 or -1 */
+    SYS_alarm,         /* 49: a0 = seconds           -> remaining seconds */
+    SYS_timer,         /* 50: a0 = plusos_timer_args*-> timer_id or -1 */
+    SYS_klog,          /* 51: a0 = plusos_klog_args* -> bytes written or -1 */
+    SYS_dmesg,         /* 52: a0 = plusos_dmesg_args*-> bytes returned or -1 */
+    SYS_getenv,        /* 53: a0 = plusos_env_args*  -> length or -1 */
+    SYS_setenv,        /* 54: a0 = plusos_env_args*  -> 0 or -1 */
+    SYS_ramdisk,       /* 55: a0 = plusos_ramdisk_args* -> 0 or -1 */
+    SYS_shm,           /* 56: a0 = plusos_shm_args*  -> shmid or ptr or -1 */
+    SYS_power,         /* 57: a0 = plusos_power_args*-> 0 or -1 */
+    SYS_pram,          /* 58: a0 = plusos_pram_args* -> 0 or -1 */
+    SYS_getrandom,     /* 59: a0 = plusos_rand_args* -> 0 or -1 */
+    SYS_perfmetrics,   /* 60: a0 = plusos_perf_metrics* -> 0 */
+    SYS_priority,      /* 61: a0 = plusos_prio_args* -> old_prio or 0 */
+    SYS_watchdog,      /* 62: a0 = plusos_watchdog_args* -> 0 */
+    SYS_procpgid,      /* 63: a0 = plusos_pgid_args* -> pgid or 0 */
 };
 
 /* SYS_thread: run entry(fn, arg) as a new thread of the calling program (use
@@ -100,6 +132,8 @@ struct plusos_procinfo {
     int           pid, parent, ring, state;     /* state: 0 unused,1 ready,2 run,3 blocked,4 zombie */
     unsigned long cpu_ticks;                    /* ticks spent running */
     unsigned long mem_bytes;                    /* stacks + image */
+    int           priority;                     /* -20 to +19 */
+    int           pgid;                         /* process group id */
     char          name[16];
 };
 struct plusos_proclist_args { struct plusos_procinfo *buf; int max; };
@@ -159,6 +193,179 @@ struct plusos_scrap_args {
     void    *buf;
     int      size;
     int      count;                 /* out: ScrapCount edition number */
+};
+
+/* RAM Management stats (SYS_ramstats) */
+struct plusos_ram_stats {
+    uint32_t total_ram;
+    uint32_t free_ram;
+    uint32_t kernel_load_addr;
+    uint32_t kernel_stack_size;
+    uint32_t heap_alloc_bytes;
+    uint32_t heap_chunks_active;
+    uint32_t slab_alloc_bytes;
+    uint32_t slab_free_slots;
+    uint32_t largest_free_block;
+    uint32_t gc_reclaimed_total;
+    uint32_t corruption_detected;
+};
+
+/* Garbage Collection args (SYS_gc) */
+struct plusos_gc_args {
+    int      compact_heap;     /* 1 = run ROM CompactMem & PurgeMem */
+    uint32_t bytes_reclaimed;  /* out: bytes freed by GC */
+    int      chunks_freed;     /* out: memory chunks freed */
+    int      zombies_reaped;   /* out: zombie procs reaped */
+    int      pipes_closed;     /* out: orphan pipes closed */
+};
+
+/* Pipe args (SYS_pipecreate, SYS_piperead, SYS_pipewrite) */
+struct plusos_pipe_args {
+    int read_fd;
+    int write_fd;
+};
+struct plusos_pipe_io {
+    int   pipe_id;
+    void *buf;
+    int   count;
+    int   nonblock;
+};
+
+/* Semaphore args (SYS_seminit) */
+struct plusos_sem_args {
+    int init_val;
+    int max_val;
+};
+
+/* Signal constants and args (SYS_signal) */
+enum {
+    PLUSOS_SIGINT  = 2,
+    PLUSOS_SIGKILL = 9,
+    PLUSOS_SIGUSR1 = 10,
+    PLUSOS_SIGUSR2 = 12,
+    PLUSOS_SIGALRM = 14,
+    PLUSOS_SIGTERM = 15,
+};
+struct plusos_sig_args {
+    int pid;
+    int signum;
+};
+
+/* Timer args (SYS_timer) */
+enum { PLUSOS_TIMER_SET, PLUSOS_TIMER_CANCEL };
+struct plusos_timer_args {
+    int op;
+    int timer_id;
+    int delay_ticks;
+    int interval_ticks;
+    int signum;
+};
+
+/* Kernel log & dmesg args (SYS_klog, SYS_dmesg) */
+enum {
+    PLUSOS_LOG_EMERG = 0,
+    PLUSOS_LOG_ERR   = 3,
+    PLUSOS_LOG_WARN  = 4,
+    PLUSOS_LOG_INFO  = 6,
+    PLUSOS_LOG_DEBUG = 7,
+};
+struct plusos_klog_args {
+    int         level;
+    const char *msg;
+    int         len;
+};
+struct plusos_dmesg_args {
+    char *buf;
+    int   max_len;
+    int   offset;
+};
+
+/* Environment args (SYS_getenv, SYS_setenv) */
+enum { PLUSOS_ENV_GET, PLUSOS_ENV_SET, PLUSOS_ENV_UNSET, PLUSOS_ENV_LIST };
+struct plusos_env_args {
+    int         op;
+    const char *key;
+    char       *value;
+    int         val_size;
+};
+
+/* RAM disk args (SYS_ramdisk) */
+enum { PLUSOS_RAMDISK_READ, PLUSOS_RAMDISK_WRITE, PLUSOS_RAMDISK_INFO, PLUSOS_RAMDISK_CLEAR };
+struct plusos_ramdisk_args {
+    int      op;
+    uint32_t block;
+    uint32_t count;
+    void    *buf;
+    uint32_t total_blocks;
+    uint32_t used_blocks;
+};
+
+/* Shared memory args (SYS_shm) */
+enum { PLUSOS_SHM_GET, PLUSOS_SHM_AT, PLUSOS_SHM_DT };
+struct plusos_shm_args {
+    int      op;
+    int      key;
+    uint32_t size;
+    int      shmid;
+    void    *addr;
+};
+
+/* Power management args (SYS_power) */
+enum { PLUSOS_PWR_STATUS, PLUSOS_PWR_BLANK, PLUSOS_PWR_SET_TIMEOUT };
+struct plusos_power_args {
+    int      op;
+    int      blank_on;
+    int      timeout_ticks;
+    uint32_t idle_ticks;
+};
+
+/* Parameter RAM args (SYS_pram) */
+enum { PLUSOS_PRAM_READ, PLUSOS_PRAM_WRITE };
+struct plusos_pram_args {
+    int     op;
+    int     offset;
+    uint8_t value;
+};
+
+/* Random args (SYS_getrandom) */
+struct plusos_rand_args {
+    void *buf;
+    int   len;
+};
+
+/* Performance metrics (SYS_perfmetrics) */
+struct plusos_perf_metrics {
+    uint32_t context_switches;
+    uint32_t syscall_count;
+    uint32_t interrupt_ticks;
+    uint32_t mem_alloc_count;
+    uint32_t mem_free_count;
+    uint32_t load_1m_fixed;   /* 16.16 fixed point */
+    uint32_t load_5m_fixed;   /* 16.16 fixed point */
+};
+
+/* Priority args (SYS_priority) */
+enum { PLUSOS_PRIO_GET, PLUSOS_PRIO_SET };
+struct plusos_prio_args {
+    int op;
+    int pid;
+    int priority; /* -20 to +19 */
+};
+
+/* Watchdog args (SYS_watchdog) */
+enum { PLUSOS_WD_PING, PLUSOS_WD_STATUS };
+struct plusos_watchdog_args {
+    int op;
+    int timeout_ticks;
+    int tripped_count;
+};
+
+/* Process group args (SYS_procpgid) */
+enum { PLUSOS_PGID_GET, PLUSOS_PGID_SET };
+struct plusos_pgid_args {
+    int op;
+    int pid;
+    int pgid;
 };
 
 #ifdef __m68k__

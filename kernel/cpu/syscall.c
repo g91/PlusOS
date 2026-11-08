@@ -2,11 +2,27 @@
 #include "kernel.h"
 #include "proc.h"
 #include "syscall.h"
+#include "kmem.h"
+#include "gc.h"
+#include "pipe.h"
+#include "sync.h"
+#include "signal.h"
+#include "timer.h"
+#include "klog.h"
+#include "environ.h"
+#include "ramdisk.h"
+#include "shm.h"
+#include "power.h"
+#include "pram.h"
+#include "entropy.h"
+#include "profiler.h"
+#include "security.h"
 
 extern void trap1_entry(void);
 
 long syscall_dispatch(long num, void *arg)
 {
+    profiler_record_syscall();
     if (num != SYS_exit) proc_check_killed();        /* a killed process dies here */
     switch (num) {
     case SYS_exit:
@@ -62,9 +78,9 @@ long syscall_dispatch(long num, void *arg)
         sys_shutdown();                             /* no return */
         return 0;
     case SYS_malloc:
-        return (long)kmalloc((uint32_t)(intptr_t)arg);
+        return (long)kmem_alloc((uint32_t)(intptr_t)arg, proc_current ? proc_current->pid : 0);
     case SYS_free:
-        kfree(arg);
+        kmem_free(arg);
         return 0;
     case SYS_memfree:
         return (long)FreeMem();
@@ -110,6 +126,7 @@ long syscall_dispatch(long num, void *arg)
             struct plusos_procinfo *d = &pl->buf[n++];
             d->pid = p->pid; d->parent = p->parent; d->ring = p->ring; d->state = p->state;
             d->cpu_ticks = p->cpu_ticks; d->mem_bytes = p->mem_bytes;
+            d->priority = p->priority; d->pgid = p->pgid;
             strlcpy(d->name, p->name, sizeof d->name);
         }
         return n;
@@ -153,6 +170,117 @@ long syscall_dispatch(long num, void *arg)
         return sound_syscall(arg);
     case SYS_scrap:
         return scrap_syscall(arg);
+
+    /* --- New Systems & Features --- */
+    case SYS_ramstats:
+        kmem_stats((struct plusos_ram_stats *)arg);
+        return 0;
+    case SYS_gc:
+        return gc_scavenge((struct plusos_gc_args *)arg);
+    case SYS_heapcheck:
+        return kmem_check();
+    case SYS_pipecreate: {
+        struct plusos_pipe_args *p = arg;
+        return pipe_create(&p->read_fd, &p->write_fd, proc_current->pid);
+    }
+    case SYS_piperead: {
+        struct plusos_pipe_io *p = arg;
+        return pipe_read(p->pipe_id, p->buf, p->count, p->nonblock);
+    }
+    case SYS_pipewrite: {
+        struct plusos_pipe_io *p = arg;
+        return pipe_write(p->pipe_id, p->buf, p->count, p->nonblock);
+    }
+    case SYS_pipeclose:
+        return pipe_close((int)(intptr_t)arg);
+    case SYS_seminit: {
+        struct plusos_sem_args *s = arg;
+        return sem_create(s->init_val, s->max_val, proc_current->pid);
+    }
+    case SYS_semwait:
+        return sem_wait((int)(intptr_t)arg);
+    case SYS_sempost:
+        return sem_post((int)(intptr_t)arg);
+    case SYS_semdestroy:
+        return sem_destroy((int)(intptr_t)arg);
+    case SYS_mutexinit:
+        return mutex_create(proc_current->pid);
+    case SYS_mutexlock:
+        return mutex_lock((int)(intptr_t)arg);
+    case SYS_mutexunlock:
+        return mutex_unlock((int)(intptr_t)arg);
+    case SYS_signal: {
+        struct plusos_sig_args *s = arg;
+        return signal_send(s->pid, s->signum);
+    }
+    case SYS_alarm:
+        return timer_alarm((int)(intptr_t)arg, proc_current->pid);
+    case SYS_timer: {
+        struct plusos_timer_args *t = arg;
+        if (t->op == PLUSOS_TIMER_SET)
+            return timer_set(t->delay_ticks, t->interval_ticks, t->signum, proc_current->pid);
+        return timer_cancel(t->timer_id, proc_current->pid);
+    }
+    case SYS_klog: {
+        struct plusos_klog_args *k = arg;
+        klog_write(k->level, k->msg, k->len);
+        return k->len;
+    }
+    case SYS_dmesg: {
+        struct plusos_dmesg_args *d = arg;
+        return klog_read(d->buf, d->max_len, d->offset);
+    }
+    case SYS_getenv: {
+        struct plusos_env_args *e = arg;
+        return env_get(e->key, e->value, e->val_size);
+    }
+    case SYS_setenv: {
+        struct plusos_env_args *e = arg;
+        if (e->op == PLUSOS_ENV_UNSET) return env_unset(e->key);
+        if (e->op == PLUSOS_ENV_LIST) return env_list(e->value, e->val_size);
+        return env_set(e->key, e->value);
+    }
+    case SYS_ramdisk: {
+        struct plusos_ramdisk_args *r = arg;
+        if (r->op == PLUSOS_RAMDISK_READ) return ramdisk_read(r->block, r->count, r->buf);
+        if (r->op == PLUSOS_RAMDISK_WRITE) return ramdisk_write(r->block, r->count, r->buf);
+        if (r->op == PLUSOS_RAMDISK_INFO) { ramdisk_status(&r->total_blocks, &r->used_blocks); return 0; }
+        if (r->op == PLUSOS_RAMDISK_CLEAR) { ramdisk_clear(); return 0; }
+        return -1;
+    }
+    case SYS_shm: {
+        struct plusos_shm_args *s = arg;
+        if (s->op == PLUSOS_SHM_GET) return shm_get(s->key, s->size, proc_current->pid);
+        if (s->op == PLUSOS_SHM_AT) { s->addr = shm_at(s->shmid); return s->addr ? 0 : -1; }
+        if (s->op == PLUSOS_SHM_DT) return shm_dt(s->shmid);
+        return -1;
+    }
+    case SYS_power:
+        return power_status((struct plusos_power_args *)arg);
+    case SYS_pram:
+        return pram_dispatch((struct plusos_pram_args *)arg);
+    case SYS_getrandom: {
+        struct plusos_rand_args *r = arg;
+        return entropy_get_bytes(r->buf, r->len);
+    }
+    case SYS_perfmetrics:
+        profiler_get_metrics((struct plusos_perf_metrics *)arg);
+        return 0;
+    case SYS_priority: {
+        struct plusos_prio_args *p = arg;
+        if (p->op == PLUSOS_PRIO_GET) return proc_get_priority(p->pid ? p->pid : proc_current->pid);
+        return proc_set_priority(p->pid ? p->pid : proc_current->pid, p->priority);
+    }
+    case SYS_watchdog: {
+        struct plusos_watchdog_args *w = arg;
+        (void)w;
+        return 0;
+    }
+    case SYS_procpgid: {
+        struct plusos_pgid_args *p = arg;
+        if (p->op == PLUSOS_PGID_GET) return proc_get_pgid(p->pid ? p->pid : proc_current->pid);
+        return proc_set_pgid(p->pid ? p->pid : proc_current->pid, p->pgid);
+    }
     default:
         return -1;
     }

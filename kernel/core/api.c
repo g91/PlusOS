@@ -2,6 +2,7 @@
  * raw block I/O services. */
 #include "kernel.h"
 #include "syscall.h"
+#include "kmem.h"
 
 PlusOSAPI g_api;
 const PlusOSAPI *plusos;
@@ -10,11 +11,10 @@ extern const uint8_t plusos_font8x8[95 * 8];
 
 void *kmalloc(uint32_t n)
 {
-    Ptr p = NewPtr((Size)n);               /* ROM Memory Manager, application heap */
-    return p;
+    return kmem_alloc(n, 0);
 }
 
-void kfree(void *p) { if (p) DisposePtr((Ptr)p); }
+void kfree(void *p) { kmem_free(p); }
 
 static uint32_t ticks(void)          { return (uint32_t)TickCount(); }
 static uint32_t seconds(void)        { return LM_LONG(0x20C); }     /* Time */

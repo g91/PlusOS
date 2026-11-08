@@ -12,6 +12,9 @@
 
 extern void tick_vbl(void);              /* tick.S */
 extern void sched_on_tick(void);         /* proc.c */
+extern void timer_vbl_tick(void);
+extern void power_vbl_tick(void);
+extern void profiler_vbl_tick(void);
 
 static volatile uint32_t ticks;
 
@@ -37,6 +40,9 @@ void tick_c(void)
      * uses in SCSIMgr/BTreeMgr to suspend sniffing). */
     sound_vbl_tick();
     sched_on_tick();
+    timer_vbl_tick();
+    power_vbl_tick();
+    profiler_vbl_tick();
 }
 
 void tick_init(void)

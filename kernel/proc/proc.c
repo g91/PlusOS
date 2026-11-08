@@ -7,6 +7,13 @@
  */
 #include "kernel.h"
 #include "proc.h"
+#include "kmem.h"
+#include "gc.h"
+#include "pipe.h"
+#include "sync.h"
+#include "signal.h"
+#include "timer.h"
+#include "profiler.h"
 
 extern void ctx_switch(uint32_t *old_ksp, uint32_t new_ksp);
 extern void ctx_start_user(uint32_t usp, uint32_t entry);
@@ -33,9 +40,28 @@ static void rq_push(Proc *p)
 
 static Proc *rq_pop(void)
 {
-    Proc *p = run_head;
-    if (p) { run_head = p->next; if (!run_head) run_tail = 0; }
-    return p;
+    if (!run_head) return 0;
+    Proc *best = run_head;
+    Proc *best_prev = 0;
+    Proc *prev = run_head;
+    Proc *curr = run_head->next;
+    while (curr) {
+        if (curr->priority < best->priority) {
+            best = curr;
+            best_prev = prev;
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+    if (best_prev) {
+        best_prev->next = best->next;
+        if (!best->next) run_tail = best_prev;
+    } else {
+        run_head = best->next;
+        if (!run_head) run_tail = 0;
+    }
+    best->next = 0;
+    return best;
 }
 
 /* ---- the switch ----------------------------------------------------------- */
@@ -58,6 +84,7 @@ static inline void usp_set(uint32_t v)
 static void resched(void)
 {
     want_resched = 0;
+    profiler_record_switch();
     Proc *next = rq_pop();
     if (!next) next = &idle_proc;
     Proc *prev = proc_current;
@@ -78,6 +105,7 @@ static void resched(void)
  * as the target next yields or asks the kernel for anything. */
 void proc_check_killed(void)
 {
+    signal_check();
     if (proc_current->killed && proc_current->ring == RING_USER)
         proc_exit(-9);
 }
@@ -169,6 +197,8 @@ static Proc *proc_alloc(void)
         if (procs[i].state == PROC_UNUSED) {
             memset(&procs[i], 0, sizeof(Proc));
             procs[i].pid = next_pid++;
+            procs[i].priority = 0;
+            procs[i].pgid = procs[i].pid;
             return &procs[i];
         }
     return 0;
@@ -328,6 +358,11 @@ __attribute__((noreturn)) void proc_exit(int code)
                     procs[i].state != PROC_UNUSED && procs[i].state != PROC_ZOMBIE)
                     proc_kill(procs[i].pid);
         winsrv_proc_exit(proc_current->pid);
+        kmem_free_pid(proc_current->pid);
+        pipe_proc_exit(proc_current->pid);
+        sync_proc_exit(proc_current->pid);
+        timer_proc_exit(proc_current->pid);
+        gc_proc_exit(proc_current->pid);
     }
     zombies_pending = 1;
     uint16_t sr = int_disable();
@@ -436,6 +471,7 @@ static void idle_body(void)
          * every iteration regardless of how we got back here. */
         int_enable();
         if (zombies_pending) reap_orphans();
+        gc_on_idle();
         if (run_head) {
             uint16_t sr = int_disable();
             resched();
@@ -453,6 +489,43 @@ int proc_count(void)
 }
 
 Proc *proc_table_entry(int i) { return &procs[i]; }
+
+int proc_get_priority(int pid)
+{
+    for (int i = 0; i < MAX_PROC; i++)
+        if (procs[i].pid == pid && procs[i].state != PROC_UNUSED) return procs[i].priority;
+    return 0;
+}
+
+int proc_set_priority(int pid, int prio)
+{
+    if (prio < -20) prio = -20;
+    if (prio > 19) prio = 19;
+    for (int i = 0; i < MAX_PROC; i++)
+        if (procs[i].pid == pid && procs[i].state != PROC_UNUSED) {
+            int old = procs[i].priority;
+            procs[i].priority = prio;
+            return old;
+        }
+    return -1;
+}
+
+int proc_get_pgid(int pid)
+{
+    for (int i = 0; i < MAX_PROC; i++)
+        if (procs[i].pid == pid && procs[i].state != PROC_UNUSED) return procs[i].pgid;
+    return -1;
+}
+
+int proc_set_pgid(int pid, int pgid)
+{
+    for (int i = 0; i < MAX_PROC; i++)
+        if (procs[i].pid == pid && procs[i].state != PROC_UNUSED) {
+            procs[i].pgid = pgid;
+            return 0;
+        }
+    return -1;
+}
 
 void sched_init(void)
 {

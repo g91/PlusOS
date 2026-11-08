@@ -45,6 +45,11 @@ typedef struct Proc {
     uint32_t        user_entry;     /* ring 2: entry PC in user mode */
     uint32_t        user_sp;        /* ring 2: initial user stack pointer */
     uint32_t        usp_save;       /* ring 2: USP saved across context switches */
+    int             priority;       /* -20 (high) to +19 (low), default 0 */
+    int             pgid;           /* process group id */
+    uint32_t        sig_pending;    /* bitmask of pending signals */
+    uint32_t        sig_mask;       /* bitmask of blocked signals */
+    uint32_t        heap_bytes;     /* RAM allocated dynamically via kmem */
     char            name[PROC_NAME];
 } Proc;
 
@@ -57,6 +62,11 @@ int   proc_create_kernel(const char *name, void (*fn)(void *), void *arg);
  * process, freed on exit), entry at image+entry_off, with argc/argv copied in. */
 int   proc_create_user(const char *name, uint8_t *image, uint32_t entry_off,
                        int argc, char **argv);
+
+int   proc_get_priority(int pid);
+int   proc_set_priority(int pid, int prio);
+int   proc_get_pgid(int pid);
+int   proc_set_pgid(int pid, int pgid);
 
 void  sched_run(void) __attribute__((noreturn));   /* start scheduling; never returns */
 void  proc_yield(void);                             /* give up the CPU, stay ready */
