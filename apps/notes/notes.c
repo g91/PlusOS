@@ -5,9 +5,21 @@
  */
 #include <plusos/plusos.h>
 #include <plusos/gfx.h>
+#include <plusos/syscall.h>
 #include <plusrom/FileMgr.h>
 #include <stdio.h>
 #include <string.h>
+
+/* Only open a desktop window when a compositor is actually running. */
+static int under_desktop(void)
+{
+    struct plusos_procinfo p[16];
+    struct plusos_proclist_args a = { p, 16 };
+    int n = (int)plusos_syscall(SYS_proclist, &a);
+    for (int i = 0; i < n; i++)
+        if (p[i].state != 4 && !strncmp(p[i].name, "desktop", 7)) return 1;
+    return 0;
+}
 
 #define NPAGES   8
 #define PAGE_MAX 256
@@ -94,7 +106,7 @@ int main(int argc, char **argv)
 
     GWindow win;
     int W = 224, H = 190;
-    if (gwin_open(&win, "Note Pad", W, H) == 0) {
+    if (under_desktop() && gwin_open(&win, "Note Pad", W, H) == 0) {
         gfx_target(&win.surf);
         draw_notepad(W, H);
         gwin_update(&win);

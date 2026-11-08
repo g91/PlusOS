@@ -1,148 +1,727 @@
 #include "serom/toolbox/quickdraw/Pictures.hpp"
-// Scaffold for SE ROM module: se/toolbox/quickdraw/Pictures.s
+#include "serom/machine.hpp"
+#include "serom/lowmem.hpp"
+#include "serom/mac_memory.hpp"
+// Complete implementation of SE ROM module: Pictures
 namespace serom { namespace toolbox { namespace quickdraw { namespace Pictures { 
-    void STDCOMMENT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::STDCOMMENT"); }
-    void STDCOMMENT_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::STDCOMMENT_OK"); }
-    void STDCOMMENT_DONE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::STDCOMMENT_DONE"); }
-    void STDGETPIC() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::STDGETPIC"); }
-    void NXTBYTE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::NXTBYTE"); }
-    void STDGETPIC_START() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::STDGETPIC_START"); }
-    void STDPUTPIC() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::STDPUTPIC"); }
-    void STDPUTPIC_ERR() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::STDPUTPIC_ERR"); }
-    void STDPUTPIC_NXTBYTE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::STDPUTPIC_NXTBYTE"); }
-    void STDPUTPIC_START() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::STDPUTPIC_START"); }
-    void STDPUTPIC_GOHOME() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::STDPUTPIC_GOHOME"); }
-    void PICCOMMENT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PICCOMMENT"); }
-    void PICCOMMENT_USESTD() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PICCOMMENT_USESTD"); }
-    void OPENPICTURE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::OPENPICTURE"); }
-    void OPENPICTURE_DONE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::OPENPICTURE_DONE"); }
-    void CLOSEPICTURE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::CLOSEPICTURE"); }
-    void CLOSEPIC_OVERFLO() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::CLOSEPIC_OVERFLO"); }
-    void CLOSEPICTURE_GOHOME() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::CLOSEPICTURE_GOHOME"); }
-    void KILLPICTURE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::KILLPICTURE"); }
-    void DRAWPICTURE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::DRAWPICTURE"); }
-    void DRAWPICTURE_LOOP() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::DRAWPICTURE_LOOP"); }
-    void MORE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::MORE"); }
-    void MORE_LOOP() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::MORE_LOOP"); }
-    void DRAWPICTURE_GOHOME() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::DRAWPICTURE_GOHOME"); }
-    void PICITEM() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PICITEM"); }
-    void NOTEND() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::NOTEND"); }
-    void DRAWVERB_TBL() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::DRAWVERB_TBL"); }
-    void NOTEND_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::NOTEND_OK"); }
-    void PARAMOP_TBL() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PARAMOP_TBL"); }
-    void NOTEND_CONT_3() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::NOTEND_CONT_3"); }
-    void XCLIP2() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::XCLIP2"); }
-    void GET8() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET8"); }
-    void GET4() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET4"); }
-    void GET2() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2"); }
-    void GET2_CONT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT"); }
-    void GET2_CONT_2() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_2"); }
-    void GET2_CONT_3() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_3"); }
-    void GET2_CONT_4() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_4"); }
-    void GET2_CONT_5() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_5"); }
-    void GET2_CONT_6() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_6"); }
-    void GET2_CONT_7() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_7"); }
-    void GET2_CONT_8() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_8"); }
-    void GET2_CONT_9() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_9"); }
-    void GET2_CONT_10() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_10"); }
-    void GET2_CONT_11() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_11"); }
-    void GET2_CONT_12() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_12"); }
-    void GET2_CONT_13() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_13"); }
-    void GET2_CONT_14() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_14"); }
-    void GET2_CONT_15() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_15"); }
-    void GET2_CONT_16() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_16"); }
-    void GET2_CONT_17() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GET2_CONT_17"); }
-    void LNFROM() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::LNFROM"); }
-    void SHORTLN() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::SHORTLN"); }
-    void LNOK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::LNOK"); }
-    void LNOK_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::LNOK_OK"); }
-    void TEXTOP() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::TEXTOP"); }
-    void PICITEM_DHOK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PICITEM_DHOK"); }
-    void LONGTXT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::LONGTXT"); }
-    void TEXTOP2() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::TEXTOP2"); }
-    void TEXTOP2_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::TEXTOP2_OK"); }
-    void RECTOP() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::RECTOP"); }
-    void RECTOP_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::RECTOP_OK"); }
-    void RRECTOP() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::RRECTOP"); }
-    void RRECTOP_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::RRECTOP_OK"); }
-    void OVALOP() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::OVALOP"); }
-    void OVALOP_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::OVALOP_OK"); }
-    void ARCOP() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::ARCOP"); }
-    void ARCOP_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::ARCOP_OK"); }
-    void POLY() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::POLY"); }
-    void POLY_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::POLY_OK"); }
-    void PICRGNOP() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PICRGNOP"); }
-    void PICRGNOP_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PICRGNOP_OK"); }
-    void BITSOP() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::BITSOP"); }
-    void USERGN() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::USERGN"); }
-    void USERGN_CONT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::USERGN_CONT"); }
-    void MEMOK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::MEMOK"); }
-    void PICITEM_MORE1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PICITEM_MORE1"); }
-    void PICITEM_START1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PICITEM_START1"); }
-    void PICITEM_NOPACK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PICITEM_NOPACK"); }
-    void DOBITS() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::DOBITS"); }
-    void BITSOK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::BITSOK"); }
-    void COMMENTOP() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::COMMENTOP"); }
-    void COMMENTOP_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::COMMENTOP_OK"); }
-    void LONGCOM() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::LONGCOM"); }
-    void LONGCOM_OK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::LONGCOM_OK"); }
-    void StolenFromAppleRoutine() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::StolenFromAppleRoutine"); }
-    void StolenFromAppleEntrypoint() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::StolenFromAppleEntrypoint"); }
-    void LOOP1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::LOOP1"); }
-    void LOOP2() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::LOOP2"); }
-    void StolenFromAppleBitmap() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::StolenFromAppleBitmap"); }
-    void StolenFromAppleBitmap_32x25() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::StolenFromAppleBitmap_32x25"); }
-    void GETDONE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GETDONE"); }
-    void GETUBYTE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GETUBYTE"); }
-    void GETSBYTE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GETSBYTE"); }
-    void GETWORD() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GETWORD"); }
-    void GETLONG() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GETLONG"); }
-    void GETRECT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GETRECT"); }
-    void SAME1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::SAME1"); }
-    void GETHNDL() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GETHNDL"); }
-    void GETHND2() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GETHND2"); }
-    void CALL0() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::CALL0"); }
-    void CALL1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::CALL1"); }
-    void KILL2() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::KILL2"); }
-    void KILL1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::KILL1"); }
-    void KILL1_ERR() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::KILL1_ERR"); }
-    void KILL1_EXIT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::KILL1_EXIT"); }
-    void GETPICDATA() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GETPICDATA"); }
-    void GETPICDATA_STD() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::GETPICDATA_STD"); }
-    void PUTPICDATA() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PUTPICDATA"); }
-    void PUTPICDATA_EMPTY() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PUTPICDATA_EMPTY"); }
-    void DPUTPICBYTE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::DPUTPICBYTE"); }
-    void PUTPICBYTE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PUTPICBYTE"); }
-    void PUTPICWORD() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PUTPICWORD"); }
-    void PUTPICLONG() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PUTPICLONG"); }
-    void PUTPICPAT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PUTPICPAT"); }
-    void PUTPICRECT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PUTPICRECT"); }
-    void NOTSAME() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::NOTSAME"); }
-    void PUTPICRGN() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PUTPICRGN"); }
-    void PUTPICVERB() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PUTPICVERB"); }
-    void PUTPICVERB_NO() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PUTPICVERB_NO"); }
-    void ERASE1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::ERASE1"); }
-    void NEWBK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::NEWBK"); }
-    void FRAME1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::FRAME1"); }
-    void PAINT1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PAINT1"); }
-    void PAINT1_NO() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PAINT1_NO"); }
-    void PAINT1_NO_2() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PAINT1_NO_2"); }
-    void PAINT1_EXIT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::PAINT1_EXIT"); }
-    void CHECKPIC() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::CHECKPIC"); }
-    void CHECKPIC_NO() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::CHECKPIC_NO"); }
-    void CHECKPIC_NO_2() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::CHECKPIC_NO_2"); }
-    void ORIGNOK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::ORIGNOK"); }
-    void CLIPOK() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::CLIPOK"); }
-    void ORIGNOK_EXIT_2() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::ORIGNOK_EXIT_2"); }
-    void SCALEPT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::SCALEPT"); }
-    void SCALE1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::SCALE1"); }
-    void POS() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::POS"); }
-    void MINSIZE_EMPTY() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::MINSIZE_EMPTY"); }
-    void SCDONE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::SCDONE"); }
-    void MAPPT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::MAPPT"); }
-    void MAP1() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::MAP1"); }
-    void NOTNEG() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::NOTNEG"); }
-    void NOSCALE() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::NOSCALE"); }
-    void MAPRECT() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::MAPRECT"); }
-    void MAPRATIO() { serom::serom_unimplemented("toolbox::quickdraw::Pictures::MAPRATIO"); }
-}}}}  // namespace serom::toolbox::quickdraw::Pictures
+    
+    void STDCOMMENT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STDCOMMENT_OK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void STDCOMMENT_DONE() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void STDGETPIC() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NXTBYTE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STDGETPIC_START() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STDPUTPIC() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STDPUTPIC_ERR() {
+        // Error exit
+        D(0) = static_cast<UInt32>(-1);
+        g_cpu.ccr.z = false;
+        g_cpu.ccr.n = true;
+    }
+    void STDPUTPIC_NXTBYTE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STDPUTPIC_START() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STDPUTPIC_GOHOME() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PICCOMMENT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PICCOMMENT_USESTD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void OPENPICTURE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void OPENPICTURE_DONE() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void CLOSEPICTURE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CLOSEPIC_OVERFLO() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CLOSEPICTURE_GOHOME() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void KILLPICTURE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWPICTURE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWPICTURE_LOOP() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void MORE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MORE_LOOP() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void DRAWPICTURE_GOHOME() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PICITEM() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NOTEND() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWVERB_TBL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NOTEND_OK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void PARAMOP_TBL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NOTEND_CONT_3() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void XCLIP2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GET8() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GET4() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GET2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GET2_CONT() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_2() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_3() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_4() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_5() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_6() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_7() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_8() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_9() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_10() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_11() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_12() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_13() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_14() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_15() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_16() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void GET2_CONT_17() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void LNFROM() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SHORTLN() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void LNOK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void LNOK_OK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void TEXTOP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PICITEM_DHOK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void LONGTXT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TEXTOP2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TEXTOP2_OK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void RECTOP() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void RECTOP_OK() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void RRECTOP() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void RRECTOP_OK() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void OVALOP() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void OVALOP_OK() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ARCOP() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ARCOP_OK() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void POLY() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void POLY_OK() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PICRGNOP() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PICRGNOP_OK() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void BITSOP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void USERGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void USERGN_CONT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MEMOK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void PICITEM_MORE1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PICITEM_START1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PICITEM_NOPACK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DOBITS() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void BITSOK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void COMMENTOP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void COMMENTOP_OK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void LONGCOM() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void LONGCOM_OK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void StolenFromAppleRoutine() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void StolenFromAppleEntrypoint() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void LOOP1() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void LOOP2() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void StolenFromAppleBitmap() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void StolenFromAppleBitmap_32x25() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETDONE() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void GETUBYTE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETSBYTE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETWORD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETLONG() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETRECT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SAME1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETHNDL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETHND2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALL0() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALL1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void KILL2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void KILL1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void KILL1_ERR() {
+        // Error exit
+        D(0) = static_cast<UInt32>(-1);
+        g_cpu.ccr.z = false;
+        g_cpu.ccr.n = true;
+    }
+    void KILL1_EXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void GETPICDATA() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETPICDATA_STD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PUTPICDATA() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PUTPICDATA_EMPTY() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DPUTPICBYTE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PUTPICBYTE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PUTPICWORD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PUTPICLONG() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PUTPICPAT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PUTPICRECT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NOTSAME() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PUTPICRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PUTPICVERB() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PUTPICVERB_NO() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ERASE1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWBK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FRAME1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PAINT1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PAINT1_NO() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PAINT1_NO_2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PAINT1_EXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void CHECKPIC() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CHECKPIC_NO() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CHECKPIC_NO_2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ORIGNOK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void CLIPOK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void ORIGNOK_EXIT_2() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SCALEPT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SCALE1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void POS() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MINSIZE_EMPTY() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SCDONE() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void MAPPT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MAP1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NOTNEG() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NOSCALE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MAPRECT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MAPRATIO() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+}}}}  // Pictures

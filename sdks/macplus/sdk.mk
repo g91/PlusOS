@@ -45,11 +45,11 @@ PLUSOS_LIBDIR       := $(PLUSOS_SDK)/build/lib
 PLUSOS_APP_START    := $(PLUSOS_LIBDIR)/crt0_app.o
 PLUSOS_KERNEL_START := $(PLUSOS_LIBDIR)/crt0_kernel.o
 PLUSOS_ROM_LIB      := $(PLUSOS_LIBDIR)/libplusrom.a
-PLUSOS_APP_LIBS     := --start-group $(PLUSOS_LIBDIR)/librt_app.a $(PLUSOS_LIBDIR)/libplusgfx.a $(PLUSOS_LIBDIR)/libplusos.a \
+PLUSOS_APP_LIBS     := --start-group $(PLUSOS_LIBDIR)/librt_app.a $(PLUSOS_LIBDIR)/libplusgfx.a $(PLUSOS_LIBDIR)/libplusnet.a $(PLUSOS_LIBDIR)/libplusos.a \
                        $(PLUSOS_ROM_LIB) $(PLUSOS_LIBDIR)/libc.a $(LIBGCC) --end-group
 PLUSOS_KERNEL_LIBS  := --start-group $(PLUSOS_LIBDIR)/libplusos.a $(PLUSOS_ROM_LIB) \
                        $(PLUSOS_LIBDIR)/libc.a $(LIBGCC) $(PLUSOS_EXTRA_LIBS) --end-group
-PLUSOS_LIBS_DEPS    := $(addprefix $(PLUSOS_LIBDIR)/,libc.a libplusrom.a libplusos.a librt_app.a libplusgfx.a \
+PLUSOS_LIBS_DEPS    := $(addprefix $(PLUSOS_LIBDIR)/,libc.a libplusrom.a libplusos.a librt_app.a libplusgfx.a libplusnet.a \
                        crt0_app.o crt0_kernel.o)
 MKEXE               := $(PY) $(PLUSOS_SDK)/tools/mkexe.py
 

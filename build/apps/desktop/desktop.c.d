@@ -1,4 +1,5 @@
 build/apps/desktop/desktop.c.o: apps/desktop/desktop.c \
+ apps/desktop/desktop.h \
  /mnt/c/Users/Evil/PlusOS/sdks/macplus/include/plusos/plusos.h \
  /mnt/c/Users/Evil/PlusOS/sdks/macplus/include/libc/stdint.h \
  /mnt/c/Users/Evil/PlusOS/sdks/macplus/include/libc/string.h \
@@ -14,6 +15,7 @@ build/apps/desktop/desktop.c.o: apps/desktop/desktop.c \
  /mnt/c/Users/Evil/PlusOS/sdks/macplus/include/plusrom/QuickDraw.h \
  /mnt/c/Users/Evil/PlusOS/sdks/macplus/include/plusrom/OSUtil.h \
  /mnt/c/Users/Evil/PlusOS/sdks/macplus/include/plusrom/FileMgr.h
+apps/desktop/desktop.h:
 /mnt/c/Users/Evil/PlusOS/sdks/macplus/include/plusos/plusos.h:
 /mnt/c/Users/Evil/PlusOS/sdks/macplus/include/libc/stdint.h:
 /mnt/c/Users/Evil/PlusOS/sdks/macplus/include/libc/string.h:

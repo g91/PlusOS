@@ -1,193 +1,929 @@
 #include "serom/extra/rom_tail.hpp"
-// Scaffold for SE ROM module: se/extra/rom_tail.s
+#include "serom/machine.hpp"
+#include "serom/lowmem.hpp"
+#include "serom/mac_memory.hpp"
+// Complete implementation of SE ROM module: rom_tail
 namespace serom { namespace extra { namespace rom_tail { 
-    void ROMTail_Initials_SE() { serom::serom_unimplemented("extra::rom_tail::ROMTail_Initials_SE"); }
-    void ROMTail_BuildDate_Thu_Nov_20_1986() { serom::serom_unimplemented("extra::rom_tail::ROMTail_BuildDate_Thu_Nov_20_1986"); }
-    void ROMTail_Initials_FDHD() { serom::serom_unimplemented("extra::rom_tail::ROMTail_Initials_FDHD"); }
-    void FDHD_ResourceTailPatchCode() { serom::serom_unimplemented("extra::rom_tail::FDHD_ResourceTailPatchCode"); }
-    void TAILENT_RDADDR() { serom::serom_unimplemented("extra::rom_tail::TAILENT_RDADDR"); }
-    void TAILENT_RDDATA() { serom::serom_unimplemented("extra::rom_tail::TAILENT_RDDATA"); }
-    void TAILENT_SETUPPOLL() { serom::serom_unimplemented("extra::rom_tail::TAILENT_SETUPPOLL"); }
-    void TAILENT_CTLFORMAT() { serom::serom_unimplemented("extra::rom_tail::TAILENT_CTLFORMAT"); }
-    void TAILENT_CTLVERIFY() { serom::serom_unimplemented("extra::rom_tail::TAILENT_CTLVERIFY"); }
-    void TAILENT_RDADDRSETUP() { serom::serom_unimplemented("extra::rom_tail::TAILENT_RDADDRSETUP"); }
-    void TAILENT_READDATA() { serom::serom_unimplemented("extra::rom_tail::TAILENT_READDATA"); }
-    void TAILENT_TOEMPTYPD() { serom::serom_unimplemented("extra::rom_tail::TAILENT_TOEMPTYPD"); }
-    void TAILENT_E_SETUPPOLL() { serom::serom_unimplemented("extra::rom_tail::TAILENT_E_SETUPPOLL"); }
-    void TAILENT_DRIVEICON() { serom::serom_unimplemented("extra::rom_tail::TAILENT_DRIVEICON"); }
-    void TAILENT_MEDIAICON() { serom::serom_unimplemented("extra::rom_tail::TAILENT_MEDIAICON"); }
-    void TAILENT_DRVINFO() { serom::serom_unimplemented("extra::rom_tail::TAILENT_DRVINFO"); }
-    void TAILENT_SETDRVTBL() { serom::serom_unimplemented("extra::rom_tail::TAILENT_SETDRVTBL"); }
-    void TAILENT_RAMTEST() { serom::serom_unimplemented("extra::rom_tail::TAILENT_RAMTEST"); }
-    void TAIL_DRV_ADRDISK() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_ADRDISK"); }
-    void TAIL_DRV_GETDRV1() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_GETDRV1"); }
-    void TAIL_DRV_MRDADDR() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_MRDADDR"); }
-    void TAIL_DRV_DSKRTN() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_DSKRTN"); }
-    void TAIL_DRV_MRDDATA() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_MRDDATA"); }
-    void TAIL_DRV_SETCHIPMODE() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_SETCHIPMODE"); }
-    void TAIL_DRV_DISKSELECT() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_DISKSELECT"); }
-    void TAIL_DRV_ADRANDSENSE() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_ADRANDSENSE"); }
-    void TAIL_DRV_MFMTTRACK() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_MFMTTRACK"); }
-    void TAIL_DRV_DSKRWOFF() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_DSKRWOFF"); }
-    void TAIL_DRV_MVERTRACK() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_MVERTRACK"); }
-    void TAIL_DRV_EMPTYPD() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_EMPTYPD"); }
-    void TAIL_DRV_SEEK() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_SEEK"); }
-    void TAIL_DRV_RWPOWERUP() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_RWPOWERUP"); }
-    void TAIL_DRV_GETFREQ1() { serom::serom_unimplemented("extra::rom_tail::TAIL_DRV_GETFREQ1"); }
-    void DT_Sony_SectorAdrTbl() { serom::serom_unimplemented("extra::rom_tail::DT_Sony_SectorAdrTbl"); }
-    void E_Sony_SetUpPoll() { serom::serom_unimplemented("extra::rom_tail::E_Sony_SetUpPoll"); }
-    void Sony_SetUpPoll() { serom::serom_unimplemented("extra::rom_tail::Sony_SetUpPoll"); }
-    void Sony_RdAddrSetup() { serom::serom_unimplemented("extra::rom_tail::Sony_RdAddrSetup"); }
-    void SONY_RDADDRSETUP_SIDE() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDRSETUP_SIDE"); }
-    void E_Sony_RdAddr() { serom::serom_unimplemented("extra::rom_tail::E_Sony_RdAddr"); }
-    void SONY_RDADDR_GCR() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_GCR"); }
-    void Sony_RdAddr() { serom::serom_unimplemented("extra::rom_tail::Sony_RdAddr"); }
-    void SONY_RDADDR_SKIP() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_SKIP"); }
-    void SONY_RDADDR_CONT() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_CONT"); }
-    void SONY_RDADDR_LOOP() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_LOOP"); }
-    void SONY_RDADDR_CONT_2() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_CONT_2"); }
-    void SONY_RDADDR_CONT_3() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_CONT_3"); }
-    void SONY_RDADDR_NEXT() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_NEXT"); }
-    void SONY_RDADDR_SKIP_2() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_SKIP_2"); }
-    void SONY_RDADDR_LOOP_2() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_LOOP_2"); }
-    void SONY_RDADDR_CONT_4() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_CONT_4"); }
-    void SONY_RDADDR_CONT_5() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_CONT_5"); }
-    void SONY_RDADDR_CONT_6() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_CONT_6"); }
-    void SONY_RDADDR_SKIP_3() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_SKIP_3"); }
-    void SONY_RDADDR_CONT_7() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_CONT_7"); }
-    void SONY_RDADDR_LOOP_3() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_LOOP_3"); }
-    void SONY_RDADDR_SKIP_4() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_SKIP_4"); }
-    void SONY_RDADDRXIT() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDRXIT"); }
-    void SONY_RDADDR_ERR_2() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_ERR_2"); }
-    void SONY_RDADDR_ERR_3() { serom::serom_unimplemented("extra::rom_tail::SONY_RDADDR_ERR_3"); }
-    void SONY_DTAMKS() { serom::serom_unimplemented("extra::rom_tail::SONY_DTAMKS"); }
-    void E_Sony_RdData() { serom::serom_unimplemented("extra::rom_tail::E_Sony_RdData"); }
-    void SONY_RDDATA_GCR() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_GCR"); }
-    void Sony_RdData() { serom::serom_unimplemented("extra::rom_tail::Sony_RdData"); }
-    void SONY_RDDATA_CONT() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT"); }
-    void SONY_RDDATA_LOOP() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_LOOP"); }
-    void SONY_RDDATA_SKIP() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_SKIP"); }
-    void SONY_RDDATA_LOOP_2() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_LOOP_2"); }
-    void SONY_RDDATA_CONT_2() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_2"); }
-    void SONY_RDDATA_CONT_3() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_3"); }
-    void SONY_RDDATA_SKIP_2() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_SKIP_2"); }
-    void SONY_RDDATA_CONT_4() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_4"); }
-    void SONY_RDDATA_CONT_5() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_5"); }
-    void SONY_RDDATA_SKIP_3() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_SKIP_3"); }
-    void SONY_RDDATA_LOOP_3() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_LOOP_3"); }
-    void SONY_RDDATA_SKIP_4() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_SKIP_4"); }
-    void SONY_RDDATA_CONT_6() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_6"); }
-    void SONY_RDDATA_CONT_7() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_7"); }
-    void SONY_RDDATA_SKIP_5() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_SKIP_5"); }
-    void SONY_RDDATA_LOOP_4() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_LOOP_4"); }
-    void SONY_RDDATA_SKIP_6() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_SKIP_6"); }
-    void SONY_RDDATA_CONT_8() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_8"); }
-    void SONY_RDDATA_CONT_9() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_9"); }
-    void SONY_RDDATA_SKIP_7() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_SKIP_7"); }
-    void SONY_RDDATA_ERR() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_ERR"); }
-    void SONY_RDDATA_DONE() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_DONE"); }
-    void SONY_RDDATA_SKIP_8() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_SKIP_8"); }
-    void SONY_RDDATA_CONT_10() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_10"); }
-    void SONY_RDDATA_CONT_11() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_11"); }
-    void SONY_RDDATA_SKIP_9() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_SKIP_9"); }
-    void SONY_RDDATA_ERR_2() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_ERR_2"); }
-    void SONY_RDDATA_ERR_3() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_ERR_3"); }
-    void SONY_RDDATA_CONT_12() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_12"); }
-    void SONY_RDDATA_LOOP_5() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_LOOP_5"); }
-    void SONY_RDDATA_SKIP_10() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_SKIP_10"); }
-    void SONY_RDDATA_CONT_13() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_CONT_13"); }
-    void SONY_RDDATA_ERR_4() { serom::serom_unimplemented("extra::rom_tail::SONY_RDDATA_ERR_4"); }
-    void SONY_DENIBLTBL() { serom::serom_unimplemented("extra::rom_tail::SONY_DENIBLTBL"); }
-    void SONY_ADRMKTBL() { serom::serom_unimplemented("extra::rom_tail::SONY_ADRMKTBL"); }
-    void Sony_CtlFormat() { serom::serom_unimplemented("extra::rom_tail::Sony_CtlFormat"); }
-    void SONY_CTLFORMAT_CHKFMT() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLFORMAT_CHKFMT"); }
-    void SONY_CTLFORMAT_SETCHIP() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLFORMAT_SETCHIP"); }
-    void SONY_CTLFORMAT_SELECT() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLFORMAT_SELECT"); }
-    void SONY_CTLFORMAT_SIDES() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLFORMAT_SIDES"); }
-    void SONY_CTLFORMAT_BUILD() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLFORMAT_BUILD"); }
-    void SONY_CTLFORMAT_MARKS() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLFORMAT_MARKS"); }
-    void SONY_CTLFORMAT_MARKS_2() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLFORMAT_MARKS_2"); }
-    void SONY_CTLFORMAT_TRACKLOOP() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLFORMAT_TRACKLOOP"); }
-    void SONY_CTLFORMAT_GCR() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLFORMAT_GCR"); }
-    void SONY_CTLFORMAT_NEXT() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLFORMAT_NEXT"); }
-    void SONY_FMTVEREXIT() { serom::serom_unimplemented("extra::rom_tail::SONY_FMTVEREXIT"); }
-    void SONY_FMTSPEEDTBL() { serom::serom_unimplemented("extra::rom_tail::SONY_FMTSPEEDTBL"); }
-    void SONY_SPDSEEK() { serom::serom_unimplemented("extra::rom_tail::SONY_SPDSEEK"); }
-    void SONY_SPDSEEK_CKDRIFT() { serom::serom_unimplemented("extra::rom_tail::SONY_SPDSEEK_CKDRIFT"); }
-    void SONY_SPDSEEK_CHECK() { serom::serom_unimplemented("extra::rom_tail::SONY_SPDSEEK_CHECK"); }
-    void SONY_SPDSEEK_ADJUST() { serom::serom_unimplemented("extra::rom_tail::SONY_SPDSEEK_ADJUST"); }
-    void SONY_SPDSEEK_ERR() { serom::serom_unimplemented("extra::rom_tail::SONY_SPDSEEK_ERR"); }
-    void SONY_SPDSEEK_OK() { serom::serom_unimplemented("extra::rom_tail::SONY_SPDSEEK_OK"); }
-    void SONY_SPDSEEK_EXIT() { serom::serom_unimplemented("extra::rom_tail::SONY_SPDSEEK_EXIT"); }
-    void SONY_FORMATTRACK() { serom::serom_unimplemented("extra::rom_tail::SONY_FORMATTRACK"); }
-    void SONY_FORMATTRACK_1() { serom::serom_unimplemented("extra::rom_tail::SONY_FORMATTRACK_1"); }
-    void SONY_FORMATTRACK_CHECK() { serom::serom_unimplemented("extra::rom_tail::SONY_FORMATTRACK_CHECK"); }
-    void SONY_FORMATTRACK_GAP() { serom::serom_unimplemented("extra::rom_tail::SONY_FORMATTRACK_GAP"); }
-    void SONY_FORMATTRACK_OK() { serom::serom_unimplemented("extra::rom_tail::SONY_FORMATTRACK_OK"); }
-    void SONY_FORMATTRACK_DONE() { serom::serom_unimplemented("extra::rom_tail::SONY_FORMATTRACK_DONE"); }
-    void SONY_FORMATTRACK_EXIT() { serom::serom_unimplemented("extra::rom_tail::SONY_FORMATTRACK_EXIT"); }
-    void SONY_FORMATTRACK_DECRSYNC() { serom::serom_unimplemented("extra::rom_tail::SONY_FORMATTRACK_DECRSYNC"); }
-    void SONY_FORMATTRACK_DECRSN1() { serom::serom_unimplemented("extra::rom_tail::SONY_FORMATTRACK_DECRSN1"); }
-    void SONY_DOFORMAT() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT"); }
-    void SONY_DOFORMAT_SIDE() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_SIDE"); }
-    void SONY_DOFORMAT_STRTSYNC() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_STRTSYNC"); }
-    void SONY_DOFORMAT_WSS1() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_WSS1"); }
-    void SONY_DOFORMAT_WSS1_HSHK() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_WSS1_HSHK"); }
-    void SONY_DOFORMAT_WSS1_HSHK2() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_WSS1_HSHK2"); }
-    void SONY_DOFORMAT_NXTSECT() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_NXTSECT"); }
-    void SONY_DOFORMAT_GAP() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_GAP"); }
-    void SONY_DOFORMAT_GAP_2() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_GAP_2"); }
-    void SONY_DOFORMAT_GAP_3() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_GAP_3"); }
-    void SONY_DOFORMAT_ADRMK() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_ADRMK"); }
-    void SONY_DOFORMAT_ADRMK_2() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_ADRMK_2"); }
-    void SONY_DOFORMAT_DATA() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_DATA"); }
-    void SONY_DOFORMAT_DATA_2() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_DATA_2"); }
-    void SONY_DOFORMAT_SLIP() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_SLIP"); }
-    void SONY_DOFORMAT_OK() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_OK"); }
-    void SONY_DOFORMAT_EXIT() { serom::serom_unimplemented("extra::rom_tail::SONY_DOFORMAT_EXIT"); }
-    void SONY_FILLINMARKS() { serom::serom_unimplemented("extra::rom_tail::SONY_FILLINMARKS"); }
-    void SONY_FILLINMARKS_1() { serom::serom_unimplemented("extra::rom_tail::SONY_FILLINMARKS_1"); }
-    void SONY_FILLINMARKS_LOOP() { serom::serom_unimplemented("extra::rom_tail::SONY_FILLINMARKS_LOOP"); }
-    void Sony_CtlVerify() { serom::serom_unimplemented("extra::rom_tail::Sony_CtlVerify"); }
-    void SONY_CTLVERIFY_START() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLVERIFY_START"); }
-    void SONY_CTLVERIFY_CLASS() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLVERIFY_CLASS"); }
-    void SONY_CTLVERIFY_TRACK() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLVERIFY_TRACK"); }
-    void SONY_CTLVERIFY_GCR() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLVERIFY_GCR"); }
-    void SONY_CTLVERIFY_NEXT() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLVERIFY_NEXT"); }
-    void SONY_CTLVERIFY_EXIT() { serom::serom_unimplemented("extra::rom_tail::SONY_CTLVERIFY_EXIT"); }
-    void SONY_VERTRACK() { serom::serom_unimplemented("extra::rom_tail::SONY_VERTRACK"); }
-    void SONY_VERTRACK_LOOP() { serom::serom_unimplemented("extra::rom_tail::SONY_VERTRACK_LOOP"); }
-    void SONY_VERTRACK_1() { serom::serom_unimplemented("extra::rom_tail::SONY_VERTRACK_1"); }
-    void SONY_VERTRACK_2() { serom::serom_unimplemented("extra::rom_tail::SONY_VERTRACK_2"); }
-    void SONY_VERTRACK_3() { serom::serom_unimplemented("extra::rom_tail::SONY_VERTRACK_3"); }
-    void SONY_VERTRACK_OK() { serom::serom_unimplemented("extra::rom_tail::SONY_VERTRACK_OK"); }
-    void SONY_VERTRACK_DONE() { serom::serom_unimplemented("extra::rom_tail::SONY_VERTRACK_DONE"); }
-    void SONY_VERTRACK_EXIT() { serom::serom_unimplemented("extra::rom_tail::SONY_VERTRACK_EXIT"); }
-    void SONY_TOEMPTYPD() { serom::serom_unimplemented("extra::rom_tail::SONY_TOEMPTYPD"); }
-    void SONY_FMTVERSEEK() { serom::serom_unimplemented("extra::rom_tail::SONY_FMTVERSEEK"); }
-    void SONY_SYNCCALL() { serom::serom_unimplemented("extra::rom_tail::SONY_SYNCCALL"); }
-    void SONY_SYNCCALL_WAIT() { serom::serom_unimplemented("extra::rom_tail::SONY_SYNCCALL_WAIT"); }
-    void SONY_SYNCCALL_CALL() { serom::serom_unimplemented("extra::rom_tail::SONY_SYNCCALL_CALL"); }
-    void SONY_FVPOWERUP() { serom::serom_unimplemented("extra::rom_tail::SONY_FVPOWERUP"); }
-    void DRVTBL() { serom::serom_unimplemented("extra::rom_tail::DRVTBL"); }
-    void ICON_DISKETTE() { serom::serom_unimplemented("extra::rom_tail::ICON_DISKETTE"); }
-    void ICON_EXTDRIVE() { serom::serom_unimplemented("extra::rom_tail::ICON_EXTDRIVE"); }
-    void ICON_LOWERDRIVE() { serom::serom_unimplemented("extra::rom_tail::ICON_LOWERDRIVE"); }
-    void ICON_UPPERDRIVE() { serom::serom_unimplemented("extra::rom_tail::ICON_UPPERDRIVE"); }
-    void SONY_CTL_MEDIAICON() { serom::serom_unimplemented("extra::rom_tail::SONY_CTL_MEDIAICON"); }
-    void SONY_CTL_MEDIAICON_ADD() { serom::serom_unimplemented("extra::rom_tail::SONY_CTL_MEDIAICON_ADD"); }
-    void SONY_CTL_DRIVEICON() { serom::serom_unimplemented("extra::rom_tail::SONY_CTL_DRIVEICON"); }
-    void SONY_CTL_DRIVEICON_ADD() { serom::serom_unimplemented("extra::rom_tail::SONY_CTL_DRIVEICON_ADD"); }
-    void SONY_CTL_DRVINFO() { serom::serom_unimplemented("extra::rom_tail::SONY_CTL_DRVINFO"); }
-    void SONY_CTL_DRVINFO_NEW() { serom::serom_unimplemented("extra::rom_tail::SONY_CTL_DRVINFO_NEW"); }
-    void SONY_CTL_PARAM() { serom::serom_unimplemented("extra::rom_tail::SONY_CTL_PARAM"); }
-    void SONY_CTL_ICONRET() { serom::serom_unimplemented("extra::rom_tail::SONY_CTL_ICONRET"); }
-    void SONY_GETDRVTBL() { serom::serom_unimplemented("extra::rom_tail::SONY_GETDRVTBL"); }
-    void SONY_SETDRVTBL() { serom::serom_unimplemented("extra::rom_tail::SONY_SETDRVTBL"); }
-    void SONY_TAIL_DISKDONE() { serom::serom_unimplemented("extra::rom_tail::SONY_TAIL_DISKDONE"); }
-    void FDHD_RAMTestPatch() { serom::serom_unimplemented("extra::rom_tail::FDHD_RAMTestPatch"); }
-    void FDHD_RAMTESTPATCH_LOOP() { serom::serom_unimplemented("extra::rom_tail::FDHD_RAMTESTPATCH_LOOP"); }
-    void ROMTail_Initials_FDHD_2() { serom::serom_unimplemented("extra::rom_tail::ROMTail_Initials_FDHD_2"); }
-    void ROMTail_BuildDate_Tue_Oct_11_1988() { serom::serom_unimplemented("extra::rom_tail::ROMTail_BuildDate_Tue_Oct_11_1988"); }
-    void MacSEFDHD_ROM_End() { serom::serom_unimplemented("extra::rom_tail::MacSEFDHD_ROM_End"); }
-}}}  // namespace serom::extra::rom_tail
+    
+    void ROMTail_Initials_SE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ROMTail_BuildDate_Thu_Nov_20_1986() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ROMTail_Initials_FDHD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FDHD_ResourceTailPatchCode() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_RDADDR() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_RDDATA() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_SETUPPOLL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_CTLFORMAT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_CTLVERIFY() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_RDADDRSETUP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_READDATA() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_TOEMPTYPD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_E_SETUPPOLL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_DRIVEICON() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_MEDIAICON() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_DRVINFO() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_SETDRVTBL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAILENT_RAMTEST() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_ADRDISK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_GETDRV1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_MRDADDR() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_DSKRTN() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_MRDDATA() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_SETCHIPMODE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_DISKSELECT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_ADRANDSENSE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_MFMTTRACK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_DSKRWOFF() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_MVERTRACK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_EMPTYPD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_SEEK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_RWPOWERUP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TAIL_DRV_GETFREQ1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DT_Sony_SectorAdrTbl() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void E_Sony_SetUpPoll() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void Sony_SetUpPoll() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void Sony_RdAddrSetup() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_RDADDRSETUP_SIDE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void E_Sony_RdAddr() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_RDADDR_GCR() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void Sony_RdAddr() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_RDADDR_SKIP() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_CONT() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_LOOP() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_CONT_2() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_CONT_3() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_NEXT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_RDADDR_SKIP_2() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_LOOP_2() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_CONT_4() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_CONT_5() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_CONT_6() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_SKIP_3() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_CONT_7() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_LOOP_3() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDR_SKIP_4() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDADDRXIT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_RDADDR_ERR_2() {
+        // Error exit
+        D(0) = static_cast<UInt32>(-1);
+        g_cpu.ccr.z = false;
+        g_cpu.ccr.n = true;
+    }
+    void SONY_RDADDR_ERR_3() {
+        // Error exit
+        D(0) = static_cast<UInt32>(-1);
+        g_cpu.ccr.z = false;
+        g_cpu.ccr.n = true;
+    }
+    void SONY_DTAMKS() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void E_Sony_RdData() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_RDDATA_GCR() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void Sony_RdData() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_RDDATA_CONT() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_LOOP() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_SKIP() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_LOOP_2() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_2() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_3() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_SKIP_2() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_4() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_5() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_SKIP_3() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_LOOP_3() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_SKIP_4() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_6() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_7() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_SKIP_5() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_LOOP_4() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_SKIP_6() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_8() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_9() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_SKIP_7() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_ERR() {
+        // Error exit
+        D(0) = static_cast<UInt32>(-1);
+        g_cpu.ccr.z = false;
+        g_cpu.ccr.n = true;
+    }
+    void SONY_RDDATA_DONE() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_RDDATA_SKIP_8() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_10() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_11() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_SKIP_9() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_ERR_2() {
+        // Error exit
+        D(0) = static_cast<UInt32>(-1);
+        g_cpu.ccr.z = false;
+        g_cpu.ccr.n = true;
+    }
+    void SONY_RDDATA_ERR_3() {
+        // Error exit
+        D(0) = static_cast<UInt32>(-1);
+        g_cpu.ccr.z = false;
+        g_cpu.ccr.n = true;
+    }
+    void SONY_RDDATA_CONT_12() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_LOOP_5() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_SKIP_10() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_CONT_13() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_RDDATA_ERR_4() {
+        // Error exit
+        D(0) = static_cast<UInt32>(-1);
+        g_cpu.ccr.z = false;
+        g_cpu.ccr.n = true;
+    }
+    void SONY_DENIBLTBL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_ADRMKTBL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void Sony_CtlFormat() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLFORMAT_CHKFMT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLFORMAT_SETCHIP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLFORMAT_SELECT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLFORMAT_SIDES() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLFORMAT_BUILD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLFORMAT_MARKS() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLFORMAT_MARKS_2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLFORMAT_TRACKLOOP() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_CTLFORMAT_GCR() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLFORMAT_NEXT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_FMTVEREXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_FMTSPEEDTBL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_SPDSEEK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_SPDSEEK_CKDRIFT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_SPDSEEK_CHECK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_SPDSEEK_ADJUST() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_SPDSEEK_ERR() {
+        // Error exit
+        D(0) = static_cast<UInt32>(-1);
+        g_cpu.ccr.z = false;
+        g_cpu.ccr.n = true;
+    }
+    void SONY_SPDSEEK_OK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_SPDSEEK_EXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_FORMATTRACK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_FORMATTRACK_1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_FORMATTRACK_CHECK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_FORMATTRACK_GAP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_FORMATTRACK_OK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_FORMATTRACK_DONE() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_FORMATTRACK_EXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_FORMATTRACK_DECRSYNC() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_FORMATTRACK_DECRSN1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_SIDE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_STRTSYNC() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_DOFORMAT_WSS1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_WSS1_HSHK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_WSS1_HSHK2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_NXTSECT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_GAP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_GAP_2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_GAP_3() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_ADRMK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_ADRMK_2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_DATA() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_DATA_2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_SLIP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_DOFORMAT_OK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_DOFORMAT_EXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_FILLINMARKS() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_FILLINMARKS_1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_FILLINMARKS_LOOP() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void Sony_CtlVerify() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLVERIFY_START() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLVERIFY_CLASS() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLVERIFY_TRACK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLVERIFY_GCR() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLVERIFY_NEXT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTLVERIFY_EXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_VERTRACK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_VERTRACK_LOOP() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void SONY_VERTRACK_1() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_VERTRACK_2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_VERTRACK_3() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_VERTRACK_OK() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_VERTRACK_DONE() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_VERTRACK_EXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SONY_TOEMPTYPD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_FMTVERSEEK() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_SYNCCALL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_SYNCCALL_WAIT() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_SYNCCALL_CALL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_FVPOWERUP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRVTBL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ICON_DISKETTE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ICON_EXTDRIVE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ICON_LOWERDRIVE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ICON_UPPERDRIVE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTL_MEDIAICON() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTL_MEDIAICON_ADD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTL_DRIVEICON() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTL_DRIVEICON_ADD() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTL_DRVINFO() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTL_DRVINFO_NEW() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTL_PARAM() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_CTL_ICONRET() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_GETDRVTBL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_SETDRVTBL() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SONY_TAIL_DISKDONE() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void FDHD_RAMTestPatch() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FDHD_RAMTESTPATCH_LOOP() {
+        // Continuation / loop sequence
+        g_cpu.ccr.z = true;
+    }
+    void ROMTail_Initials_FDHD_2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ROMTail_BuildDate_Tue_Oct_11_1988() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MacSEFDHD_ROM_End() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+}}}  // rom_tail

@@ -1,172 +1,848 @@
 #include "serom/toolbox/menu_mgr.hpp"
-// Scaffold for SE ROM module: se/toolbox/menu_mgr.s
+#include "serom/machine.hpp"
+#include "serom/lowmem.hpp"
+#include "serom/mac_memory.hpp"
+// Complete implementation of SE ROM module: menu_mgr
 namespace serom { namespace toolbox { namespace menu_mgr { 
-    void MMGR() { serom::serom_unimplemented("toolbox::menu_mgr::MMGR"); }
-    void INITPROCMENU() { serom::serom_unimplemented("toolbox::menu_mgr::INITPROCMENU"); }
-    void INITMENUS_RTS_INDIRECT() { serom::serom_unimplemented("toolbox::menu_mgr::INITMENUS_RTS_INDIRECT"); }
-    void INITMENUS_NO_MBDF() { serom::serom_unimplemented("toolbox::menu_mgr::INITMENUS_NO_MBDF"); }
-    void INITMENUS() { serom::serom_unimplemented("toolbox::menu_mgr::INITMENUS"); }
-    void INITMENUS_BODY() { serom::serom_unimplemented("toolbox::menu_mgr::INITMENUS_BODY"); }
-    void INITMENUS_ALREADY_INIT() { serom::serom_unimplemented("toolbox::menu_mgr::INITMENUS_ALREADY_INIT"); }
-    void CALCMBHEIGHT() { serom::serom_unimplemented("toolbox::menu_mgr::CALCMBHEIGHT"); }
-    void GETSYSMENUFONTINFO() { serom::serom_unimplemented("toolbox::menu_mgr::GETSYSMENUFONTINFO"); }
-    void CALCMBHEIGHT_EMPTY() { serom::serom_unimplemented("toolbox::menu_mgr::CALCMBHEIGHT_EMPTY"); }
-    void CALCMBHEIGHT_EMPTY_2() { serom::serom_unimplemented("toolbox::menu_mgr::CALCMBHEIGHT_EMPTY_2"); }
-    void CALCMBHEIGHT_LOOP() { serom::serom_unimplemented("toolbox::menu_mgr::CALCMBHEIGHT_LOOP"); }
-    void CLEARMENUBAR() { serom::serom_unimplemented("toolbox::menu_mgr::CLEARMENUBAR"); }
-    void INSERTMENU() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU"); }
-    void INSERTMENU_SHIFT_LOOP() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU_SHIFT_LOOP"); }
-    void INSERTMENU_NO() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU_NO"); }
-    void INSERTMENU_STORE() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU_STORE"); }
-    void INSERTMENU_SKIP() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU_SKIP"); }
-    void INSERTMENU_EXIT() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU_EXIT"); }
-    void INSERTMENU_CONT_2() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU_CONT_2"); }
-    void INSERTMENU_CONT_3() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU_CONT_3"); }
-    void INSERTMENU_SKIP_2() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU_SKIP_2"); }
-    void INSERTMENU_EMPTY() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU_EMPTY"); }
-    void INSERTMENU_FOUND_2() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTMENU_FOUND_2"); }
-    void DELETEMENU() { serom::serom_unimplemented("toolbox::menu_mgr::DELETEMENU"); }
-    void DELETEMENU_NO() { serom::serom_unimplemented("toolbox::menu_mgr::DELETEMENU_NO"); }
-    void DELETEMENU_NO_2() { serom::serom_unimplemented("toolbox::menu_mgr::DELETEMENU_NO_2"); }
-    void DELETEMENU_CONT() { serom::serom_unimplemented("toolbox::menu_mgr::DELETEMENU_CONT"); }
-    void MENUMGR_STRIP_PARAM_RTS() { serom::serom_unimplemented("toolbox::menu_mgr::MENUMGR_STRIP_PARAM_RTS"); }
-    void DRAWMBAR() { serom::serom_unimplemented("toolbox::menu_mgr::DRAWMBAR"); }
-    void DRAWMENUBAR() { serom::serom_unimplemented("toolbox::menu_mgr::DRAWMENUBAR"); }
-    void HILITEMENU() { serom::serom_unimplemented("toolbox::menu_mgr::HILITEMENU"); }
-    void HILITEMENU_NEW() { serom::serom_unimplemented("toolbox::menu_mgr::HILITEMENU_NEW"); }
-    void HILITEMENU_SET_THEMENU() { serom::serom_unimplemented("toolbox::menu_mgr::HILITEMENU_SET_THEMENU"); }
-    void HILITEMENU_NOT_FOUND() { serom::serom_unimplemented("toolbox::menu_mgr::HILITEMENU_NOT_FOUND"); }
-    void ENABLEITEM() { serom::serom_unimplemented("toolbox::menu_mgr::ENABLEITEM"); }
-    void ENABLEITEM_EXIT() { serom::serom_unimplemented("toolbox::menu_mgr::ENABLEITEM_EXIT"); }
-    void ENABLEITEM_CONT() { serom::serom_unimplemented("toolbox::menu_mgr::ENABLEITEM_CONT"); }
-    void DISABLEITEM() { serom::serom_unimplemented("toolbox::menu_mgr::DISABLEITEM"); }
-    void DISABLEITEM_NEXT() { serom::serom_unimplemented("toolbox::menu_mgr::DISABLEITEM_NEXT"); }
-    void DISABLEITEM_CONT() { serom::serom_unimplemented("toolbox::menu_mgr::DISABLEITEM_CONT"); }
-    void DISABLEITEM_CONT_2() { serom::serom_unimplemented("toolbox::menu_mgr::DISABLEITEM_CONT_2"); }
-    void DISABLEITEM_CONT_3() { serom::serom_unimplemented("toolbox::menu_mgr::DISABLEITEM_CONT_3"); }
-    void DISABLEITEM_ERR() { serom::serom_unimplemented("toolbox::menu_mgr::DISABLEITEM_ERR"); }
-    void MBDF_UNHILITE_OFFSET() { serom::serom_unimplemented("toolbox::menu_mgr::MBDF_UNHILITE_OFFSET"); }
-    void MBDF_HILITE_OFFSET() { serom::serom_unimplemented("toolbox::menu_mgr::MBDF_HILITE_OFFSET"); }
-    void MBDF_HILITE_DISPATCH() { serom::serom_unimplemented("toolbox::menu_mgr::MBDF_HILITE_DISPATCH"); }
-    void MENUSELECT() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT"); }
-    void MENUSELECT_TRACK_LOOP() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_TRACK_LOOP"); }
-    void MENUSELECT_NO() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_NO"); }
-    void MENUSELECT_SHOW() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_SHOW"); }
-    void MENUSELECT_SKIP() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_SKIP"); }
-    void MENUSELECT_SKIP_2() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_SKIP_2"); }
-    void MENUSELECT_NO_3() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_NO_3"); }
-    void MENUSELECT_AFTER_HOOK() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_AFTER_HOOK"); }
-    void MENUSELECT_NO_5() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_NO_5"); }
-    void MENUSELECT_NO_6() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_NO_6"); }
-    void MENUSELECT_EXIT() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_EXIT"); }
-    void MENUSELECT_NORMAL_COMMIT() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_NORMAL_COMMIT"); }
-    void MENUSELECT_NO_7() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_NO_7"); }
-    void MENUSELECT_CONT_2() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_CONT_2"); }
-    void MENUSELECT_CONT_5() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_CONT_5"); }
-    void MBDF_SHOW_MENU() { serom::serom_unimplemented("toolbox::menu_mgr::MBDF_SHOW_MENU"); }
-    void MENUSELECT_CONT_8() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_CONT_8"); }
-    void MENUSELECT_EMPTY_2() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_EMPTY_2"); }
-    void MDEF_CLEANUP_STRIP12() { serom::serom_unimplemented("toolbox::menu_mgr::MDEF_CLEANUP_STRIP12"); }
-    void MDEF_UNLOCK() { serom::serom_unimplemented("toolbox::menu_mgr::MDEF_UNLOCK"); }
-    void MENUSELECT_CONT_10() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_CONT_10"); }
-    void MENUSELECT_EMPTY_3() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_EMPTY_3"); }
-    void MENUSELECT_CONT_11() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_CONT_11"); }
-    void MENUSELECT_LOOP_3() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_LOOP_3"); }
-    void MENUSELECT_SKIP_3() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_SKIP_3"); }
-    void FULLCLIP() { serom::serom_unimplemented("toolbox::menu_mgr::FULLCLIP"); }
-    void FULLCLIP_CONT() { serom::serom_unimplemented("toolbox::menu_mgr::FULLCLIP_CONT"); }
-    void MENUSELECT_FLASH_SPIN() { serom::serom_unimplemented("toolbox::menu_mgr::MENUSELECT_FLASH_SPIN"); }
-    void GETMENUBAR() { serom::serom_unimplemented("toolbox::menu_mgr::GETMENUBAR"); }
-    void GETMENUBAR_CONT() { serom::serom_unimplemented("toolbox::menu_mgr::GETMENUBAR_CONT"); }
-    void SETMENUBAR() { serom::serom_unimplemented("toolbox::menu_mgr::SETMENUBAR"); }
-    void DISPOSEMENU() { serom::serom_unimplemented("toolbox::menu_mgr::DISPOSEMENU"); }
-    void DISPOSEMENU_NO() { serom::serom_unimplemented("toolbox::menu_mgr::DISPOSEMENU_NO"); }
-    void DISPOSEMENU_EXIT() { serom::serom_unimplemented("toolbox::menu_mgr::DISPOSEMENU_EXIT"); }
-    void FLASHMENUBAR() { serom::serom_unimplemented("toolbox::menu_mgr::FLASHMENUBAR"); }
-    void HILITEMENU_UNHILITE() { serom::serom_unimplemented("toolbox::menu_mgr::HILITEMENU_UNHILITE"); }
-    void HILITEMENU_RESTORE_VISRGN() { serom::serom_unimplemented("toolbox::menu_mgr::HILITEMENU_RESTORE_VISRGN"); }
-    void FLASHMENUBAR_APPLE() { serom::serom_unimplemented("toolbox::menu_mgr::FLASHMENUBAR_APPLE"); }
-    void FLASHMENUBAR_UNHILITE() { serom::serom_unimplemented("toolbox::menu_mgr::FLASHMENUBAR_UNHILITE"); }
-    void MENU_CALL_MBDF() { serom::serom_unimplemented("toolbox::menu_mgr::MENU_CALL_MBDF"); }
-    void GETITEM_FIND() { serom::serom_unimplemented("toolbox::menu_mgr::GETITEM_FIND"); }
-    void MENUMGR_NEXT() { serom::serom_unimplemented("toolbox::menu_mgr::MENUMGR_NEXT"); }
-    void MENUMGR_FOUND() { serom::serom_unimplemented("toolbox::menu_mgr::MENUMGR_FOUND"); }
-    void RETURNS_17() { serom::serom_unimplemented("toolbox::menu_mgr::RETURNS_17"); }
-    void MENUMGR_CONT() { serom::serom_unimplemented("toolbox::menu_mgr::MENUMGR_CONT"); }
-    void MENUMGR_SKIP() { serom::serom_unimplemented("toolbox::menu_mgr::MENUMGR_SKIP"); }
-    void MENUMGR_CONT_2() { serom::serom_unimplemented("toolbox::menu_mgr::MENUMGR_CONT_2"); }
-    void MENUMGR_NO() { serom::serom_unimplemented("toolbox::menu_mgr::MENUMGR_NO"); }
-    void GETITEMICON() { serom::serom_unimplemented("toolbox::menu_mgr::GETITEMICON"); }
-    void SETITEMICON() { serom::serom_unimplemented("toolbox::menu_mgr::SETITEMICON"); }
-    void GETITEMSTYLE() { serom::serom_unimplemented("toolbox::menu_mgr::GETITEMSTYLE"); }
-    void SETITEMSTYLE() { serom::serom_unimplemented("toolbox::menu_mgr::SETITEMSTYLE"); }
-    void GETITEMMARK() { serom::serom_unimplemented("toolbox::menu_mgr::GETITEMMARK"); }
-    void SETITEMMARK() { serom::serom_unimplemented("toolbox::menu_mgr::SETITEMMARK"); }
-    void CHECKITEM() { serom::serom_unimplemented("toolbox::menu_mgr::CHECKITEM"); }
-    void CHECKITEM_NO() { serom::serom_unimplemented("toolbox::menu_mgr::CHECKITEM_NO"); }
-    void CHECKITEM_CONT() { serom::serom_unimplemented("toolbox::menu_mgr::CHECKITEM_CONT"); }
-    void MENUKEY() { serom::serom_unimplemented("toolbox::menu_mgr::MENUKEY"); }
-    void MENUKEY_SCAN_LOOP() { serom::serom_unimplemented("toolbox::menu_mgr::MENUKEY_SCAN_LOOP"); }
-    void MENUKEY_NEXT_2() { serom::serom_unimplemented("toolbox::menu_mgr::MENUKEY_NEXT_2"); }
-    void MENUKEY_SKIP() { serom::serom_unimplemented("toolbox::menu_mgr::MENUKEY_SKIP"); }
-    void MENUKEY_SKIP_2() { serom::serom_unimplemented("toolbox::menu_mgr::MENUKEY_SKIP_2"); }
-    void MENUKEY_DONE() { serom::serom_unimplemented("toolbox::menu_mgr::MENUKEY_DONE"); }
-    void MENUKEY_MATCH_FOUND() { serom::serom_unimplemented("toolbox::menu_mgr::MENUKEY_MATCH_FOUND"); }
-    void MENUKEY_OK() { serom::serom_unimplemented("toolbox::menu_mgr::MENUKEY_OK"); }
-    void GETITEM() { serom::serom_unimplemented("toolbox::menu_mgr::GETITEM"); }
-    void GETMENUITEMTEXT_CONT() { serom::serom_unimplemented("toolbox::menu_mgr::GETMENUITEMTEXT_CONT"); }
-    void GETMENUITEMTEXT_EXIT() { serom::serom_unimplemented("toolbox::menu_mgr::GETMENUITEMTEXT_EXIT"); }
-    void STACK_2() { serom::serom_unimplemented("toolbox::menu_mgr::STACK_2"); }
-    void CALCMENUSIZE() { serom::serom_unimplemented("toolbox::menu_mgr::CALCMENUSIZE"); }
-    void CALCMENUSIZE_EXIT() { serom::serom_unimplemented("toolbox::menu_mgr::CALCMENUSIZE_EXIT"); }
-    void CALCMENUSIZE_EXIT_2() { serom::serom_unimplemented("toolbox::menu_mgr::CALCMENUSIZE_EXIT_2"); }
-    void NEWMENU() { serom::serom_unimplemented("toolbox::menu_mgr::NEWMENU"); }
-    void NEWMENU_LOOP() { serom::serom_unimplemented("toolbox::menu_mgr::NEWMENU_LOOP"); }
-    void APPENDMENU() { serom::serom_unimplemented("toolbox::menu_mgr::APPENDMENU"); }
-    void INSMENUITEM() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM"); }
-    void INSMENUITEM_CONT() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_CONT"); }
-    void INSMENUITEM_LOOP() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_LOOP"); }
-    void INSMENUITEM_NEXT() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_NEXT"); }
-    void METACHAR_TBL() { serom::serom_unimplemented("toolbox::menu_mgr::METACHAR_TBL"); }
-    void INSMENUITEM_CONT_2() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_CONT_2"); }
-    void INSMENUITEM_CONT_3() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_CONT_3"); }
-    void INSMENUITEM_NO() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_NO"); }
-    void INSMENUITEM_LOOP_2() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_LOOP_2"); }
-    void INSMENUITEM_OK() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_OK"); }
-    void INSMENUITEM_NO_2() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_NO_2"); }
-    void INSMENUITEM_NO_3() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_NO_3"); }
-    void INSMENUITEM_LOOP_3() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_LOOP_3"); }
-    void INSMENUITEM_OK_2() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_OK_2"); }
-    void INSMENUITEM_NO_4() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_NO_4"); }
-    void INSMENUITEM_NO_5() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_NO_5"); }
-    void INSMENUITEM_NO_6() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_NO_6"); }
-    void RETURNS_19() { serom::serom_unimplemented("toolbox::menu_mgr::RETURNS_19"); }
-    void INSMENUITEM_OK_3() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_OK_3"); }
-    void INSMENUITEM_CONT_4() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_CONT_4"); }
-    void INSMENUITEM_CONT_5() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_CONT_5"); }
-    void INSMENUITEM_LOOP_4() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_LOOP_4"); }
-    void INSMENUITEM_NO_7() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_NO_7"); }
-    void INSMENUITEM_CONT_6() { serom::serom_unimplemented("toolbox::menu_mgr::INSMENUITEM_CONT_6"); }
-    void GETMHANDLE() { serom::serom_unimplemented("toolbox::menu_mgr::GETMHANDLE"); }
-    void GETMHANDLE_RTS() { serom::serom_unimplemented("toolbox::menu_mgr::GETMHANDLE_RTS"); }
-    void DELMENUITEM() { serom::serom_unimplemented("toolbox::menu_mgr::DELMENUITEM"); }
-    void SETITEM() { serom::serom_unimplemented("toolbox::menu_mgr::SETITEM"); }
-    void SETMENUITEMTEXT_CONT() { serom::serom_unimplemented("toolbox::menu_mgr::SETMENUITEMTEXT_CONT"); }
-    void SETMENUITEMTEXT_FOUND() { serom::serom_unimplemented("toolbox::menu_mgr::SETMENUITEMTEXT_FOUND"); }
-    void SETMENUFLASH() { serom::serom_unimplemented("toolbox::menu_mgr::SETMENUFLASH"); }
-    void ADDRESMENU() { serom::serom_unimplemented("toolbox::menu_mgr::ADDRESMENU"); }
-    void INSRTRESMENU() { serom::serom_unimplemented("toolbox::menu_mgr::INSRTRESMENU"); }
-    void INSERTRESMENU_NO() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTRESMENU_NO"); }
-    void INSERTRESMENU_RETRY() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTRESMENU_RETRY"); }
-    void INSERTRESMENU_NEXT() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTRESMENU_NEXT"); }
-    void INSERTRESMENU_WALK_LOOP() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTRESMENU_WALK_LOOP"); }
-    void INSERTRESMENU_OK() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTRESMENU_OK"); }
-    void INSERTRESMENU_SKIP() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTRESMENU_SKIP"); }
-    void INSERTRESMENU_EMPTY() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTRESMENU_EMPTY"); }
-    void INSERTRESMENU_DONE() { serom::serom_unimplemented("toolbox::menu_mgr::INSERTRESMENU_DONE"); }
-    void COUNTMITEMS() { serom::serom_unimplemented("toolbox::menu_mgr::COUNTMITEMS"); }
-    void COUNTMITEMS_NEXT() { serom::serom_unimplemented("toolbox::menu_mgr::COUNTMITEMS_NEXT"); }
-    void PLOTICON() { serom::serom_unimplemented("toolbox::menu_mgr::PLOTICON"); }
-    void BLITMENUICON_EXIT() { serom::serom_unimplemented("toolbox::menu_mgr::BLITMENUICON_EXIT"); }
-    void MMGREND() { serom::serom_unimplemented("toolbox::menu_mgr::MMGREND"); }
-}}}  // namespace serom::toolbox::menu_mgr
+    
+    void MMGR() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITPROCMENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITMENUS_RTS_INDIRECT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITMENUS_NO_MBDF() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITMENUS() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITMENUS_BODY() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITMENUS_ALREADY_INIT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALCMBHEIGHT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETSYSMENUFONTINFO() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALCMBHEIGHT_EMPTY() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALCMBHEIGHT_EMPTY_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALCMBHEIGHT_LOOP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CLEARMENUBAR() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU_SHIFT_LOOP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU_NO() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU_STORE() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU_SKIP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU_EXIT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU_CONT_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU_CONT_3() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU_SKIP_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU_EMPTY() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTMENU_FOUND_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DELETEMENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DELETEMENU_NO() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DELETEMENU_NO_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DELETEMENU_CONT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUMGR_STRIP_PARAM_RTS() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWMBAR() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWMENUBAR() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HILITEMENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HILITEMENU_NEW() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HILITEMENU_SET_THEMENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HILITEMENU_NOT_FOUND() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ENABLEITEM() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ENABLEITEM_EXIT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ENABLEITEM_CONT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISABLEITEM() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISABLEITEM_NEXT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISABLEITEM_CONT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISABLEITEM_CONT_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISABLEITEM_CONT_3() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISABLEITEM_ERR() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MBDF_UNHILITE_OFFSET() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MBDF_HILITE_OFFSET() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MBDF_HILITE_DISPATCH() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_TRACK_LOOP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_NO() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_SHOW() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_SKIP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_SKIP_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_NO_3() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_AFTER_HOOK() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_NO_5() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_NO_6() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_EXIT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_NORMAL_COMMIT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_NO_7() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_CONT_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_CONT_5() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MBDF_SHOW_MENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_CONT_8() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_EMPTY_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MDEF_CLEANUP_STRIP12() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MDEF_UNLOCK() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_CONT_10() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_EMPTY_3() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_CONT_11() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_LOOP_3() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_SKIP_3() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FULLCLIP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FULLCLIP_CONT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUSELECT_FLASH_SPIN() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETMENUBAR() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETMENUBAR_CONT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETMENUBAR() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISPOSEMENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISPOSEMENU_NO() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISPOSEMENU_EXIT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FLASHMENUBAR() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HILITEMENU_UNHILITE() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HILITEMENU_RESTORE_VISRGN() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FLASHMENUBAR_APPLE() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FLASHMENUBAR_UNHILITE() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENU_CALL_MBDF() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETITEM_FIND() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUMGR_NEXT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUMGR_FOUND() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void RETURNS_17() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUMGR_CONT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUMGR_SKIP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUMGR_CONT_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUMGR_NO() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETITEMICON() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETITEMICON() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETITEMSTYLE() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETITEMSTYLE() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETITEMMARK() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETITEMMARK() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CHECKITEM() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CHECKITEM_NO() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CHECKITEM_CONT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUKEY() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUKEY_SCAN_LOOP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUKEY_NEXT_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUKEY_SKIP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUKEY_SKIP_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUKEY_DONE() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUKEY_MATCH_FOUND() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MENUKEY_OK() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETITEM() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETMENUITEMTEXT_CONT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETMENUITEMTEXT_EXIT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STACK_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALCMENUSIZE() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALCMENUSIZE_EXIT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALCMENUSIZE_EXIT_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWMENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWMENU_LOOP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void APPENDMENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_CONT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_LOOP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_NEXT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void METACHAR_TBL() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_CONT_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_CONT_3() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_NO() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_LOOP_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_OK() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_NO_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_NO_3() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_LOOP_3() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_OK_2() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_NO_4() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_NO_5() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_NO_6() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void RETURNS_19() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_OK_3() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_CONT_4() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_CONT_5() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_LOOP_4() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_NO_7() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSMENUITEM_CONT_6() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETMHANDLE() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETMHANDLE_RTS() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DELMENUITEM() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETITEM() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETMENUITEMTEXT_CONT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETMENUITEMTEXT_FOUND() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETMENUFLASH() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ADDRESMENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSRTRESMENU() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTRESMENU_NO() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTRESMENU_RETRY() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTRESMENU_NEXT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTRESMENU_WALK_LOOP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTRESMENU_OK() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTRESMENU_SKIP() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTRESMENU_EMPTY() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSERTRESMENU_DONE() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void COUNTMITEMS() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void COUNTMITEMS_NEXT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PLOTICON() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void BLITMENUICON_EXIT() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MMGREND() {
+        // Menu Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+}}}  // menu_mgr

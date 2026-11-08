@@ -1,8 +1,20 @@
 /* puzzle.c - Classic System 7.1 15-Tile Sliding Puzzle Desk Accessory */
 #include <plusos/plusos.h>
 #include <plusos/gfx.h>
+#include <plusos/syscall.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+/* Only open a desktop window when a compositor is actually running. */
+static int under_desktop(void)
+{
+    struct plusos_procinfo p[16];
+    struct plusos_proclist_args a = { p, 16 };
+    int n = (int)plusos_syscall(SYS_proclist, &a);
+    for (int i = 0; i < n; i++)
+        if (p[i].state != 4 && !strncmp(p[i].name, "desktop", 7)) return 1;
+    return 0;
+}
 
 static int board[4][4];
 static int empty_r = 3, empty_c = 3;
@@ -82,7 +94,7 @@ int main(int argc, char **argv)
     scramble_board();
 
     GWindow win;
-    if (gwin_open(&win, "Puzzle", 160, 180) == 0) {
+    if (under_desktop() && gwin_open(&win, "Puzzle", 160, 180) == 0) {
         gfx_target(&win.surf);
         draw_puzzle(0, 0);
         gwin_update(&win);

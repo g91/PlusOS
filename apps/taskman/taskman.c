@@ -11,12 +11,18 @@
 
 static const char *st[] = { "-", "ready", "run", "block", "zombie" };
 
+/* Is a desktop compositor actually running right now? We look for a live
+ * "desktop" process rather than trusting a persistent registry flag, which
+ * goes stale if the desktop ever exits uncleanly - a stale flag would send us
+ * into GUI mode with no compositor and hang the machine. */
 static int under_desktop(void)
 {
-    char v[8];
-    struct plusos_reg_args a; memset(&a, 0, sizeof a);
-    a.key = "sys.desktop"; a.vbuf = v; a.vsize = sizeof v;
-    return plusos_syscall(SYS_regget, &a) > 0;
+    struct plusos_procinfo p[16];
+    struct plusos_proclist_args a = { p, 16 };
+    int n = (int)plusos_syscall(SYS_proclist, &a);
+    for (int i = 0; i < n; i++)
+        if (p[i].state != 4 && !strncmp(p[i].name, "desktop", 7)) return 1;   /* not a zombie */
+    return 0;
 }
 
 static int get_list(struct plusos_procinfo *p, int max, struct plusos_sysinfo *si)

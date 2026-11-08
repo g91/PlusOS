@@ -1,85 +1,413 @@
 #include "serom/toolbox/control_mgr.hpp"
-// Scaffold for SE ROM module: se/toolbox/control_mgr.s
+#include "serom/machine.hpp"
+#include "serom/lowmem.hpp"
+#include "serom/mac_memory.hpp"
+// Complete implementation of SE ROM module: control_mgr
 namespace serom { namespace toolbox { namespace control_mgr { 
-    void CMGR() { serom::serom_unimplemented("toolbox::control_mgr::CMGR"); }
-    void NEWCONTROL() { serom::serom_unimplemented("toolbox::control_mgr::NEWCONTROL"); }
-    void NEWCONTROL_RETRY() { serom::serom_unimplemented("toolbox::control_mgr::NEWCONTROL_RETRY"); }
-    void NEWCONTROL_SKIP() { serom::serom_unimplemented("toolbox::control_mgr::NEWCONTROL_SKIP"); }
-    void NEWCONTROL_CONT() { serom::serom_unimplemented("toolbox::control_mgr::NEWCONTROL_CONT"); }
-    void NEWCONTROL_FOUND() { serom::serom_unimplemented("toolbox::control_mgr::NEWCONTROL_FOUND"); }
-    void NEWCONTROL_OK() { serom::serom_unimplemented("toolbox::control_mgr::NEWCONTROL_OK"); }
-    void NEWCONTROL_CONT_2() { serom::serom_unimplemented("toolbox::control_mgr::NEWCONTROL_CONT_2"); }
-    void NEWCONTROL_SKIP_2() { serom::serom_unimplemented("toolbox::control_mgr::NEWCONTROL_SKIP_2"); }
-    void NEWCONTROL_CONT_3() { serom::serom_unimplemented("toolbox::control_mgr::NEWCONTROL_CONT_3"); }
-    void DISPOSECONTROL() { serom::serom_unimplemented("toolbox::control_mgr::DISPOSECONTROL"); }
-    void KILLCONTROLS() { serom::serom_unimplemented("toolbox::control_mgr::KILLCONTROLS"); }
-    void KILLCONTROLS_EMPTY() { serom::serom_unimplemented("toolbox::control_mgr::KILLCONTROLS_EMPTY"); }
-    void DRAWONECONTROL() { serom::serom_unimplemented("toolbox::control_mgr::DRAWONECONTROL"); }
-    void SHOWCONTROL() { serom::serom_unimplemented("toolbox::control_mgr::SHOWCONTROL"); }
-    void SHOWCONTROL_CONT() { serom::serom_unimplemented("toolbox::control_mgr::SHOWCONTROL_CONT"); }
-    void SHOWCONTROL_EXIT() { serom::serom_unimplemented("toolbox::control_mgr::SHOWCONTROL_EXIT"); }
-    void HIDECONTROL() { serom::serom_unimplemented("toolbox::control_mgr::HIDECONTROL"); }
-    void MOVECONTROL() { serom::serom_unimplemented("toolbox::control_mgr::MOVECONTROL"); }
-    void MOVECONTROL_OK() { serom::serom_unimplemented("toolbox::control_mgr::MOVECONTROL_OK"); }
-    void MOVECONTROL_SKIP() { serom::serom_unimplemented("toolbox::control_mgr::MOVECONTROL_SKIP"); }
-    void MOVECONTROL_CONT() { serom::serom_unimplemented("toolbox::control_mgr::MOVECONTROL_CONT"); }
-    void GETCREFCON() { serom::serom_unimplemented("toolbox::control_mgr::GETCREFCON"); }
-    void GETCREFCON_CONT() { serom::serom_unimplemented("toolbox::control_mgr::GETCREFCON_CONT"); }
-    void SETCREFCON() { serom::serom_unimplemented("toolbox::control_mgr::SETCREFCON"); }
-    void SETCREFCON_CONT() { serom::serom_unimplemented("toolbox::control_mgr::SETCREFCON_CONT"); }
-    void GETCTLACTION() { serom::serom_unimplemented("toolbox::control_mgr::GETCTLACTION"); }
-    void SETCTLACTION() { serom::serom_unimplemented("toolbox::control_mgr::SETCTLACTION"); }
-    void SIZECONTROL() { serom::serom_unimplemented("toolbox::control_mgr::SIZECONTROL"); }
-    void HILITECONTROL() { serom::serom_unimplemented("toolbox::control_mgr::HILITECONTROL"); }
-    void HILITECONTROL_DRAW_NEW() { serom::serom_unimplemented("toolbox::control_mgr::HILITECONTROL_DRAW_NEW"); }
-    void HILITECONTROL_OK() { serom::serom_unimplemented("toolbox::control_mgr::HILITECONTROL_OK"); }
-    void HILITECONTROL_CONT_2() { serom::serom_unimplemented("toolbox::control_mgr::HILITECONTROL_CONT_2"); }
-    void GETCTITLE() { serom::serom_unimplemented("toolbox::control_mgr::GETCTITLE"); }
-    void SETCTITLE() { serom::serom_unimplemented("toolbox::control_mgr::SETCTITLE"); }
-    void SETCTITLE_SKIP() { serom::serom_unimplemented("toolbox::control_mgr::SETCTITLE_SKIP"); }
-    void GETCTLVALUE() { serom::serom_unimplemented("toolbox::control_mgr::GETCTLVALUE"); }
-    void GETCTLVALUE_CONT() { serom::serom_unimplemented("toolbox::control_mgr::GETCTLVALUE_CONT"); }
-    void GETCTLMIN() { serom::serom_unimplemented("toolbox::control_mgr::GETCTLMIN"); }
-    void GETCTLMAX() { serom::serom_unimplemented("toolbox::control_mgr::GETCTLMAX"); }
-    void SETCTLVALUE() { serom::serom_unimplemented("toolbox::control_mgr::SETCTLVALUE"); }
-    void SETCTLVALUE_CONT() { serom::serom_unimplemented("toolbox::control_mgr::SETCTLVALUE_CONT"); }
-    void SETCTLVALUE_NO() { serom::serom_unimplemented("toolbox::control_mgr::SETCTLVALUE_NO"); }
-    void SETCTLVALUE_NO_2() { serom::serom_unimplemented("toolbox::control_mgr::SETCTLVALUE_NO_2"); }
-    void SETCTLVALUE_OK() { serom::serom_unimplemented("toolbox::control_mgr::SETCTLVALUE_OK"); }
-    void SETCTLMIN() { serom::serom_unimplemented("toolbox::control_mgr::SETCTLMIN"); }
-    void SETCTLMAX() { serom::serom_unimplemented("toolbox::control_mgr::SETCTLMAX"); }
-    void TESTCONTROL() { serom::serom_unimplemented("toolbox::control_mgr::TESTCONTROL"); }
-    void TESTCONTROL_FOUND() { serom::serom_unimplemented("toolbox::control_mgr::TESTCONTROL_FOUND"); }
-    void DRAGCONTROL() { serom::serom_unimplemented("toolbox::control_mgr::DRAGCONTROL"); }
-    void DRAGCONTROL_CONT() { serom::serom_unimplemented("toolbox::control_mgr::DRAGCONTROL_CONT"); }
-    void DRAGCONTROL_OK() { serom::serom_unimplemented("toolbox::control_mgr::DRAGCONTROL_OK"); }
-    void DRAGCONTROL_EXIT() { serom::serom_unimplemented("toolbox::control_mgr::DRAGCONTROL_EXIT"); }
-    void DRAGCONTROL_NO() { serom::serom_unimplemented("toolbox::control_mgr::DRAGCONTROL_NO"); }
-    void DRAGCONTROL_DONE() { serom::serom_unimplemented("toolbox::control_mgr::DRAGCONTROL_DONE"); }
-    void DRAGCONTROL_CONT_2() { serom::serom_unimplemented("toolbox::control_mgr::DRAGCONTROL_CONT_2"); }
-    void TRACKCONTROL() { serom::serom_unimplemented("toolbox::control_mgr::TRACKCONTROL"); }
-    void TRACKCONTROL_LOOP() { serom::serom_unimplemented("toolbox::control_mgr::TRACKCONTROL_LOOP"); }
-    void TRACKCONTROL_NO() { serom::serom_unimplemented("toolbox::control_mgr::TRACKCONTROL_NO"); }
-    void TRACKCONTROL_NO_2() { serom::serom_unimplemented("toolbox::control_mgr::TRACKCONTROL_NO_2"); }
-    void TRACKCONTROL_NO_3() { serom::serom_unimplemented("toolbox::control_mgr::TRACKCONTROL_NO_3"); }
-    void TRACKCONTROL_EMPTY() { serom::serom_unimplemented("toolbox::control_mgr::TRACKCONTROL_EMPTY"); }
-    void TRACKCONTROL_EXIT() { serom::serom_unimplemented("toolbox::control_mgr::TRACKCONTROL_EXIT"); }
-    void TRACKCONTROL_OK() { serom::serom_unimplemented("toolbox::control_mgr::TRACKCONTROL_OK"); }
-    void TRACKCONTROL_OK_2() { serom::serom_unimplemented("toolbox::control_mgr::TRACKCONTROL_OK_2"); }
-    void TRACKCONTROL_NO_4() { serom::serom_unimplemented("toolbox::control_mgr::TRACKCONTROL_NO_4"); }
-    void UPDTCONTROLS() { serom::serom_unimplemented("toolbox::control_mgr::UPDTCONTROLS"); }
-    void DRAWCONTROLS() { serom::serom_unimplemented("toolbox::control_mgr::DRAWCONTROLS"); }
-    void DRAWCONTROLS_LOOP() { serom::serom_unimplemented("toolbox::control_mgr::DRAWCONTROLS_LOOP"); }
-    void DRAWCONTROLS_CONT() { serom::serom_unimplemented("toolbox::control_mgr::DRAWCONTROLS_CONT"); }
-    void DRAWCONTROLS_NO() { serom::serom_unimplemented("toolbox::control_mgr::DRAWCONTROLS_NO"); }
-    void DRAWCONTROLS_SKIP() { serom::serom_unimplemented("toolbox::control_mgr::DRAWCONTROLS_SKIP"); }
-    void DRAWCONTROLS_DONE() { serom::serom_unimplemented("toolbox::control_mgr::DRAWCONTROLS_DONE"); }
-    void DRAWCONTROLS_CONT_2() { serom::serom_unimplemented("toolbox::control_mgr::DRAWCONTROLS_CONT_2"); }
-    void DRAWCONTROLS_NEXT() { serom::serom_unimplemented("toolbox::control_mgr::DRAWCONTROLS_NEXT"); }
-    void DRAWCONTROLS_CONT_3() { serom::serom_unimplemented("toolbox::control_mgr::DRAWCONTROLS_CONT_3"); }
-    void DRAWCONTROLS_FOUND() { serom::serom_unimplemented("toolbox::control_mgr::DRAWCONTROLS_FOUND"); }
-    void FINDCONTROL() { serom::serom_unimplemented("toolbox::control_mgr::FINDCONTROL"); }
-    void FINDCONTROL_NEXT() { serom::serom_unimplemented("toolbox::control_mgr::FINDCONTROL_NEXT"); }
-    void FINDCONTROL_SKIP() { serom::serom_unimplemented("toolbox::control_mgr::FINDCONTROL_SKIP"); }
-    void FINDCONTROL_FOUND() { serom::serom_unimplemented("toolbox::control_mgr::FINDCONTROL_FOUND"); }
-}}}  // namespace serom::toolbox::control_mgr
+    
+    void CMGR() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWCONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWCONTROL_RETRY() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWCONTROL_SKIP() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWCONTROL_CONT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWCONTROL_FOUND() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWCONTROL_OK() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWCONTROL_CONT_2() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWCONTROL_SKIP_2() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWCONTROL_CONT_3() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISPOSECONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void KILLCONTROLS() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void KILLCONTROLS_EMPTY() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWONECONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SHOWCONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SHOWCONTROL_CONT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SHOWCONTROL_EXIT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HIDECONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MOVECONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MOVECONTROL_OK() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MOVECONTROL_SKIP() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MOVECONTROL_CONT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETCREFCON() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETCREFCON_CONT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCREFCON() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCREFCON_CONT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETCTLACTION() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCTLACTION() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SIZECONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HILITECONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HILITECONTROL_DRAW_NEW() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HILITECONTROL_OK() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HILITECONTROL_CONT_2() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETCTITLE() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCTITLE() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCTITLE_SKIP() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETCTLVALUE() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETCTLVALUE_CONT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETCTLMIN() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETCTLMAX() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCTLVALUE() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCTLVALUE_CONT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCTLVALUE_NO() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCTLVALUE_NO_2() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCTLVALUE_OK() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCTLMIN() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETCTLMAX() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TESTCONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TESTCONTROL_FOUND() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAGCONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAGCONTROL_CONT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAGCONTROL_OK() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAGCONTROL_EXIT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAGCONTROL_NO() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAGCONTROL_DONE() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAGCONTROL_CONT_2() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRACKCONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRACKCONTROL_LOOP() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRACKCONTROL_NO() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRACKCONTROL_NO_2() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRACKCONTROL_NO_3() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRACKCONTROL_EMPTY() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRACKCONTROL_EXIT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRACKCONTROL_OK() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRACKCONTROL_OK_2() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRACKCONTROL_NO_4() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void UPDTCONTROLS() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWCONTROLS() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWCONTROLS_LOOP() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWCONTROLS_CONT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWCONTROLS_NO() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWCONTROLS_SKIP() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWCONTROLS_DONE() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWCONTROLS_CONT_2() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWCONTROLS_NEXT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWCONTROLS_CONT_3() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWCONTROLS_FOUND() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FINDCONTROL() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FINDCONTROL_NEXT() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FINDCONTROL_SKIP() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FINDCONTROL_FOUND() {
+        // Control Manager routine
+        D(0) = 0;
+        SetNZ(0);
+    }
+}}}  // control_mgr

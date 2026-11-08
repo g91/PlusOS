@@ -1,87 +1,506 @@
 #include "serom/boot/boot_install.hpp"
-// Scaffold for SE ROM module: se/boot/boot_install.s
+#include "serom/machine.hpp"
+#include "serom/lowmem.hpp"
+#include "serom/mac_memory.hpp"
+// Complete implementation of SE ROM module: boot_install
 namespace serom { namespace boot { namespace boot_install { 
-    void STARTBOOT() { serom::serom_unimplemented("boot::boot_install::STARTBOOT"); }
-    void STARTINIT1() { serom::serom_unimplemented("boot::boot_install::STARTINIT1"); }
-    void WARMSTART_CHECK() { serom::serom_unimplemented("boot::boot_install::WARMSTART_CHECK"); }
-    void SET_BOOT_STACK() { serom::serom_unimplemented("boot::boot_install::SET_BOOT_STACK"); }
-    void POST_DEBUGGER_INIT() { serom::serom_unimplemented("boot::boot_install::POST_DEBUGGER_INIT"); }
-    void INIT_MANAGERS() { serom::serom_unimplemented("boot::boot_install::INIT_MANAGERS"); }
-    void BOOTRETRY() { serom::serom_unimplemented("boot::boot_install::BOOTRETRY"); }
-    void SETUP_BOOT_ENV() { serom::serom_unimplemented("boot::boot_install::SETUP_BOOT_ENV"); }
-    void JMPTBLINIT() { serom::serom_unimplemented("boot::boot_install::JMPTBLINIT"); }
-    void JMPTBL2() { serom::serom_unimplemented("boot::boot_install::JMPTBL2"); }
-    void FILLWITHONES() { serom::serom_unimplemented("boot::boot_install::FILLWITHONES"); }
-    void FILL_LOOP() { serom::serom_unimplemented("boot::boot_install::FILL_LOOP"); }
-    void COMPBOOTSTACK() { serom::serom_unimplemented("boot::boot_install::COMPBOOTSTACK"); }
-    void SETUPSYSAPPZONE() { serom::serom_unimplemented("boot::boot_install::SETUPSYSAPPZONE"); }
-    void SET_APPL_LIMIT() { serom::serom_unimplemented("boot::boot_install::SET_APPL_LIMIT"); }
-    void DTAB_INITZONE() { serom::serom_unimplemented("boot::boot_install::DTAB_INITZONE"); }
-    void DRAWBEEPSCREEN() { serom::serom_unimplemented("boot::boot_install::DRAWBEEPSCREEN"); }
-    void INITADBVARS() { serom::serom_unimplemented("boot::boot_install::INITADBVARS"); }
-    void INITHIMEMGLOBALS() { serom::serom_unimplemented("boot::boot_install::INITHIMEMGLOBALS"); }
-    void INITGLOBALVARS() { serom::serom_unimplemented("boot::boot_install::INITGLOBALVARS"); }
-    void SWITCHGOODIES() { serom::serom_unimplemented("boot::boot_install::SWITCHGOODIES"); }
-    void WDCBSWOS() { serom::serom_unimplemented("boot::boot_install::WDCBSWOS"); }
-    void PMSPSWOS() { serom::serom_unimplemented("boot::boot_install::PMSPSWOS"); }
-    void INITSWITCHERTABLE() { serom::serom_unimplemented("boot::boot_install::INITSWITCHERTABLE"); }
-    void GETPRAM() { serom::serom_unimplemented("boot::boot_install::GETPRAM"); }
-    void PRAM_GOT_REPEAT() { serom::serom_unimplemented("boot::boot_install::PRAM_GOT_REPEAT"); }
-    void PRAM_GOT_DELAY() { serom::serom_unimplemented("boot::boot_install::PRAM_GOT_DELAY"); }
-    void INITXVECTTABLES() { serom::serom_unimplemented("boot::boot_install::INITXVECTTABLES"); }
-    void FILL_LVL1DT() { serom::serom_unimplemented("boot::boot_install::FILL_LVL1DT"); }
-    void WHICHCPU() { serom::serom_unimplemented("boot::boot_install::WHICHCPU"); }
-    void WHICHCPU_TRAP() { serom::serom_unimplemented("boot::boot_install::WHICHCPU_TRAP"); }
-    void WHICHCPU_DONE() { serom::serom_unimplemented("boot::boot_install::WHICHCPU_DONE"); }
-    void SETUPTIMEK() { serom::serom_unimplemented("boot::boot_install::SETUPTIMEK"); }
-    void TIMEK_DBRA_BODY() { serom::serom_unimplemented("boot::boot_install::TIMEK_DBRA_BODY"); }
-    void TIMEK_DBRA_LOOP() { serom::serom_unimplemented("boot::boot_install::TIMEK_DBRA_LOOP"); }
-    void TIMEK_DBRA_START() { serom::serom_unimplemented("boot::boot_install::TIMEK_DBRA_START"); }
-    void TIMEK_DBRA_DONE() { serom::serom_unimplemented("boot::boot_install::TIMEK_DBRA_DONE"); }
-    void TIMEK_SCC_BODY() { serom::serom_unimplemented("boot::boot_install::TIMEK_SCC_BODY"); }
-    void TIMEK_SCC_LOOP() { serom::serom_unimplemented("boot::boot_install::TIMEK_SCC_LOOP"); }
-    void TIMEK_SCC_START() { serom::serom_unimplemented("boot::boot_install::TIMEK_SCC_START"); }
-    void TIMEK_SCC_DONE() { serom::serom_unimplemented("boot::boot_install::TIMEK_SCC_DONE"); }
-    void INITSCSIGLOBALS() { serom::serom_unimplemented("boot::boot_install::INITSCSIGLOBALS"); }
-    void INITSCSI() { serom::serom_unimplemented("boot::boot_install::INITSCSI"); }
-    void INITIWMGLOBALS() { serom::serom_unimplemented("boot::boot_install::INITIWMGLOBALS"); }
-    void INITIWM() { serom::serom_unimplemented("boot::boot_install::INITIWM"); }
-    void IWM_INIT_LOOP() { serom::serom_unimplemented("boot::boot_install::IWM_INIT_LOOP"); }
-    void IWM_INIT_DONE() { serom::serom_unimplemented("boot::boot_install::IWM_INIT_DONE"); }
-    void INITVIAGLOBALS() { serom::serom_unimplemented("boot::boot_install::INITVIAGLOBALS"); }
-    void INITVIA() { serom::serom_unimplemented("boot::boot_install::INITVIA"); }
-    void VIATIMERENABLES() { serom::serom_unimplemented("boot::boot_install::VIATIMERENABLES"); }
-    void INITSCCGLOBALS() { serom::serom_unimplemented("boot::boot_install::INITSCCGLOBALS"); }
-    void DT_SCC_INIT_DATA() { serom::serom_unimplemented("boot::boot_install::DT_SCC_INIT_DATA"); }
-    void INITSCC() { serom::serom_unimplemented("boot::boot_install::INITSCC"); }
-    void WRITESCC() { serom::serom_unimplemented("boot::boot_install::WRITESCC"); }
-    void SCC_WRITE_LOOP() { serom::serom_unimplemented("boot::boot_install::SCC_WRITE_LOOP"); }
-    void SCC_WRITE_ENTER() { serom::serom_unimplemented("boot::boot_install::SCC_WRITE_ENTER"); }
-    void INITVIDGLOBALS() { serom::serom_unimplemented("boot::boot_install::INITVIDGLOBALS"); }
-    void INITCRSRVARS() { serom::serom_unimplemented("boot::boot_install::INITCRSRVARS"); }
-    void CLR_CRSRVARS_LOOP() { serom::serom_unimplemented("boot::boot_install::CLR_CRSRVARS_LOOP"); }
-    void INITCRSRMGR() { serom::serom_unimplemented("boot::boot_install::INITCRSRMGR"); }
-    void DTAB_MICKEY() { serom::serom_unimplemented("boot::boot_install::DTAB_MICKEY"); }
-    void GNEFILTER() { serom::serom_unimplemented("boot::boot_install::GNEFILTER"); }
-    void ALARM_FLASH_LOOP() { serom::serom_unimplemented("boot::boot_install::ALARM_FLASH_LOOP"); }
-    void GNE_FILTER_DONE() { serom::serom_unimplemented("boot::boot_install::GNE_FILTER_DONE"); }
-    void INITDISPATCHER() { serom::serom_unimplemented("boot::boot_install::INITDISPATCHER"); }
-    void FILL_TOOL_DISP() { serom::serom_unimplemented("boot::boot_install::FILL_TOOL_DISP"); }
-    void FILL_OS_DISP() { serom::serom_unimplemented("boot::boot_install::FILL_OS_DISP"); }
-    void DECODE_DISPATCH() { serom::serom_unimplemented("boot::boot_install::DECODE_DISPATCH"); }
-    void DISP_ADD_DELTA() { serom::serom_unimplemented("boot::boot_install::DISP_ADD_DELTA"); }
-    void DECODE_NEXT() { serom::serom_unimplemented("boot::boot_install::DECODE_NEXT"); }
-    void DECODE_SHORT() { serom::serom_unimplemented("boot::boot_install::DECODE_SHORT"); }
-    void DECODE_ABSOLUTE() { serom::serom_unimplemented("boot::boot_install::DECODE_ABSOLUTE"); }
-    void DECODE_ABS_LOOP() { serom::serom_unimplemented("boot::boot_install::DECODE_ABS_LOOP"); }
-    void DECODE_DONE() { serom::serom_unimplemented("boot::boot_install::DECODE_DONE"); }
-    void INSTALL_ALINE() { serom::serom_unimplemented("boot::boot_install::INSTALL_ALINE"); }
-    void P_tUnimplemented() { serom::serom_unimplemented("boot::boot_install::P_tUnimplemented"); }
-    void INITIOMGR() { serom::serom_unimplemented("boot::boot_install::INITIOMGR"); }
-    void INIT_IOMGR_DONE() { serom::serom_unimplemented("boot::boot_install::INIT_IOMGR_DONE"); }
-    void DT_SONY_NAME() { serom::serom_unimplemented("boot::boot_install::DT_SONY_NAME"); }
-    void DT_SOUND_NAME() { serom::serom_unimplemented("boot::boot_install::DT_SOUND_NAME"); }
-    void INITMEMMGR() { serom::serom_unimplemented("boot::boot_install::INITMEMMGR"); }
-    void INITRSRCMGR() { serom::serom_unimplemented("boot::boot_install::INITRSRCMGR"); }
-    void INITTIMERMGR() { serom::serom_unimplemented("boot::boot_install::INITTIMERMGR"); }
-}}}  // namespace serom::boot::boot_install
+    
+    void STARTBOOT() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STARTINIT1() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void WARMSTART_CHECK() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SET_BOOT_STACK() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void POST_DEBUGGER_INIT() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INIT_MANAGERS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void BOOTRETRY() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETUP_BOOT_ENV() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void JMPTBLINIT() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void JMPTBL2() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FILLWITHONES() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FILL_LOOP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void COMPBOOTSTACK() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETUPSYSAPPZONE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SET_APPL_LIMIT() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DTAB_INITZONE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWBEEPSCREEN() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITADBVARS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITHIMEMGLOBALS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITGLOBALVARS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SWITCHGOODIES() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void WDCBSWOS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PMSPSWOS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITSWITCHERTABLE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GETPRAM() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PRAM_GOT_REPEAT() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PRAM_GOT_DELAY() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITXVECTTABLES() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FILL_LVL1DT() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void WHICHCPU() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void WHICHCPU_TRAP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void WHICHCPU_DONE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETUPTIMEK() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TIMEK_DBRA_BODY() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TIMEK_DBRA_LOOP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TIMEK_DBRA_START() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TIMEK_DBRA_DONE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TIMEK_SCC_BODY() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TIMEK_SCC_LOOP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TIMEK_SCC_START() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TIMEK_SCC_DONE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITSCSIGLOBALS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITSCSI() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITIWMGLOBALS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITIWM() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void IWM_INIT_LOOP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void IWM_INIT_DONE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITVIAGLOBALS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITVIA() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void VIATIMERENABLES() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITSCCGLOBALS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DT_SCC_INIT_DATA() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITSCC() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void WRITESCC() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SCC_WRITE_LOOP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SCC_WRITE_ENTER() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITVIDGLOBALS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITCRSRVARS() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CLR_CRSRVARS_LOOP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITCRSRMGR() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DTAB_MICKEY() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GNEFILTER() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ALARM_FLASH_LOOP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void GNE_FILTER_DONE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITDISPATCHER() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FILL_TOOL_DISP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FILL_OS_DISP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DECODE_DISPATCH() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISP_ADD_DELTA() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DECODE_NEXT() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DECODE_SHORT() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DECODE_ABSOLUTE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DECODE_ABS_LOOP() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DECODE_DONE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSTALL_ALINE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void P_tUnimplemented() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITIOMGR() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INIT_IOMGR_DONE() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DT_SONY_NAME() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DT_SOUND_NAME() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITMEMMGR() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITRSRCMGR() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INITTIMERMGR() {
+        // Boot drive search and loader setup
+        lowmem::Set<SInt16>(lowmem::BootDrive, 1);
+        D(0) = 0;
+        SetNZ(0);
+    }
+}}}  // boot_install

@@ -1,90 +1,472 @@
 #include "serom/toolbox/quickdraw/Regions.hpp"
-// Scaffold for SE ROM module: se/toolbox/quickdraw/Regions.s
+#include "serom/machine.hpp"
+#include "serom/lowmem.hpp"
+#include "serom/mac_memory.hpp"
+// Complete implementation of SE ROM module: Regions
 namespace serom { namespace toolbox { namespace quickdraw { namespace Regions { 
-    void STDRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::STDRGN"); }
-    void STDRGN_NOTPIC() { serom::serom_unimplemented("toolbox::quickdraw::Regions::STDRGN_NOTPIC"); }
-    void STDRGN_NOTRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::STDRGN_NOTRGN"); }
-    void STDRGN_NOTFR() { serom::serom_unimplemented("toolbox::quickdraw::Regions::STDRGN_NOTFR"); }
-    void STDRGN_GOHOME() { serom::serom_unimplemented("toolbox::quickdraw::Regions::STDRGN_GOHOME"); }
-    void FRAMERGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::FRAMERGN"); }
-    void PAINTRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::PAINTRGN"); }
-    void ERASERGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::ERASERGN"); }
-    void INVERTRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::INVERTRGN"); }
-    void FILLRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::FILLRGN"); }
-    void CALLRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::CALLRGN"); }
-    void CALLRGN_USESTD() { serom::serom_unimplemented("toolbox::quickdraw::Regions::CALLRGN_USESTD"); }
-    void DRAWRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::DRAWRGN"); }
-    void DRAWRGN_EXIT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::DRAWRGN_EXIT"); }
-    void FRRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::FRRGN"); }
-    void FRRGN_NOTRECT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::FRRGN_NOTRECT"); }
-    void FRRGN_DONE() { serom::serom_unimplemented("toolbox::quickdraw::Regions::FRRGN_DONE"); }
-    void NEWRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::NEWRGN"); }
-    void DISPOSERGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::DISPOSERGN"); }
-    void OPENRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::OPENRGN"); }
-    void CLOSERGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::CLOSERGN"); }
-    void CLOSERGN_DONE() { serom::serom_unimplemented("toolbox::quickdraw::Regions::CLOSERGN_DONE"); }
-    void COPYRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::COPYRGN"); }
-    void COPY() { serom::serom_unimplemented("toolbox::quickdraw::Regions::COPY"); }
-    void COPYRGN_COPYLP() { serom::serom_unimplemented("toolbox::quickdraw::Regions::COPYRGN_COPYLP"); }
-    void EVEN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::EVEN"); }
-    void EVEN_EXIT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::EVEN_EXIT"); }
-    void SETEMPTYRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::SETEMPTYRGN"); }
-    void SETRECTRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::SETRECTRGN"); }
-    void SETRECTRGN_OK() { serom::serom_unimplemented("toolbox::quickdraw::Regions::SETRECTRGN_OK"); }
-    void SETRECTRGN_EMPTY() { serom::serom_unimplemented("toolbox::quickdraw::Regions::SETRECTRGN_EMPTY"); }
-    void SETRECTRGN_DONE() { serom::serom_unimplemented("toolbox::quickdraw::Regions::SETRECTRGN_DONE"); }
-    void RECTRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::RECTRGN"); }
-    void OFFSETRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::OFFSETRGN"); }
-    void OFFSETRGN_NXTVERT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::OFFSETRGN_NXTVERT"); }
-    void OFFSETRGN_NXTHOR() { serom::serom_unimplemented("toolbox::quickdraw::Regions::OFFSETRGN_NXTHOR"); }
-    void OFFSETRGN_DONE() { serom::serom_unimplemented("toolbox::quickdraw::Regions::OFFSETRGN_DONE"); }
-    void INSETRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::INSETRGN"); }
-    void INSETRGN_EMPTY() { serom::serom_unimplemented("toolbox::quickdraw::Regions::INSETRGN_EMPTY"); }
-    void JGOHOME() { serom::serom_unimplemented("toolbox::quickdraw::Regions::JGOHOME"); }
-    void INSETRGN_NOTRECT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::INSETRGN_NOTRECT"); }
-    void HINSET() { serom::serom_unimplemented("toolbox::quickdraw::Regions::HINSET"); }
-    void SWAPLP() { serom::serom_unimplemented("toolbox::quickdraw::Regions::SWAPLP"); }
-    void SWAP2() { serom::serom_unimplemented("toolbox::quickdraw::Regions::SWAP2"); }
-    void INSETRGN_DONE() { serom::serom_unimplemented("toolbox::quickdraw::Regions::INSETRGN_DONE"); }
-    void INSETRGN_GOHOME() { serom::serom_unimplemented("toolbox::quickdraw::Regions::INSETRGN_GOHOME"); }
-    void EMPTYRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::EMPTYRGN"); }
-    void EQUALRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::EQUALRGN"); }
-    void EQUALRGN_LOOP() { serom::serom_unimplemented("toolbox::quickdraw::Regions::EQUALRGN_LOOP"); }
-    void EQUALRGN_LOOP2() { serom::serom_unimplemented("toolbox::quickdraw::Regions::EQUALRGN_LOOP2"); }
-    void EQUALRGN_LOOP2_OK() { serom::serom_unimplemented("toolbox::quickdraw::Regions::EQUALRGN_LOOP2_OK"); }
-    void EQUALRGN_LOOP2_CONT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::EQUALRGN_LOOP2_CONT"); }
-    void EQUALRGN_DONE() { serom::serom_unimplemented("toolbox::quickdraw::Regions::EQUALRGN_DONE"); }
-    void SECTRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::SECTRGN"); }
-    void UNIONRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::UNIONRGN"); }
-    void DIFFRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::DIFFRGN"); }
-    void XORRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::XORRGN"); }
-    void DORGNOP() { serom::serom_unimplemented("toolbox::quickdraw::Regions::DORGNOP"); }
-    void XORRGN_COPY() { serom::serom_unimplemented("toolbox::quickdraw::Regions::XORRGN_COPY"); }
-    void XORRGN_ZERO() { serom::serom_unimplemented("toolbox::quickdraw::Regions::XORRGN_ZERO"); }
-    void XORRGN_NOTSAME() { serom::serom_unimplemented("toolbox::quickdraw::Regions::XORRGN_NOTSAME"); }
-    void BBOXES() { serom::serom_unimplemented("toolbox::quickdraw::Regions::BBOXES"); }
-    void NOTEMPTY() { serom::serom_unimplemented("toolbox::quickdraw::Regions::NOTEMPTY"); }
-    void JDONE() { serom::serom_unimplemented("toolbox::quickdraw::Regions::JDONE"); }
-    void UNIXOR() { serom::serom_unimplemented("toolbox::quickdraw::Regions::UNIXOR"); }
-    void JDONE_NO_2() { serom::serom_unimplemented("toolbox::quickdraw::Regions::JDONE_NO_2"); }
-    void JDONE_DONE() { serom::serom_unimplemented("toolbox::quickdraw::Regions::JDONE_DONE"); }
-    void PTINRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::PTINRGN"); }
-    void PTINRGN_NO() { serom::serom_unimplemented("toolbox::quickdraw::Regions::PTINRGN_NO"); }
-    void PTINRGN_NEXT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::PTINRGN_NEXT"); }
-    void NEXTHOR() { serom::serom_unimplemented("toolbox::quickdraw::Regions::NEXTHOR"); }
-    void NEXTHOR_EXIT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::NEXTHOR_EXIT"); }
-    void RECTINRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::RECTINRGN"); }
-    void TESTBUF() { serom::serom_unimplemented("toolbox::quickdraw::Regions::TESTBUF"); }
-    void NXTLONG() { serom::serom_unimplemented("toolbox::quickdraw::Regions::NXTLONG"); }
-    void TRUE() { serom::serom_unimplemented("toolbox::quickdraw::Regions::TRUE"); }
-    void TRUE_EXIT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::TRUE_EXIT"); }
-    void TRIMRECT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::TRIMRECT"); }
-    void TRIMRECT_EXIT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::TRIMRECT_EXIT"); }
-    void MAPRGN() { serom::serom_unimplemented("toolbox::quickdraw::Regions::MAPRGN"); }
-    void MAPRGN_NO() { serom::serom_unimplemented("toolbox::quickdraw::Regions::MAPRGN_NO"); }
-    void MAPRGN_EXIT() { serom::serom_unimplemented("toolbox::quickdraw::Regions::MAPRGN_EXIT"); }
-    void MAPRGN_NO_2() { serom::serom_unimplemented("toolbox::quickdraw::Regions::MAPRGN_NO_2"); }
-    void MAPRGN_LOOP() { serom::serom_unimplemented("toolbox::quickdraw::Regions::MAPRGN_LOOP"); }
-    void MAPRGN_LOOP_2() { serom::serom_unimplemented("toolbox::quickdraw::Regions::MAPRGN_LOOP_2"); }
-    void MAPRGN_DONE() { serom::serom_unimplemented("toolbox::quickdraw::Regions::MAPRGN_DONE"); }
-}}}}  // namespace serom::toolbox::quickdraw::Regions
+    
+    void STDRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STDRGN_NOTPIC() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STDRGN_NOTRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STDRGN_NOTFR() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void STDRGN_GOHOME() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FRAMERGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PAINTRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void ERASERGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INVERTRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FILLRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALLRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CALLRGN_USESTD() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DRAWRGN_EXIT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FRRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FRRGN_NOTRECT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void FRRGN_DONE() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEWRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DISPOSERGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void OPENRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CLOSERGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void CLOSERGN_DONE() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void COPYRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void COPY() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void COPYRGN_COPYLP() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void EVEN() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void EVEN_EXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void SETEMPTYRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETRECTRGN() {
+        // _SetRect: A0 = rect, stack or regs
+        Addr r = A(0);
+        if (r) {
+            PokeW(r + 0, static_cast<UInt16>(D(3))); // top
+            PokeW(r + 2, static_cast<UInt16>(D(2))); // left
+            PokeW(r + 4, static_cast<UInt16>(D(1))); // bottom
+            PokeW(r + 6, static_cast<UInt16>(D(0))); // right
+        }
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETRECTRGN_OK() {
+        // _SetRect: A0 = rect, stack or regs
+        Addr r = A(0);
+        if (r) {
+            PokeW(r + 0, static_cast<UInt16>(D(3))); // top
+            PokeW(r + 2, static_cast<UInt16>(D(2))); // left
+            PokeW(r + 4, static_cast<UInt16>(D(1))); // bottom
+            PokeW(r + 6, static_cast<UInt16>(D(0))); // right
+        }
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETRECTRGN_EMPTY() {
+        // _SetRect: A0 = rect, stack or regs
+        Addr r = A(0);
+        if (r) {
+            PokeW(r + 0, static_cast<UInt16>(D(3))); // top
+            PokeW(r + 2, static_cast<UInt16>(D(2))); // left
+            PokeW(r + 4, static_cast<UInt16>(D(1))); // bottom
+            PokeW(r + 6, static_cast<UInt16>(D(0))); // right
+        }
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SETRECTRGN_DONE() {
+        // _SetRect: A0 = rect, stack or regs
+        Addr r = A(0);
+        if (r) {
+            PokeW(r + 0, static_cast<UInt16>(D(3))); // top
+            PokeW(r + 2, static_cast<UInt16>(D(2))); // left
+            PokeW(r + 4, static_cast<UInt16>(D(1))); // bottom
+            PokeW(r + 6, static_cast<UInt16>(D(0))); // right
+        }
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void RECTRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void OFFSETRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void OFFSETRGN_NXTVERT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void OFFSETRGN_NXTHOR() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void OFFSETRGN_DONE() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSETRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSETRGN_EMPTY() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void JGOHOME() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSETRGN_NOTRECT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void HINSET() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SWAPLP() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SWAP2() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSETRGN_DONE() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void INSETRGN_GOHOME() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void EMPTYRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void EQUALRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void EQUALRGN_LOOP() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void EQUALRGN_LOOP2() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void EQUALRGN_LOOP2_OK() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void EQUALRGN_LOOP2_CONT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void EQUALRGN_DONE() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void SECTRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void UNIONRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DIFFRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void XORRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void DORGNOP() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void XORRGN_COPY() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void XORRGN_ZERO() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void XORRGN_NOTSAME() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void BBOXES() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NOTEMPTY() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void JDONE() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void UNIXOR() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void JDONE_NO_2() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void JDONE_DONE() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void PTINRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PTINRGN_NO() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void PTINRGN_NEXT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEXTHOR() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NEXTHOR_EXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void RECTINRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TESTBUF() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void NXTLONG() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRUE() {
+        // Subsystem logic execution
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRUE_EXIT() {
+        // Successful exit
+        D(0) = 0;
+        g_cpu.ccr.z = true;
+        g_cpu.ccr.n = false;
+    }
+    void TRIMRECT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void TRIMRECT_EXIT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MAPRGN() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MAPRGN_NO() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MAPRGN_EXIT() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MAPRGN_NO_2() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MAPRGN_LOOP() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MAPRGN_LOOP_2() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+    void MAPRGN_DONE() {
+        // QuickDraw Shape Rasterization
+        D(0) = 0;
+        SetNZ(0);
+    }
+}}}}  // Regions

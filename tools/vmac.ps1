@@ -9,7 +9,7 @@
     vmac.ps1 stop                             close the emulator (unlocks the image)
 #>
 param(
-    [Parameter(Position = 0)][ValidateSet('start', 'shot', 'keys', 'click', 'drag', 'stop')][string]$Cmd = 'shot',
+    [Parameter(Position = 0)][ValidateSet('start', 'shot', 'keys', 'click', 'dbl', 'drag', 'stop')][string]$Cmd = 'shot',
     [int]$X2 = -1,
     [int]$Y2 = -1,
     [int]$Steps = 20,
@@ -119,6 +119,20 @@ switch ($Cmd) {
         [PlusOsWin]::mouse_event(2, 0, 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 150
         [PlusOsWin]::mouse_event(4, 0, 0, 0, [UIntPtr]::Zero)
         "clicked"
+    }
+    'dbl' {
+        # double-click at (X,Y): two press/release cycles ~120 ms apart, inside
+        # one call so they fall within the app's double-click window.
+        $p = Get-VMac; if (-not $p) { throw 'Mini vMac is not running' }
+        Focus-VMac $p
+        $pt = New-Object PlusOsWin+POINT; $pt.X = $X; $pt.Y = $Y
+        [PlusOsWin]::ClientToScreen($p.MainWindowHandle, [ref]$pt) | Out-Null
+        [PlusOsWin]::SetCursorPos($pt.X, $pt.Y) | Out-Null; Start-Sleep -Milliseconds 80
+        [PlusOsWin]::mouse_event(2, 0, 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 60
+        [PlusOsWin]::mouse_event(4, 0, 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 120
+        [PlusOsWin]::mouse_event(2, 0, 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 60
+        [PlusOsWin]::mouse_event(4, 0, 0, 0, [UIntPtr]::Zero)
+        "double-clicked"
     }
     'drag' {
         # press at (X,Y), glide to (X2,Y2) in -Steps moves, release - Mac screen coordinates

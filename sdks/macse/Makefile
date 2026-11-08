@@ -16,13 +16,14 @@ LIBC_SRC   := $(wildcard src/libc/*.c) $(wildcard src/libc/*.S)
 ROM_SRC    := $(wildcard src/serom/*.c) $(wildcard src/serom/glue/*.c)
 PLUSOS_SRC := src/runtime/rt_common.c src/runtime/cxx.cpp src/runtime/font8x8.c
 RTAPP_SRC  := src/runtime/rt_app.c src/runtime/thread.c
-GFX_SRC    := src/gfx/gfx.c src/gfx/gfx_asm.S src/gfx/plus3d.c
+GFX_SRC    := src/gfx/gfx.c src/gfx/gfx_asm.S src/gfx/plus3d_math.c src/gfx/plus3d_mesh.c src/gfx/plus3d_render.c src/gfx/plus3d_game.c
+NET_SRC    := src/net/dayna.c src/net/net.c
 # Graphics is the hot path: optimize for speed, not size (the 68000 pays dearly
 # for -Os register spills to slow RAM in per-pixel and per-scanline loops).
 $(B)/obj/src/gfx/%.c.o: PLUSOS_CFLAGS += -O2
 
 .PHONY: all test clean
-all: $(addprefix $(B)/lib/,libc.a libserom.a libplusos.a librt_app.a libplusgfx.a crt0_app.o crt0_kernel.o)
+all: $(addprefix $(B)/lib/,libc.a libserom.a libplusos.a librt_app.a libplusgfx.a libplusnet.a crt0_app.o crt0_kernel.o)
 	@echo "Macintosh SE SDK libraries ready in $(B)/lib"
 
 $(B)/obj/%.c.o: %.c
@@ -40,6 +41,7 @@ $(B)/lib/libserom.a: $(call OBJ,$(ROM_SRC))
 $(B)/lib/libplusos.a: $(call OBJ,$(PLUSOS_SRC))
 $(B)/lib/librt_app.a: $(call OBJ,$(RTAPP_SRC))
 $(B)/lib/libplusgfx.a: $(call OBJ,$(GFX_SRC))
+$(B)/lib/libplusnet.a: $(call OBJ,$(NET_SRC))
 $(B)/lib/%.a:
 	@mkdir -p $(dir $@)
 	@rm -f $@

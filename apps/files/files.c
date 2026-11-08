@@ -445,12 +445,22 @@ static void act_paste(void)
     mv_active = 0; load_dir(cur_vref, cur_dir); reselect(kept); draw();
 }
 
+/* Is a desktop compositor running? Look for a live "desktop" process, not a
+ * persistent registry flag (which goes stale and would hang us in a window
+ * with nothing compositing it). */
+static int under_desktop(void)
+{
+    struct plusos_procinfo p[16];
+    struct plusos_proclist_args a = { p, 16 };
+    int n = (int)plusos_syscall(SYS_proclist, &a);
+    for (int i = 0; i < n; i++)
+        if (p[i].state != 4 && !strncmp(p[i].name, "desktop", 7)) return 1;
+    return 0;
+}
+
 int main(void)
 {
-    char flag[8];
-    struct plusos_reg_args ra; memset(&ra, 0, sizeof ra);
-    ra.key = "sys.desktop"; ra.vbuf = flag; ra.vsize = sizeof flag;
-    if (plusos_syscall(SYS_regget, &ra) <= 0) {      /* no compositor: nothing to show into */
+    if (!under_desktop()) {                           /* no compositor: nothing to show into */
         printf("Files is a desktop program - open it from the desktop.\n");
         return 0;
     }

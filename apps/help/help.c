@@ -7,6 +7,7 @@ int main(void)
     printf("PlusOS commands (programs in bin). Run one by typing its name.\n\n");
     printf("  System : sysinfo  ps  taskman  kill  mem  date  ver  sound  clip\n");
     printf("  Files  : ls  cat  hexedit  files  echo  clear\n");
+    printf("  Net    : net  ping  telnet  irc   (BlueSCSI WiFi / DaynaPORT)\n");
     printf("  Desk   : calc  notes  puzzle  desktop  theme  startup  reg\n");
     printf("  Mac/VM : macrun  chip8  emu6502  basic\n");
     printf("  3D/Gfx : cube3d  solarsys  starflight  dungeon  qdemo  hello\n");

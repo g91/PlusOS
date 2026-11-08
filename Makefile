@@ -78,7 +78,7 @@ $(BUILD)/apps/$(1)/%.cpp.o: apps/$(1)/%.cpp
 	@echo "  CXX  $$< ($$(notdir $$($(1)_SDK)))"; $(CXX) $$($(1)_CPP) $(PLUSOS_CXXFLAGS) $(DEPFLAGS) -c $$< -o $$@
 $(BUILD)/apps/$(1).pex: $$($(1)_OBJ) sdklibs
 	$(LD) -T $$($(1)_SDK)/ld/plusos.ld -q --gc-sections --no-warn-rwx-segments -o $(BUILD)/apps/$(1).elf \
-	    $$($(1)_LIB)/crt0_app.o $$($(1)_OBJ) --start-group $$($(1)_LIB)/librt_app.a $$($(1)_LIB)/libplusgfx.a $$($(1)_LIB)/libplusos.a \
+	    $$($(1)_LIB)/crt0_app.o $$($(1)_OBJ) --start-group $$($(1)_LIB)/librt_app.a $$($(1)_LIB)/libplusgfx.a $$($(1)_LIB)/libplusnet.a $$($(1)_LIB)/libplusos.a \
 	    $$($(1)_LIB)/lib$$($(1)_ROM).a $$($(1)_LIB)/libc.a $(LIBGCC) --end-group
 	$(PY) $$($(1)_SDK)/tools/mkexe.py $(BUILD)/apps/$(1).elf $$@ --name $(call UPPER,$(1))
 endef

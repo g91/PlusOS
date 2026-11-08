@@ -7,9 +7,22 @@
  */
 #include <plusos/plusos.h>
 #include <plusos/gfx.h>
+#include <plusos/syscall.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* A desktop window only works when a compositor is running; otherwise opening
+ * one and blocking on its events hangs. Detect a live "desktop" process. */
+static int under_desktop(void)
+{
+    struct plusos_procinfo p[16];
+    struct plusos_proclist_args a = { p, 16 };
+    int n = (int)plusos_syscall(SYS_proclist, &a);
+    for (int i = 0; i < n; i++)
+        if (p[i].state != 4 && !strncmp(p[i].name, "desktop", 7)) return 1;
+    return 0;
+}
 
 static const char * const btn_labels[4][4] = {
     { "7", "8", "9", "/" },
@@ -108,7 +121,7 @@ int main(int argc, char **argv)
     }
 
     GWindow win;
-    if (gwin_open(&win, "Calculator", 156, 174) == 0) {
+    if (under_desktop() && gwin_open(&win, "Calculator", 156, 174) == 0) {
         gfx_target(&win.surf);
         draw_calc(156, 174);
         gwin_update(&win);
