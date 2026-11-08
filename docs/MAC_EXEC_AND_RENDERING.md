@@ -261,10 +261,18 @@ Run `cube3d` from the shell or Desktop to interactively inspect all 6 3D/2D mode
      - `notes` — 8-page persistent Note Pad Desk Accessory saved to `":Note Pad File"`.
      - `puzzle` — Classic 4x4 (15-tile) sliding Puzzle Desk Accessory.
 
-### 4.4 Built-In Emulators (`chip8`, `emu6502`, `basic`)
-1. **`chip8` (`apps/chip8/chip8.c`)**:
+### 4.4 Built-In Emulators (`apple2e`, `c64`, `c128`, `emu8080`, `chip8`, `emu6502`, `basic`)
+1. **`apple2e` (`apps/development/apple2e/apple2e.c`)**:
+   - **Apple //e Personal Computer Emulator** featuring a complete MOS 6502/65C02 CPU core, 64 KB RAM with standard Apple II softswitch bank control ($C000–$C07F), 40-column and 80-column text modes with authentic Apple II glyphs, 280×192 1-bit Hi-Res Graphics (Page 1 at $2000, Page 2 at $4000), Lo-Res graphics, speaker click emulation, ProDOS/Applesoft BASIC prompt, Apple II Woz Monitor, built-in demos (Hi-Res Spirangle, 80-col ProDOS, Monitor), and external binary/disk loader.
+2. **`c64` (`apps/development/c64/c64.c`)**:
+   - **Commodore 64 Home Computer Emulator** featuring the MOS 6510 CPU with on-chip $0000/$0001 I/O port for BASIC, Kernal, and Character ROM bank switching, VIC-II video controller providing 40×25 PETSCII text and 320×200 Hi-Res bitmap modes centered on the 512×342 screen with the classic Commodore border, SID 6581 audio synthesis mapped to PlusOS PWM hardware sound, Commodore BASIC V2 environment, built-in demos (1-line maze generator, 320×200 VIC-II sine wave graphics, SID arpeggios), and external Commodore PRG binary loader.
+3. **`c128` (`apps/development/c128/c128.c`)**:
+   - **Commodore 128 Computer Emulator** featuring the MOS 8502 CPU with 1 MHz and 2 MHz fast-clock modes, 128 KB RAM across Bank 0 and Bank 1 managed by the C128 MMU ($D500–$D50B), dual display architecture with 40-column VIC-II mode and 80-column VDC (MOS 8563) RGBI mode (condensed 6×8 font providing 80 columns inside 480×200 centered on the Mac screen), interactive Commodore BASIC V7.0 prompt, 40/80 display toggle, and memory banking tests.
+4. **`emu8080` (`apps/development/emu8080/emu8080.c`)**:
+   - **Intel 8080 CPU & Digital Research CP/M 2.2 Subsystem** providing authentic 8-bit Intel microcomputing: all 8080 registers and instructions (MOV, MVI, LXI, DAD, DAA, PUSH/POP, conditional calls/returns), CP/M 2.2 BDOS & BIOS call trapping at vector $0005, interactive Console Command Processor (`A>`), built-in utilities (`DIR`, `STAT`, `TYPE`, `DUMP`, `PRIME` prime sieve, `MBASIC`), and external CP/M `.COM` binary execution.
+5. **`chip8` (`apps/development/chip8/chip8.c`)**:
    - Complete **CHIP-8 Virtual Machine & Arcade Emulator** (`35` opcodes, `4 KB` RAM, `16` registers, `60 Hz` delay/sound timers with PlusOS PWM audio, `64x32` display scaled `6x` to `384x192` full-screen tear-free) with **5 built-in playable ROMs** (*Pong*, *Breakout*, *Maze*, *Space Invaders*, *Sierpinski*) plus external `.ch8` file loading.
-2. **`emu6502` (`apps/emu6502/emu6502.c`)**:
+6. **`emu6502` (`apps/development/emu6502/emu6502.c`)**:
    - **MOS 6502 CPU & Apple I Woz Monitor Emulator** (`64 KB` RAM, Apple I PIA `$D010`/`$D012` terminal I/O, PlusGFX graphics MMIO at `$C000`, single-step CPU debugger) with **3 built-in 6502 machine-code programs** (*Sieve of Eratosthenes Benchmark*, *6502 Graphics Starburst*, *Fibonacci*) plus Apple I Woz Monitor hex entry.
-3. **`basic` (`apps/basic/basic.c`)**:
+7. **`basic` (`apps/development/basic/basic.c`)**:
    - **PlusOS Retro BASIC Interpreter** supporting line numbers, `PRINT`, `LET`, `IF/THEN`, `FOR/NEXT`, `GOTO`, `GOSUB/RETURN`, `INPUT`, `RND`, and full-screen PlusGFX graphics commands (`CLS`, `LINE`, `RECT`, `CIRCLE`, `POLY`, `HEXAGON`, `WAITKEY`) with **3 built-in demos** (`DEMO 1` Honeycomb Hexagons, `DEMO 2` 3D Wireframe Cube, `DEMO 3` Starfield).

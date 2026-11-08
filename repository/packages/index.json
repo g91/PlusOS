@@ -1,5 +1,14 @@
 [
   {
+    "name": "apple2e",
+    "filename": "apple2e.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 23360,
+    "description": "Apple //e 65C02 computer & Hi-Res emulator",
+    "source": "build"
+  },
+  {
     "name": "asteroids",
     "filename": "asteroids.pex",
     "version": "1.0",
@@ -33,6 +42,24 @@
     "category": "games",
     "size": 11264,
     "description": "Paddle and brick breakout arcade game",
+    "source": "build"
+  },
+  {
+    "name": "c128",
+    "filename": "c128.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 15008,
+    "description": "Commodore 128 dual 40/80 column 128K emulator",
+    "source": "build"
+  },
+  {
+    "name": "c64",
+    "filename": "c64.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 15320,
+    "description": "Commodore 64 MOS 6510 / VIC-II / SID emulator",
     "source": "build"
   },
   {
@@ -141,6 +168,15 @@
     "category": "development",
     "size": 13748,
     "description": "MOS 6502 CPU and Apple I Woz Monitor",
+    "source": "build"
+  },
+  {
+    "name": "emu8080",
+    "filename": "emu8080.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 15704,
+    "description": "Intel 8080 CPU & CP/M 2.2 subsystem",
     "source": "build"
   },
   {

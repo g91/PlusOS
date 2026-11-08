@@ -220,6 +220,35 @@ def hfs_copy(image, partno, files):
 
 
 def install(image, a, apps):
+    repo_cfg = os.path.join(os.path.dirname(os.path.dirname(__file__)), "multiboot.cfg")
+    included_set = None
+    custom_apps = []
+    if os.path.exists(repo_cfg):
+        with open(repo_cfg, "r") as cf:
+            for line in cf:
+                line = line.strip()
+                if line.startswith("include_apps="):
+                    val = line.split("=", 1)[1].strip()
+                    if val:
+                        included_set = set(x.strip().upper() for x in val.split(",") if x.strip())
+                elif line.startswith("custom_apps="):
+                    val = line.split("=", 1)[1].strip()
+                    if val:
+                        for entry in val.split(";"):
+                            if ":" in entry:
+                                cname, cpath = entry.split(":", 1)
+                                if os.path.exists(cpath):
+                                    custom_apps.append((cname.strip().upper(), cpath.strip()))
+
+    if included_set is not None:
+        orig_count = len(apps)
+        apps = [item for item in apps if item[0].upper() in included_set]
+        print("  package filter: including %d of %d configured apps" % (len(apps), orig_count))
+
+    for cname, cpath in custom_apps:
+        apps.append((cname, cpath))
+        print("  custom package added: %s (%s)" % (cname, cpath))
+
     with open(image, "r+b") as f:
         partno, pstart, pcount, pname = find_hfs_partition(f)
         vol = Volume(f, pstart, pcount)

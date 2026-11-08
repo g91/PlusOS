@@ -9,7 +9,7 @@ int main(void)
     printf("  Files  : ls  cat  hexedit  files  echo  clear\n");
     printf("  Net    : net  ping  telnet  irc   (BlueSCSI WiFi / DaynaPORT)\n");
     printf("  Desk   : calc  notes  puzzle  desktop  theme  startup  reg\n");
-    printf("  Mac/VM : macrun  chip8  emu6502  basic\n");
+    printf("  Mac/VM : macrun  chip8  emu6502  apple2e  c64  c128  emu8080  basic\n");
     printf("  3D/Gfx : cube3d  solarsys  starflight  dungeon  qdemo  hello\n");
     printf("  Games  : asteroids breakout flappy invaders lunar mines pacman\n");
     printf("           racer snake tetris ponglander maze life spin\n");

@@ -216,7 +216,7 @@ PlusOS organizes its kernel and application ecosystem into clean, modular subdir
 ### Categorized Applications Ecosystem (`apps/`)
 All 54 programs are separated into dedicated category folders:
 * **`apps/games/`** (13 games): `asteroids`, `breakout`, `dungeon`, `flappy`, `invaders`, `lunar`, `mines`, `pacman`, `puzzle`, `racer`, `snake`, `starflight`, `tetris`.
-* **`apps/development/`** (10 programs): `basic`, `chip8`, `cube3d`, `emu6502`, `hello`, `hexedit`, `macrun`, `qdemo`, `solarsys`, `spin`.
+* **`apps/development/`** (14 programs): `apple2e`, `basic`, `c64`, `c128`, `chip8`, `cube3d`, `emu6502`, `emu8080`, `hello`, `hexedit`, `macrun`, `qdemo`, `solarsys`, `spin`.
 * **`apps/tools/`** (21 utilities): `calc`, `cat`, `clear`, `clip`, `date`, `echo`, `files`, `help`, `kill`, `ls`, `mem`, `notes`, `ps`, `reg`, `ret`, `sleep`, `sound`, `sysinfo`, `taskman`, `theme`, `ver`.
 * **`apps/network/`** (4 clients): `irc`, `net`, `ping`, `telnet`.
 * **`apps/system/`** (6 core apps): `boot`, `desktop`, `off`, `reboot`, `shell`, `startup`.

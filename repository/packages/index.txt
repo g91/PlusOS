@@ -1,7 +1,10 @@
+apple2e|1.0|development|23360|Apple //e 65C02 computer & Hi-Res emulator
 asteroids|1.0|games|10036|Vector Asteroids arcade game with physics
 basic|1.0|development|21968|Retro BASIC interpreter with graphics & math
 boot|1.0|system|6668|Startup disk selector & SCSI chainbooter
 breakout|1.0|games|11264|Paddle and brick breakout arcade game
+c128|1.0|development|15008|Commodore 128 dual 40/80 column 128K emulator
+c64|1.0|development|15320|Commodore 64 MOS 6510 / VIC-II / SID emulator
 calc|1.0|tools|13908|Desktop floating-point calculator
 cat|1.0|tools|6688|Concatenate and print text files
 chip8|1.0|development|14488|CHIP-8 virtual machine & retro arcade emulator
@@ -14,6 +17,7 @@ dmesg|1.0|tools|6248|Dump kernel boot and driver log messages
 dungeon|1.0|games|11360|Roguelike dungeon crawler adventure RPG
 echo|1.0|tools|6092|Print arguments to console
 emu6502|1.0|development|13748|MOS 6502 CPU and Apple I Woz Monitor
+emu8080|1.0|development|15704|Intel 8080 CPU & CP/M 2.2 subsystem
 files|1.0|tools|18648|Interactive dual-pane HFS file manager
 flappy|1.0|games|15280|Flappy Mac side-scrolling arcade challenge
 gc|1.0|tools|6848|Kernel garbage collector stats and cycle

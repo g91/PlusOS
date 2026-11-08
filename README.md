@@ -42,7 +42,13 @@ The studio features two distinct, dedicated dialogues:
   - **Visual Themes**: Choose default styling from Mac OS 7.1 Platinum, Commodore Amiga Workbench 1.3/2.0, Windows 95, Windows 98, Windows Vista/7 Aero Glass, or Hacker CRT Dark Mode.
   - **Wallpapers**: Select between Classic Mac 50% Gray stipple or live animated Matrix Digital Rain.
   - **Startup Greeting & Hostname**: Set custom welcome greetings and titles.
-  - **App Bundles**: Choose whether to bundle the 17-game retro pack, developer emulators (CHIP-8, 6502, BASIC, 3D), and networking tools.
+- **Granular Software Package Checklist**:
+  - Interactive multi-column checklist with checkboxes next to all 62 built-in applications (System, Tools, Games, Development, Network).
+  - Remembers your package selections across sessions (persisted directly to `multiboot.cfg` via `include_apps=` and `custom_apps=`).
+  - Quick filter presets: **All**, **None**, **System** (System & Tools), and **Games**.
+  - **Add Custom App...**: Browse and include external third-party `.pex` or `.bin` binaries into the build pipeline.
+  - **Remove Selected**: Instantly uncheck built-in packages or delete custom external imports.
+  - Only checked packages are copied into `:bin:` and `:Games:` (and raw fallback store) when compiling and building the hard drive image.
 - **Build Bootable Floppy (.dsk)**: One-click builder that generates `images/PlusOS_Floppy.dsk` (1.44M/800K Macintosh HFS floppy) containing only essential boot files and the hard drive installer (zero games).
 - **Return to PlusOS Injector**: Configure the target SCSI ID and inject the Classic Mac OS return executable into any disk image or floppy disk image.
 - **Open Hard Drive Explorer**: Dedicated button to switch immediately into the Hard Drive Explorer with the built image.
@@ -167,7 +173,7 @@ the ROM version.
 
 - **Persistent 20-Command History**: Press **Up / Down Arrow** in the console or Desktop terminal window to recall your last 20 commands. Command history is automatically saved to `:PlusOS History` on the hard drive so it persists across reboots. Run `history` to view or `history -c` to clear.
 - **Tab Auto-Completion**: Press **Tab** to auto-complete shell built-ins, programs in `:bin:`, and HFS file/folder paths (`:`, `:Desktop:`, `:Games:`, `:bin:`). Repeated **Tab** presses cycle through matching candidates.
-- **Built-ins & Commands**: `help`, `history`, `ls`, `cat`, `files`, `hexedit`, `ps`, `taskman`, `kill`, `mem`, `sysinfo`, `date`, `ver`, `reg`, `sound`, `clip`, `calc`, `notes`, `puzzle`, `net`, `ping`, `telnet`, `irc`, `macrun`, `chip8`, `emu6502`, `basic`, `cube3d`, `desktop`, `startup`, `boot`, `reboot`, `off`, or the name of any `.pex` or Classic Mac `'APPL'` program on disk.
+- **Built-ins & Commands**: `help`, `history`, `ls`, `cat`, `files`, `hexedit`, `ps`, `taskman`, `kill`, `mem`, `sysinfo`, `date`, `ver`, `reg`, `sound`, `clip`, `calc`, `notes`, `puzzle`, `net`, `ping`, `telnet`, `irc`, `macrun`, `chip8`, `emu6502`, `apple2e`, `c64`, `c128`, `emu8080`, `basic`, `cube3d`, `desktop`, `startup`, `boot`, `reboot`, `off`, or the name of any `.pex` or Classic Mac `'APPL'` program on disk.
 
 ## Networking (BlueSCSI WiFi / DaynaPORT)
 
@@ -198,7 +204,14 @@ real hardware — Mini vMac has no DaynaPORT, so `net` there just reports
 - **System 7.1 Features & Desk Accessories**: 22.25 kHz 4-voice PWM hardware sound synthesizer (`sound`), persistent Scrap/Clipboard Manager (`clip`), Calculator (`calc`), Note Pad (`notes`), and 15-Puzzle (`puzzle`).
 - **Internet over BlueSCSI WiFi (`<plusnet/net.h>`, `net` / `ping` / `telnet` / `irc`)**: a from-scratch TCP/IP stack — DaynaPORT SCSI/Link driver, ARP, IPv4, ICMP, UDP, DHCP client, DNS resolver and TCP — driving the ROM SCSI Manager (`_SCSIDispatch`) directly. telnet and IRC clients included.
 - **Fixed-point 3D engine (`<plus3d/plus3d.h>`, `cube3d`)**: the whole pipeline is 16.16 integer math on the FPU-less 68000 — hardware `MULS.W`/`DIVS.W`, a sine table, and a direct-to-framebuffer rasterizer — so the solid/wireframe models spin in real time.
-- **Emulators**: CHIP-8 Arcade VM (`chip8`), MOS 6502 / Apple I Woz Monitor (`emu6502`), and Retro BASIC with polygon/hexagon graphics (`basic`).
+- **Emulators & Virtual Machines**:
+  - **Apple //e (`apple2e`)**: MOS 65C02 processor, softswitches ($C000-$C07F), 40-col/80-col text, 280x192 Hi-Res graphics, and ProDOS/Applesoft environment.
+  - **Commodore 64 (`c64`)**: MOS 6510 CPU with $0000/$0001 bank switching, 40x25 PETSCII text, VIC-II 320x200 bitmap, SID audio synthesis, and BASIC V2.
+  - **Commodore 128 (`c128`)**: MOS 8502 CPU (1/2 MHz), 128 KB MMU bank switching ($D500), dual VIC-II 40-column and VDC 80-column display, and BASIC V7.
+  - **Intel 8080 & CP/M 2.2 (`emu8080`)**: Intel's legendary 8-bit microprocessor running Digital Research CP/M 2.2, BDOS/BIOS system calls, and MBASIC.
+  - **CHIP-8 Arcade VM (`chip8`)**: COSMAC VIP / CHIP-8 8-bit virtual machine with 5 built-in playable ROMs and sound.
+  - **MOS 6502 / Apple I (`emu6502`)**: 64 KB 6502 computer with Apple I Woz Monitor.
+  - **Retro BASIC (`basic`)**: Interactive BASIC interpreter with polygon/hexagon 2D graphics.
 
 See [`docs/MAC_EXEC_AND_RENDERING.md`](docs/MAC_EXEC_AND_RENDERING.md) for the complete technical architecture and documentation.
 

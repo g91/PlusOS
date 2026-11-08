@@ -10,6 +10,8 @@
 #include <commctrl.h>
 #include <string>
 #include <vector>
+#include <set>
+#include <map>
 #include "hfs_filesystem.h"
 
 class ExplorerWindow;
@@ -28,6 +30,8 @@ struct BuilderConfig {
     bool bundle_games = true;
     bool bundle_dev = true;
     bool bundle_tools = true;
+    std::set<std::string> included_apps;
+    std::map<std::string, std::wstring> custom_apps;
     std::vector<MultiBootEntry> boot_entries;
 };
 
@@ -52,6 +56,14 @@ enum {
     IDB_CHECK_GAMES,
     IDB_CHECK_DEV,
     IDB_CHECK_TOOLS,
+    IDB_APPS_LISTVIEW,
+    IDB_APPS_SELECT_ALL_BTN,
+    IDB_APPS_SELECT_NONE_BTN,
+    IDB_APPS_SYS_ONLY_BTN,
+    IDB_APPS_GAMES_ONLY_BTN,
+    IDB_APPS_ADD_BTN,
+    IDB_APPS_REMOVE_BTN,
+    IDB_APPS_COUNT_STATIC,
     IDB_BUILD_BTN,
     IDB_BUILD_FLOPPY_BTN,
     IDB_OPEN_EXPLORER_BTN,
@@ -108,15 +120,26 @@ private:
     HWND m_hCheckDev;
     HWND m_hCheckTools;
 
+    HWND m_hListViewApps;
+    HWND m_hBtnAppsSelectAll;
+    HWND m_hBtnAppsSelectNone;
+    HWND m_hBtnAppsSysOnly;
+    HWND m_hBtnAppsGamesOnly;
+    HWND m_hBtnAppsAdd;
+    HWND m_hBtnAppsRemove;
+    HWND m_hStaticAppCount;
+
     HWND m_hBtnBuildImage;
     HWND m_hBtnBuildFloppy;
     HWND m_hBtnOpenExplorer;
     HWND m_hBtnSaveConfig;
     HWND m_hBtnInjectApp;
+    HWND m_hGroupLog;
     HWND m_hEditBuildLog;
     HFONT m_hConsoleFont;
     HFONT m_hBoldFont;
     HFONT m_hHeaderFont;
+    bool m_populatingApps = false;
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     LRESULT handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -132,6 +155,16 @@ private:
     void on_boot_remove();
     void on_boot_up();
     void on_boot_down();
+
+    void populate_apps_list();
+    void update_apps_count_label();
+    void on_apps_select_all();
+    void on_apps_select_none();
+    void on_apps_sys_only();
+    void on_apps_games_only();
+    void on_apps_add_custom();
+    void on_apps_remove_selected();
+    void sync_included_apps_from_list();
 
     void action_browse_image();
     void action_inject_external();

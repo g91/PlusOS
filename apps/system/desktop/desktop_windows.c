@@ -321,7 +321,7 @@ static int is_fullscreen_app(const char *name)
     static const char *fs[] = { "qdemo", "asteroids", "breakout", "cube3d", "dungeon",
         "flappy", "invaders", "lunar", "mines", "pacman", "racer", "snake", "solarsys",
         "starflight", "tetris", "lander", "maze", "pong", "life",
-        "chip8", "emu6502", "basic", "sound", "macrun", 0 };
+        "chip8", "emu6502", "apple2e", "c64", "c128", "emu8080", "basic", "sound", "macrun", 0 };
     const char *n = leaf(name);
     for (int i = 0; fs[i]; i++) if (ieq(n, fs[i])) return 1;
     return 0;
