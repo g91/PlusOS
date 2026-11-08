@@ -1,0 +1,62 @@
+asteroids|1.0|games|10036|Vector Asteroids arcade game with physics
+basic|1.0|development|21968|Retro BASIC interpreter with graphics & math
+boot|1.0|system|6668|Startup disk selector & SCSI chainbooter
+breakout|1.0|games|11264|Paddle and brick breakout arcade game
+calc|1.0|tools|13908|Desktop floating-point calculator
+cat|1.0|tools|6688|Concatenate and print text files
+chip8|1.0|development|14488|CHIP-8 virtual machine & retro arcade emulator
+clear|1.0|tools|508|Clear terminal console screen
+clip|1.0|tools|7268|Clipboard scrap viewer and text buffer
+cube3d|1.0|development|44240|Real-time 3D wireframe & solid spinning cube
+date|1.0|tools|6448|Display or set current date and time
+desktop|1.0|system|62152|Graphical window manager & theme compositor
+dmesg|1.0|tools|6248|Dump kernel boot and driver log messages
+dungeon|1.0|games|11360|Roguelike dungeon crawler adventure RPG
+echo|1.0|tools|6092|Print arguments to console
+emu6502|1.0|development|13748|MOS 6502 CPU and Apple I Woz Monitor
+files|1.0|tools|18648|Interactive dual-pane HFS file manager
+flappy|1.0|games|15280|Flappy Mac side-scrolling arcade challenge
+gc|1.0|tools|6848|Kernel garbage collector stats and cycle
+hello|1.0|development|6652|Minimal SDK hello world demo
+help|1.0|tools|7016|List all commands and user guides
+hexedit|1.0|tools|11440|Hexadecimal binary file editor & viewer
+installer|1.0|system|10164|PlusOS Hard Drive Installation Utility
+invaders|1.0|games|6120|Space Invaders arcade defense game
+irc|1.0|network|22788|Internet Relay Chat client over BlueSCSI
+kill|1.0|tools|6528|Terminate process by PID
+ls|1.0|tools|6940|List files and directories
+lunar|1.0|games|8512|Lunar Lander physics simulation
+macrun|1.0|development|10380|Classic Mac OS APPL executable loader
+mem|1.0|tools|6076|Display free and used RAM statistics
+mines|1.0|games|6600|Minesweeper puzzle game
+net|1.0|network|18316|TCP/IP configuration and DaynaPORT stats
+notes|1.0|tools|14876|Notepad text editor with persistent storage
+off|1.0|system|508|Power off or safe shutdown system
+pacman|1.0|games|5228|Classic maze ghost-chase arcade game
+ping|1.0|network|18300|ICMP network ping utility
+pkg|1.0|network|25020|APT/YUM style package manager CLI
+pkgmgr|1.0|system|30372|Graphical software center package manager
+ps|1.0|tools|6388|List running processes and thread states
+puzzle|1.0|games|12680|15-tile sliding number puzzle DA
+qdemo|1.0|development|7468|QuickDraw shapes and pattern showcase
+racer|1.0|games|13636|Top-down retro road racing game
+ram|1.0|tools|7284|Display RAM memory layout and heap bars
+reboot|1.0|system|508|Warm restart computer
+reg|1.0|tools|6732|System registry viewer and modifier
+ret|1.0|system|492|Return to Mac OS from PlusOS
+shell|1.0|system|8044|Interactive command line interpreter
+sleep|1.0|tools|928|Delay execution for given seconds
+snake|1.0|games|5112|Classic nibbles snake arcade game
+solarsys|1.0|development|9992|Solar system planetary orbit simulation
+sound|1.0|tools|7912|4-voice PWM audio synthesizer test
+spin|1.0|development|6444|Real-time 3D solid mesh rotating model
+starflight|1.0|games|17112|Deep space exploration and galaxy combat RPG
+startup|1.0|system|6404|Configure default boot application
+sysinfo|1.0|tools|6424|CPU, ROM, screen, and hardware audit
+taskman|1.0|tools|12440|Live CPU and memory usage task manager
+telnet|1.0|network|19680|Telnet network terminal client
+tetris|1.0|games|4640|Classic falling block puzzle game
+theme|1.0|tools|8816|Multi-OS visual theme selector
+top|1.0|tools|7648|Live system monitor and process viewer
+uptime|1.0|tools|6732|Show system running time and ticks
+ver|1.0|tools|6076|Display PlusOS kernel and SDK version

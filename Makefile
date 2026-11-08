@@ -31,7 +31,7 @@ KERNEL_CPPFLAGS := $(PLUSOS_CPPFLAGS) -Ikernel -Ikernel/core -Ikernel/cpu -Ikern
                    -Ikernel/drivers -Ikernel/drivers/video -Ikernel/drivers/input -Ikernel/drivers/sound \
                    -Ikernel/services -idirafter $(SDK_SE)/include
 
-.PHONY: all sdks sdklibs sdktest install clean kernel loader apps
+.PHONY: all sdks sdklibs sdktest install clean kernel loader apps floppy
 all: sdklibs $(LOADER) $(KERNEL) apps
 	@$(SIZE) $(BUILD)/kernel/kernel.elf | tail -1 | awk '{print "kernel: text " $$1 "  data " $$2 "  bss " $$3}'
 
@@ -123,6 +123,13 @@ install: all
 	    --loader $(LOADER) --kernel $(KERNEL) \
 	    $(foreach a,$(APPS),$(if $(wildcard $(BUILD)/apps/$(a).pex),--app $(call UPPER,$(a))=$(BUILD)/apps/$(a).pex,)) \
 	    --kernel-block $(KERNEL_BLOCK) --kernel-blocks $(KERNEL_BLOCKS) --apps-block $(APPS_BLOCK) --hfs
+
+# ---- minimal installer floppy (.dsk) ----------------------------------------
+floppy: all
+	@mkdir -p $(BUILD)/boot
+	@$(CC) -m68000 -DKERNEL_OFFSET=51200 -DKERNEL_BYTES=184320 -c boot/loader.S -o $(BUILD)/boot/loader_floppy.o
+	@$(OBJCOPY) -O binary $(BUILD)/boot/loader_floppy.o $(BUILD)/boot/loader_floppy.bin
+	@python3 tools/make_floppy.py --output images/PlusOS_Floppy.dsk
 
 clean:
 	rm -rf $(BUILD)

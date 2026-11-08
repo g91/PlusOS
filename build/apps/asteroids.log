@@ -1,0 +1,3 @@
+apps/games/asteroids/asteroids.c:23:12: warning: ‘score’ defined but not used [-Wunused-variable]
+   23 | static int score = 0;
+      |            ^~~~~

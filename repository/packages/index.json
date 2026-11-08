@@ -1,0 +1,560 @@
+[
+  {
+    "name": "asteroids",
+    "filename": "asteroids.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 10036,
+    "description": "Vector Asteroids arcade game with physics",
+    "source": "build"
+  },
+  {
+    "name": "basic",
+    "filename": "basic.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 21968,
+    "description": "Retro BASIC interpreter with graphics & math",
+    "source": "build"
+  },
+  {
+    "name": "boot",
+    "filename": "boot.pex",
+    "version": "1.0",
+    "category": "system",
+    "size": 6668,
+    "description": "Startup disk selector & SCSI chainbooter",
+    "source": "build"
+  },
+  {
+    "name": "breakout",
+    "filename": "breakout.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 11264,
+    "description": "Paddle and brick breakout arcade game",
+    "source": "build"
+  },
+  {
+    "name": "calc",
+    "filename": "calc.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 13908,
+    "description": "Desktop floating-point calculator",
+    "source": "build"
+  },
+  {
+    "name": "cat",
+    "filename": "cat.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6688,
+    "description": "Concatenate and print text files",
+    "source": "build"
+  },
+  {
+    "name": "chip8",
+    "filename": "chip8.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 14488,
+    "description": "CHIP-8 virtual machine & retro arcade emulator",
+    "source": "build"
+  },
+  {
+    "name": "clear",
+    "filename": "clear.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 508,
+    "description": "Clear terminal console screen",
+    "source": "build"
+  },
+  {
+    "name": "clip",
+    "filename": "clip.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 7268,
+    "description": "Clipboard scrap viewer and text buffer",
+    "source": "build"
+  },
+  {
+    "name": "cube3d",
+    "filename": "cube3d.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 44240,
+    "description": "Real-time 3D wireframe & solid spinning cube",
+    "source": "build"
+  },
+  {
+    "name": "date",
+    "filename": "date.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6448,
+    "description": "Display or set current date and time",
+    "source": "build"
+  },
+  {
+    "name": "desktop",
+    "filename": "desktop.pex",
+    "version": "1.0",
+    "category": "system",
+    "size": 62152,
+    "description": "Graphical window manager & theme compositor",
+    "source": "build"
+  },
+  {
+    "name": "dmesg",
+    "filename": "dmesg.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6248,
+    "description": "Dump kernel boot and driver log messages",
+    "source": "build"
+  },
+  {
+    "name": "dungeon",
+    "filename": "dungeon.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 11360,
+    "description": "Roguelike dungeon crawler adventure RPG",
+    "source": "build"
+  },
+  {
+    "name": "echo",
+    "filename": "echo.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6092,
+    "description": "Print arguments to console",
+    "source": "build"
+  },
+  {
+    "name": "emu6502",
+    "filename": "emu6502.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 13748,
+    "description": "MOS 6502 CPU and Apple I Woz Monitor",
+    "source": "build"
+  },
+  {
+    "name": "files",
+    "filename": "files.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 18648,
+    "description": "Interactive dual-pane HFS file manager",
+    "source": "build"
+  },
+  {
+    "name": "flappy",
+    "filename": "flappy.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 15280,
+    "description": "Flappy Mac side-scrolling arcade challenge",
+    "source": "build"
+  },
+  {
+    "name": "gc",
+    "filename": "gc.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6848,
+    "description": "Kernel garbage collector stats and cycle",
+    "source": "build"
+  },
+  {
+    "name": "hello",
+    "filename": "hello.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 6652,
+    "description": "Minimal SDK hello world demo",
+    "source": "build"
+  },
+  {
+    "name": "help",
+    "filename": "help.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 7016,
+    "description": "List all commands and user guides",
+    "source": "build"
+  },
+  {
+    "name": "hexedit",
+    "filename": "hexedit.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 11440,
+    "description": "Hexadecimal binary file editor & viewer",
+    "source": "build"
+  },
+  {
+    "name": "installer",
+    "filename": "installer.pex",
+    "version": "1.0",
+    "category": "system",
+    "size": 10164,
+    "description": "PlusOS Hard Drive Installation Utility",
+    "source": "build"
+  },
+  {
+    "name": "invaders",
+    "filename": "invaders.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 6120,
+    "description": "Space Invaders arcade defense game",
+    "source": "build"
+  },
+  {
+    "name": "irc",
+    "filename": "irc.pex",
+    "version": "1.0",
+    "category": "network",
+    "size": 22788,
+    "description": "Internet Relay Chat client over BlueSCSI",
+    "source": "build"
+  },
+  {
+    "name": "kill",
+    "filename": "kill.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6528,
+    "description": "Terminate process by PID",
+    "source": "build"
+  },
+  {
+    "name": "ls",
+    "filename": "ls.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6940,
+    "description": "List files and directories",
+    "source": "build"
+  },
+  {
+    "name": "lunar",
+    "filename": "lunar.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 8512,
+    "description": "Lunar Lander physics simulation",
+    "source": "build"
+  },
+  {
+    "name": "macrun",
+    "filename": "macrun.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 10380,
+    "description": "Classic Mac OS APPL executable loader",
+    "source": "build"
+  },
+  {
+    "name": "mem",
+    "filename": "mem.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6076,
+    "description": "Display free and used RAM statistics",
+    "source": "build"
+  },
+  {
+    "name": "mines",
+    "filename": "mines.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 6600,
+    "description": "Minesweeper puzzle game",
+    "source": "build"
+  },
+  {
+    "name": "net",
+    "filename": "net.pex",
+    "version": "1.0",
+    "category": "network",
+    "size": 18316,
+    "description": "TCP/IP configuration and DaynaPORT stats",
+    "source": "build"
+  },
+  {
+    "name": "notes",
+    "filename": "notes.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 14876,
+    "description": "Notepad text editor with persistent storage",
+    "source": "build"
+  },
+  {
+    "name": "off",
+    "filename": "off.pex",
+    "version": "1.0",
+    "category": "system",
+    "size": 508,
+    "description": "Power off or safe shutdown system",
+    "source": "build"
+  },
+  {
+    "name": "pacman",
+    "filename": "pacman.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 5228,
+    "description": "Classic maze ghost-chase arcade game",
+    "source": "build"
+  },
+  {
+    "name": "ping",
+    "filename": "ping.pex",
+    "version": "1.0",
+    "category": "network",
+    "size": 18300,
+    "description": "ICMP network ping utility",
+    "source": "build"
+  },
+  {
+    "name": "pkg",
+    "filename": "pkg.pex",
+    "version": "1.0",
+    "category": "network",
+    "size": 25020,
+    "description": "APT/YUM style package manager CLI",
+    "source": "build"
+  },
+  {
+    "name": "pkgmgr",
+    "filename": "pkgmgr.pex",
+    "version": "1.0",
+    "category": "system",
+    "size": 30372,
+    "description": "Graphical software center package manager",
+    "source": "build"
+  },
+  {
+    "name": "ps",
+    "filename": "ps.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6388,
+    "description": "List running processes and thread states",
+    "source": "build"
+  },
+  {
+    "name": "puzzle",
+    "filename": "puzzle.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 12680,
+    "description": "15-tile sliding number puzzle DA",
+    "source": "build"
+  },
+  {
+    "name": "qdemo",
+    "filename": "qdemo.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 7468,
+    "description": "QuickDraw shapes and pattern showcase",
+    "source": "build"
+  },
+  {
+    "name": "racer",
+    "filename": "racer.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 13636,
+    "description": "Top-down retro road racing game",
+    "source": "build"
+  },
+  {
+    "name": "ram",
+    "filename": "ram.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 7284,
+    "description": "Display RAM memory layout and heap bars",
+    "source": "build"
+  },
+  {
+    "name": "reboot",
+    "filename": "reboot.pex",
+    "version": "1.0",
+    "category": "system",
+    "size": 508,
+    "description": "Warm restart computer",
+    "source": "build"
+  },
+  {
+    "name": "reg",
+    "filename": "reg.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6732,
+    "description": "System registry viewer and modifier",
+    "source": "build"
+  },
+  {
+    "name": "ret",
+    "filename": "ret.pex",
+    "version": "1.0",
+    "category": "system",
+    "size": 492,
+    "description": "Return to Mac OS from PlusOS",
+    "source": "build"
+  },
+  {
+    "name": "shell",
+    "filename": "shell.pex",
+    "version": "1.0",
+    "category": "system",
+    "size": 8044,
+    "description": "Interactive command line interpreter",
+    "source": "build"
+  },
+  {
+    "name": "sleep",
+    "filename": "sleep.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 928,
+    "description": "Delay execution for given seconds",
+    "source": "build"
+  },
+  {
+    "name": "snake",
+    "filename": "snake.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 5112,
+    "description": "Classic nibbles snake arcade game",
+    "source": "build"
+  },
+  {
+    "name": "solarsys",
+    "filename": "solarsys.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 9992,
+    "description": "Solar system planetary orbit simulation",
+    "source": "build"
+  },
+  {
+    "name": "sound",
+    "filename": "sound.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 7912,
+    "description": "4-voice PWM audio synthesizer test",
+    "source": "build"
+  },
+  {
+    "name": "spin",
+    "filename": "spin.pex",
+    "version": "1.0",
+    "category": "development",
+    "size": 6444,
+    "description": "Real-time 3D solid mesh rotating model",
+    "source": "build"
+  },
+  {
+    "name": "starflight",
+    "filename": "starflight.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 17112,
+    "description": "Deep space exploration and galaxy combat RPG",
+    "source": "build"
+  },
+  {
+    "name": "startup",
+    "filename": "startup.pex",
+    "version": "1.0",
+    "category": "system",
+    "size": 6404,
+    "description": "Configure default boot application",
+    "source": "build"
+  },
+  {
+    "name": "sysinfo",
+    "filename": "sysinfo.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6424,
+    "description": "CPU, ROM, screen, and hardware audit",
+    "source": "build"
+  },
+  {
+    "name": "taskman",
+    "filename": "taskman.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 12440,
+    "description": "Live CPU and memory usage task manager",
+    "source": "build"
+  },
+  {
+    "name": "telnet",
+    "filename": "telnet.pex",
+    "version": "1.0",
+    "category": "network",
+    "size": 19680,
+    "description": "Telnet network terminal client",
+    "source": "build"
+  },
+  {
+    "name": "tetris",
+    "filename": "tetris.pex",
+    "version": "1.0",
+    "category": "games",
+    "size": 4640,
+    "description": "Classic falling block puzzle game",
+    "source": "build"
+  },
+  {
+    "name": "theme",
+    "filename": "theme.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 8816,
+    "description": "Multi-OS visual theme selector",
+    "source": "build"
+  },
+  {
+    "name": "top",
+    "filename": "top.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 7648,
+    "description": "Live system monitor and process viewer",
+    "source": "build"
+  },
+  {
+    "name": "uptime",
+    "filename": "uptime.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6732,
+    "description": "Show system running time and ticks",
+    "source": "build"
+  },
+  {
+    "name": "ver",
+    "filename": "ver.pex",
+    "version": "1.0",
+    "category": "tools",
+    "size": 6076,
+    "description": "Display PlusOS kernel and SDK version",
+    "source": "build"
+  }
+]

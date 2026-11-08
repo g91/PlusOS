@@ -24,6 +24,11 @@ if /I "%~1"=="test" (
     exit /b 0
 )
 
+if /I "%~1"=="clean" (
+    call "%ROOT%clean.bat" %2 %3 %4
+    exit /b %ERRORLEVEL%
+)
+
 REM Close the emulator first: it locks the disk image.
 tasklist /FI "IMAGENAME eq Mini vMac (BlueSCSI patched).exe" 2>nul | find /I "Mini vMac" >nul && (
     echo Closing Mini vMac so the disk image can be written...

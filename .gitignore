@@ -1,12 +1,21 @@
 # Build artifacts
 build/
 *.o
+*.obj
 *.elf
 *.bin
 *.pex
 *.log
 *.map
 *.d
+*.res
+*.pdb
+*.idb
+*.ilk
+*.exp
+
+# Host tool executables
+tools/disk_studio/PlusOSDiskStudio.exe
 
 # Python cache
 __pycache__/

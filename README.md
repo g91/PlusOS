@@ -43,6 +43,7 @@ The studio features two distinct, dedicated dialogues:
   - **Wallpapers**: Select between Classic Mac 50% Gray stipple or live animated Matrix Digital Rain.
   - **Startup Greeting & Hostname**: Set custom welcome greetings and titles.
   - **App Bundles**: Choose whether to bundle the 17-game retro pack, developer emulators (CHIP-8, 6502, BASIC, 3D), and networking tools.
+- **Build Bootable Floppy (.dsk)**: One-click builder that generates `images/PlusOS_Floppy.dsk` (1.44M/800K Macintosh HFS floppy) containing only essential boot files and the hard drive installer (zero games).
 - **Return to PlusOS Injector**: Configure the target SCSI ID and inject the Classic Mac OS return executable into any disk image or floppy disk image.
 - **Open Hard Drive Explorer**: Dedicated button to switch immediately into the Hard Drive Explorer with the built image.
 
@@ -53,6 +54,54 @@ The studio features two distinct, dedicated dialogues:
 - **File Inspection**: Double-click files for instant metadata and content preview.
 - **Return to PlusOS App Injection**: Inject the native Classic Mac OS executable (`Return to PlusOS`, `APPL`/`PLOS`) into `:Desktop:Return to PlusOS` on the current image, or into any external hard drive or floppy disk image (`.dsk`). Running this app inside Classic Mac OS rewrites Extended PRAM (XPRAM offset `$78`) and issues the Macintosh Toolbox `_Restart` trap (`$A888`), seamlessly returning the computer to PlusOS.
 - **Switch to OS Builder**: Quick button to return to the OS Builder dialogue at any time.
+
+---
+
+## Minimal Bootable Floppy & Hard Drive Installer
+
+PlusOS provides a minimal bootable floppy disk image (`images/PlusOS_Floppy.dsk`) designed for machine recovery, initial hardware provisioning, and minimal footprint boots:
+- **Build Command**: `build floppy` or `make floppy` or click **"Build Bootable Floppy (.dsk)"** in Disk Studio.
+- **Zero Bloat / No Games**: Contains only the floppy bootloader (`build/boot/loader_floppy.bin`), kernel, system shell, desktop, and essential tools (`FILES`, `CAT`, `LS`, `SYSINFO`, `TASKMAN`, `CALC`, `NOTES`, `MEM`, `VER`, `BOOT`, `REBOOT`, `OFF`, `REG`, `PKG`, `PKGMGR`).
+- **Hard Drive Installer (`installer.pex`)**:
+  - Bootable directly from the floppy (`:Desktop:Installer` or select "PlusOS Installer" from the boot menu).
+  - Automatically probes all SCSI IDs (`0` through `7`) for attached hard drives or BlueSCSI targets.
+  - Formats the target drive as Macintosh HFS, writes boot blocks (`loader.bin`), installs the PlusOS kernel, seeds all system binaries, writes `multiboot.cfg`, and injects the Classic Mac OS `Return to PlusOS` application onto the drive.
+
+---
+
+## Package Management & Standalone Repository System
+
+PlusOS includes an **APT / YUM** style binary package distribution system:
+
+### 1. Standalone Package Repository Server (`repository/`)
+Completely independent from any website, located in its own dedicated `repository/` folder:
+- **Dual HTTP & HTTPS (SSL) Support**:
+  - **HTTP (Port `8088`)**: Enables vintage 68000 Mac clients (`pkg`, `pkgmgr`) and local network self-hosters to connect without SSL overhead.
+  - **HTTPS (Port `8443`)**: For modern web browsers and secure connections. Automatically generates self-signed certificates or accepts custom certificates (`--cert` / `--key`).
+  - **Cloudflare Integration**: Fully compatible with Cloudflare Flexible and Full SSL proxying (`CF-Connecting-IP`, `X-Forwarded-Proto`).
+  - **Upstream Mirroring / Proxy Cache**: Supports `--upstream <https-url>` so a local server on your LAN can securely mirror an upstream Cloudflare HTTPS repository and serve it over plain HTTP to vintage Macs.
+  - **Git Sync**: Automatic pull/clone support from any Git package repository (`--git <url>` or `POST /api/packages/sync`).
+- **Start the Server**:
+  - Windows: `repository\run_repo.bat`
+  - Linux / macOS / WSL: `cd repository && ./run_repo.sh`
+
+### 2. CLI Package Manager (`pkg`)
+Run from the PlusOS command shell:
+```sh
+pkg update                  # Download & refresh package catalog from repository
+pkg list                    # List available and installed packages
+pkg search <term>           # Search packages by name or description
+pkg install <app>           # Download & install binary (.pex) directly to :bin: or :Games:
+pkg remove <app>            # Uninstall package from disk
+pkg config repo <host:port> # Point to custom or self-hosted repository (default: 8088)
+```
+
+### 3. GUI Software Center (`pkgmgr`)
+- Accessible from the desktop menu bar (**PlusOS -> Software Center**) and Start menu.
+- Browse packages by category: **[All]**, **[Games]**, **[Dev]**, **[Net]**, **[Tools]**.
+- Live installed status indicators (`[INST]`).
+- Package details panel: version, category, size in bytes/KB, and description.
+- Interactive one-click **[Install / Download]**, **[Launch]**, **[Remove]**, and **[Update Catalog]** buttons.
 
 ---
 

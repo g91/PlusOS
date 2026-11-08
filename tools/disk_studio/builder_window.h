@@ -53,6 +53,7 @@ enum {
     IDB_CHECK_DEV,
     IDB_CHECK_TOOLS,
     IDB_BUILD_BTN,
+    IDB_BUILD_FLOPPY_BTN,
     IDB_OPEN_EXPLORER_BTN,
     IDB_SAVE_CFG_BTN,
     IDB_INJECT_BTN,
@@ -73,6 +74,7 @@ public:
     bool save_config_to_file();
     void append_log(const std::wstring& text);
     void action_build_image();
+    void action_build_floppy();
     void action_open_explorer();
 
 private:
@@ -107,6 +109,7 @@ private:
     HWND m_hCheckTools;
 
     HWND m_hBtnBuildImage;
+    HWND m_hBtnBuildFloppy;
     HWND m_hBtnOpenExplorer;
     HWND m_hBtnSaveConfig;
     HWND m_hBtnInjectApp;

@@ -24,7 +24,7 @@ Window *z[MAX_WIN];
 int     nwin;
 
 Menu menus[NMENUS] = {
-    { "PlusOS",  { "About PlusOS", "System Info", "Calculator", "Note Pad", "Puzzle", "Task Manager", "Settings..." }, 7 },
+    { "PlusOS",  { "About PlusOS", "System Info", "Software Center", "Calculator", "Note Pad", "Puzzle", "Task Manager", "Settings..." }, 8 },
     { "File",    { "Open", "Open in Hex Editor", "Programs", "-", "Quit Desktop" }, 5 },
     { "Edit",    { "Copy", "Paste", "Duplicate", "Rename...", "-", "Delete" }, 6 },
     { "View",    { "Clean Up Icons", "-", "Theme Wallpaper", "Matrix Wallpaper" }, 4 },
@@ -229,11 +229,12 @@ void do_menu(int m, int item)
     case 0:
         if (item == 0) { open_about(); redraw(); }
         else if (item == 1) { open_info(); redraw(); }
-        else if (item == 2) { char *av[] = { "calc", 0 }; start_prog(1, av); }
-        else if (item == 3) { char *av[] = { "notes", 0 }; start_prog(1, av); }
-        else if (item == 4) { char *av[] = { "puzzle", 0 }; start_prog(1, av); }
-        else if (item == 5) { char *av[] = { "taskman", 0 }; start_prog(1, av); }
-        else if (item == 6) { open_settings(); redraw(); }
+        else if (item == 2) { char *av[] = { "pkgmgr", 0 }; start_prog(1, av); }
+        else if (item == 3) { char *av[] = { "calc", 0 }; start_prog(1, av); }
+        else if (item == 4) { char *av[] = { "notes", 0 }; start_prog(1, av); }
+        else if (item == 5) { char *av[] = { "puzzle", 0 }; start_prog(1, av); }
+        else if (item == 6) { char *av[] = { "taskman", 0 }; start_prog(1, av); }
+        else if (item == 7) { open_settings(); redraw(); }
         break;
     case 1:
         if (item == 0) cmd_open();

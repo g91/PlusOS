@@ -131,6 +131,7 @@ void track_start_menu(void)
     static const char *sitems[] = {
         "Programs",
         "Games",
+        "Software Center",
         "Command Shell",
         "File Manager",
         "Calculator",
@@ -139,7 +140,7 @@ void track_start_menu(void)
         "Next OS Theme",
         "Shut Down..."
     };
-    const int nitems = 9;
+    const int nitems = 10;
     int dl = 2, dr = 164;
     int db = SCREEN_H - TASKBAR_H - 1;
     int dt = db - (nitems * 16 + 6);
@@ -210,13 +211,14 @@ void track_start_menu(void)
     switch (chosen) {
     case 0: open_programs(); redraw(); break;
     case 1: open_games(); redraw(); break;
-    case 2: { char *av[] = { "shell", 0 };   start_prog(1, av); } break;
-    case 3: { char *av[] = { "files", 0 };   start_prog(1, av); } break;
-    case 4: { char *av[] = { "calc", 0 };    start_prog(1, av); } break;
-    case 5: { char *av[] = { "taskman", 0 }; start_prog(1, av); } break;
-    case 6: open_settings(); redraw(); break;
-    case 7: set_theme((cur_theme + 1) % PLUSOS_THEME_COUNT); break;
-    case 8: plusos->shutdown(); break;
+    case 2: { char *av[] = { "pkgmgr", 0 };  start_prog(1, av); } break;
+    case 3: { char *av[] = { "shell", 0 };   start_prog(1, av); } break;
+    case 4: { char *av[] = { "files", 0 };   start_prog(1, av); } break;
+    case 5: { char *av[] = { "calc", 0 };    start_prog(1, av); } break;
+    case 6: { char *av[] = { "taskman", 0 }; start_prog(1, av); } break;
+    case 7: open_settings(); redraw(); break;
+    case 8: set_theme((cur_theme + 1) % PLUSOS_THEME_COUNT); break;
+    case 9: plusos->shutdown(); break;
     }
 }
 

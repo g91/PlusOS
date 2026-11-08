@@ -14,18 +14,24 @@
 
 static std::wstring to_wide(const std::string& str) {
     if (str.empty()) return L"";
-    int sz = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, nullptr, 0);
+    int sz = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+    if (sz <= 0) sz = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, nullptr, 0);
     std::wstring res(sz, 0);
-    MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, &res[0], sz);
+    if (MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &res[0], sz) <= 0) {
+        MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, &res[0], sz);
+    }
     if (!res.empty() && res.back() == 0) res.pop_back();
     return res;
 }
 
 static std::string to_narrow(const std::wstring& wstr) {
     if (wstr.empty()) return "";
-    int sz = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    int sz = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (sz <= 0) sz = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
     std::string res(sz, 0);
-    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, &res[0], sz, nullptr, nullptr);
+    if (WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &res[0], sz, nullptr, nullptr) <= 0) {
+        WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, &res[0], sz, nullptr, nullptr);
+    }
     if (!res.empty() && res.back() == 0) res.pop_back();
     return res;
 }
@@ -301,25 +307,29 @@ void BuilderWindow::create_controls()
     SendMessageW(m_hCheckTools, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
     SendMessageW(m_hCheckTools, BM_SETCHECK, BST_CHECKED, 0);
 
-    // Group 4: Build Execution & Hard Drive Explorer Actions
+    // Group 4: Build Execution & Disk Manager
     HWND grpActions = CreateWindowExW(0, L"BUTTON", L" 4. Build Execution & Disk Manager ",
-        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 15, 590, 500, 130, m_hWnd, nullptr, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 15, 575, 500, 145, m_hWnd, nullptr, m_hInstance, nullptr);
     SendMessageW(grpActions, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
-    m_hBtnBuildImage = CreateWindowExW(0, L"BUTTON", L"Compile && Build Hard Drive Image",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_DEFPUSHBUTTON, 25, 615, 235, 42, m_hWnd, (HMENU)IDB_BUILD_BTN, m_hInstance, nullptr);
+    m_hBtnBuildImage = CreateWindowExW(0, L"BUTTON", L"Compile & Build Hard Drive Image",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_DEFPUSHBUTTON, 25, 598, 235, 34, m_hWnd, (HMENU)IDB_BUILD_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnBuildImage, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
-    m_hBtnOpenExplorer = CreateWindowExW(0, L"BUTTON", L"Open Hard Drive Explorer / Manager",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 270, 615, 235, 42, m_hWnd, (HMENU)IDB_OPEN_EXPLORER_BTN, m_hInstance, nullptr);
-    SendMessageW(m_hBtnOpenExplorer, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
+    m_hBtnBuildFloppy = CreateWindowExW(0, L"BUTTON", L"Build Bootable Floppy (.dsk)",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 270, 598, 235, 34, m_hWnd, (HMENU)IDB_BUILD_FLOPPY_BTN, m_hInstance, nullptr);
+    SendMessageW(m_hBtnBuildFloppy, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
+
+    m_hBtnOpenExplorer = CreateWindowExW(0, L"BUTTON", L"Open Disk Explorer / Manager",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 638, 235, 32, m_hWnd, (HMENU)IDB_OPEN_EXPLORER_BTN, m_hInstance, nullptr);
+    SendMessageW(m_hBtnOpenExplorer, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnSaveConfig = CreateWindowExW(0, L"BUTTON", L"Save Configuration",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 668, 170, 32, m_hWnd, (HMENU)IDB_SAVE_CFG_BTN, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 270, 638, 235, 32, m_hWnd, (HMENU)IDB_SAVE_CFG_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnSaveConfig, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
-    m_hBtnInjectApp = CreateWindowExW(0, L"BUTTON", L"Inject 'Return to PlusOS' to Disk...",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 205, 668, 300, 32, m_hWnd, (HMENU)IDB_INJECT_BTN, m_hInstance, nullptr);
+    m_hBtnInjectApp = CreateWindowExW(0, L"BUTTON", L"Inject 'Return to PlusOS' to External Disk / Floppy...",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 676, 480, 32, m_hWnd, (HMENU)IDB_INJECT_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnInjectApp, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     // Right Column: Live Build Log & System Diagnostics
@@ -635,8 +645,59 @@ void BuilderWindow::action_build_image()
             MessageBoxW(m_hWnd, L"Build failed or completed with errors. See build log for details.", L"Build Warning", MB_ICONWARNING | MB_OK);
         }
     } else {
-        append_log(L"❌ Failed to launch build process.");
+        append_log(L"[ERROR] Failed to launch build process.");
         MessageBoxW(m_hWnd, L"Failed to launch compiler process.", L"Execution Error", MB_ICONERROR | MB_OK);
+    }
+}
+
+void BuilderWindow::action_build_floppy()
+{
+    save_config_to_file();
+    append_log(L"============================================================");
+    append_log(L"Starting Minimal Bootable Installer Floppy Generation...");
+    append_log(L"Target: images\\PlusOS_Floppy.dsk (1.44M Macintosh HFS Disk)");
+    append_log(L"Essential boot binaries & installer included (zero games).");
+    append_log(L"Running 'make floppy' inside build environment...");
+
+    std::wstring rootDir = L"C:\\Users\\Evil\\PlusOS";
+    std::wstring cmd = L"wsl.exe -d Ubuntu --cd /mnt/c/Users/Evil/PlusOS -- bash -l -c \"make floppy\"";
+
+    STARTUPINFOW si = {};
+    si.cb = sizeof(si);
+    PROCESS_INFORMATION pi = {};
+
+    BOOL ok = CreateProcessW(nullptr, (LPWSTR)cmd.c_str(), nullptr, nullptr, FALSE, 0, nullptr, rootDir.c_str(), &si, &pi);
+    if (!ok) {
+        cmd = L"cmd.exe /c \"call C:\\Users\\Evil\\PlusOS\\build.bat floppy\"";
+        ok = CreateProcessW(nullptr, (LPWSTR)cmd.c_str(), nullptr, nullptr, FALSE, 0, nullptr, rootDir.c_str(), &si, &pi);
+    }
+
+    if (ok) {
+        WaitForSingleObject(pi.hProcess, 300000);
+        DWORD exitCode = 1;
+        GetExitCodeProcess(pi.hProcess, &exitCode);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+
+        if (exitCode == 0) {
+            append_log(L"[SUCCESS] Minimal bootable floppy successfully generated!");
+            append_log(L"Image: images\\PlusOS_Floppy.dsk");
+            append_log(L"Ready! You can now boot this floppy in Mini vMac or test on hardware.");
+
+            int c = MessageBoxW(m_hWnd,
+                L"Bootable minimal installer floppy generated successfully!\r\n(images\\PlusOS_Floppy.dsk)\r\n\r\nWould you like to open it in the Disk Explorer now?",
+                L"Floppy Build Successful", MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON1);
+            if (c == IDYES && m_explorerWin) {
+                m_explorerWin->open_image(L"C:\\Users\\Evil\\PlusOS\\images\\PlusOS_Floppy.dsk");
+                m_explorerWin->show();
+            }
+        } else {
+            append_log(L"[ERROR] Floppy build finished with exit code: " + std::to_wstring(exitCode));
+            MessageBoxW(m_hWnd, L"Floppy build failed or completed with errors.", L"Build Warning", MB_ICONWARNING | MB_OK);
+        }
+    } else {
+        append_log(L"[ERROR] Failed to launch floppy build process.");
+        MessageBoxW(m_hWnd, L"Failed to launch floppy compiler process.", L"Execution Error", MB_ICONERROR | MB_OK);
     }
 }
 
@@ -693,6 +754,7 @@ LRESULT BuilderWindow::handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
         switch (id) {
         case IDB_IMAGE_BROWSE_BTN: action_browse_image(); break;
         case IDB_BUILD_BTN: action_build_image(); break;
+        case IDB_BUILD_FLOPPY_BTN: action_build_floppy(); break;
         case IDB_OPEN_EXPLORER_BTN: action_open_explorer(); break;
         case IDB_SAVE_CFG_BTN:
             if (save_config_to_file()) {

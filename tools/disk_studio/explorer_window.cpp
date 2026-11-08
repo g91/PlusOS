@@ -15,18 +15,24 @@
 
 static std::wstring to_wide(const std::string& str) {
     if (str.empty()) return L"";
-    int sz = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, nullptr, 0);
+    int sz = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+    if (sz <= 0) sz = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, nullptr, 0);
     std::wstring res(sz, 0);
-    MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, &res[0], sz);
+    if (MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &res[0], sz) <= 0) {
+        MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, &res[0], sz);
+    }
     if (!res.empty() && res.back() == 0) res.pop_back();
     return res;
 }
 
 static std::string to_narrow(const std::wstring& wstr) {
     if (wstr.empty()) return "";
-    int sz = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    int sz = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (sz <= 0) sz = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
     std::string res(sz, 0);
-    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, &res[0], sz, nullptr, nullptr);
+    if (WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &res[0], sz, nullptr, nullptr) <= 0) {
+        WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, &res[0], sz, nullptr, nullptr);
+    }
     if (!res.empty() && res.back() == 0) res.pop_back();
     return res;
 }
