@@ -30,9 +30,11 @@ tasklist /FI "IMAGENAME eq Mini vMac (BlueSCSI patched).exe" 2>nul | find /I "Mi
     taskkill /IM "Mini vMac (BlueSCSI patched).exe" /F >nul 2>&1
 )
 
-REM The SD card may have been in the Mac since the last build: refresh F: in WSL.
-if /I "%~1"=="install" wsl -d Ubuntu -u root -- bash /mnt/c/Users/Evil/PlusOS/tools/remount.sh
-if /I "%~1"=="sdks" wsl -d Ubuntu -u root -- bash /mnt/c/Users/Evil/PlusOS/tools/remount.sh
+REM If an external SD card (F:) is attached, refresh its mount in WSL.
+if exist "F:\" (
+    if /I "%~1"=="install" wsl -d Ubuntu -u root -- bash /mnt/c/Users/Evil/PlusOS/tools/remount.sh
+    if /I "%~1"=="sdks" wsl -d Ubuntu -u root -- bash /mnt/c/Users/Evil/PlusOS/tools/remount.sh
+)
 
 wsl -d Ubuntu --cd /mnt/c/Users/Evil/PlusOS -- make %TARGET%
 exit /b %ERRORLEVEL%

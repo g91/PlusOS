@@ -9,22 +9,36 @@
 SDK_PLUS := $(abspath sdks/macplus)
 SDK_SE   := $(abspath sdks/macse)
 
-TOOLCHAIN ?= /home/evil/Retro68-build/toolchain
-CROSS     := $(TOOLCHAIN)/bin/m68k-apple-macos-
+# Open & portable toolchain auto-detection:
+# Checks Retro68, or standard PATH for m68k-apple-macos-, m68k-elf-, or m68k-linux-gnu-
+TOOLCHAIN ?= $(firstword $(wildcard /home/evil/Retro68-build/toolchain /usr/local/retro68))
+ifneq ($(TOOLCHAIN),)
+  CROSS   ?= $(TOOLCHAIN)/bin/m68k-apple-macos-
+else
+  CROSS   ?= $(or $(firstword $(foreach p,m68k-apple-macos- m68k-elf- m68k-linux-gnu-,$(if $(shell command -v $(p)gcc 2>/dev/null),$(p)))),m68k-apple-macos-)
+endif
 
 # kernel extra library: the SE SDK's ROM catalog (serom_find_call)
 PLUSOS_EXTRA_LIBS := $(SDK_SE)/build/lib/libserom.a
 PLUSOS_SDK := $(SDK_PLUS)
 -include $(SDK_PLUS)/sdk.mk
 
-# Inputs for regenerating the SDKs (build sdks)
-MACROM      ?= /mnt/f/mac_rom
-MULTIVERSAL ?= /home/evil/Retro68/multiversal
+# Upstream Macintosh ROM Assembly Sources:
+# Repository: https://github.com/jonathanschilling/mac_rom
+# Checks in-tree clone, sibling folder, or external mount
+MACROM      ?= $(firstword $(wildcard $(CURDIR)/mac_rom $(CURDIR)/../mac_rom /mnt/c/Users/Evil/PlusOS/mac_rom /mnt/f/mac_rom))
+ifeq ($(MACROM),)
+  MACROM    := $(CURDIR)/mac_rom
+endif
+MULTIVERSAL ?= $(firstword $(wildcard $(CURDIR)/multiversal /home/evil/Retro68/multiversal))
 
-# Disk images to install into (the BlueSCSI SD card is F: = /mnt/f)
-SDCARD     ?= /mnt/f
-IMAGE_REAL ?= $(SDCARD)/HD60_512 PlusOS.hda
-IMAGE_TEST ?= $(SDCARD)/BOOTTEST.hda
+# Universal & Portable Disk Images:
+# Checks self-contained images/ directory inside PlusOS, and also writes to
+# external BlueSCSI SD card (F: = /mnt/f) if attached.
+IMAGE_LOCAL := $(CURDIR)/images/PlusOS.hda
+SDCARD      ?= /mnt/f
+IMAGE_REAL  ?= $(SDCARD)/HD60_512 PlusOS.hda
+IMAGE_TEST  ?= $(SDCARD)/BOOTTEST.hda
 
 # Disk layout (512-byte blocks, relative to the start of the HFS partition)
 KERNEL_BLOCK  := 60000      # kernel image (raw), loaded by the boot block

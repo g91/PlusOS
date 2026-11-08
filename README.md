@@ -3,19 +3,24 @@
 A bare-metal operating system for the Macintosh Plus and Macintosh SE,
 written in C on top of the Mac ROM, plus one SDK per machine.
 
+[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/hkpe76G7AU)
+
 <p align="center">
   <img src="docs/dasktop.png" alt="PlusOS running on a real Macintosh SE" width="480"><br>
   <em>PlusOS booted on a real Macintosh SE — the desktop with Matrix wallpaper, the theme switcher, and on-screen icons.</em>
 </p>
 
-Source lives on Windows; the m68k cross compiler runs in WSL (Ubuntu).
-`build.bat` runs everything from a Windows prompt.
+Source lives on Windows; the m68k cross compiler runs in WSL (Ubuntu) using standard GNU toolchains (`m68k-elf-gcc`, `m68k-linux-gnu-gcc`, or Retro68).
+`build.bat` runs everything from a Windows prompt. The build system is fully portable and self-contained within its own directories, not relying on hardcoded external drives or SD cards.
+
+The Macintosh ROM assembly source tree is open-source and available at:
+👉 **[https://github.com/jonathanschilling/mac_rom](https://github.com/jonathanschilling/mac_rom)**
 
 ```
 build              build both SDK libraries, boot loader, kernel, apps
-build install      write it all to the BlueSCSI disk images on the SD card (F:)
+build install      write it all to disk images (local images/ and external SD card if present)
 build test         install, then boot it in Mini vMac
-build sdks         regenerate both SDK folders from the Plus and SE ROMs
+build sdks         regenerate both SDK folders from the Plus and SE ROM sources
 build sdktest      run both SDKs' self-tests
 build clean
 ```
@@ -116,3 +121,10 @@ real hardware — Mini vMac has no DaynaPORT, so `net` there just reports
 - **Emulators**: CHIP-8 Arcade VM (`chip8`), MOS 6502 / Apple I Woz Monitor (`emu6502`), and Retro BASIC with polygon/hexagon graphics (`basic`).
 
 See [`docs/MAC_EXEC_AND_RENDERING.md`](docs/MAC_EXEC_AND_RENDERING.md) for the complete technical architecture and documentation.
+
+## Community & Discord
+
+Have questions, want to request features, discuss vintage Mac hardware, or just want to hang out? Come join the community on Discord:
+
+👉 **[Join the PlusOS Discord Server](https://discord.gg/hkpe76G7AU)** (https://discord.gg/hkpe76G7AU)
+

@@ -56,6 +56,20 @@ function Focus-VMac($p) {
     Start-Sleep -Milliseconds 250
 }
 
+# Auto-resolve image and executable paths for portable, self-contained execution
+if (-not (Test-Path $Image)) {
+    $localCandidates = @("$PSScriptRoot\..\images\BOOTTEST.hda", "$PSScriptRoot\..\images\PlusOS.hda", "$PSScriptRoot\..\images\HD60_512 PlusOS.hda", "F:\BOOTTEST.hda")
+    foreach ($cand in $localCandidates) {
+        if (Test-Path $cand) { $Image = (Resolve-Path $cand).Path; break }
+    }
+}
+if (-not (Test-Path $Exe)) {
+    $localExeCandidates = @("$PSScriptRoot\..\Mini vMac (BlueSCSI patched).exe", "$PSScriptRoot\..\Mini vMac.exe", "F:\Mini vMac (BlueSCSI patched).exe", "F:\Mini vMac.exe")
+    foreach ($cand in $localExeCandidates) {
+        if (Test-Path $cand) { $Exe = (Resolve-Path $cand).Path; break }
+    }
+}
+
 switch ($Cmd) {
     'start' {
         Get-Process | Where-Object { $_.ProcessName -like '*vMac*' } | Stop-Process -Force -ErrorAction SilentlyContinue

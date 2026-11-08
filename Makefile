@@ -108,7 +108,7 @@ sdks:
 # ---- install to disk images ------------------------------------------------
 install: all
 	HFSUTILS=$(TOOLCHAIN)/bin $(PY) tools/install.py \
-	    --image "$(IMAGE_REAL)" --image "$(IMAGE_TEST)" \
+	    --image "$(IMAGE_LOCAL)" --image "$(IMAGE_REAL)" --image "$(IMAGE_TEST)" \
 	    --loader $(LOADER) --kernel $(KERNEL) \
 	    $(foreach a,$(APPS),$(if $(wildcard $(BUILD)/apps/$(a).pex),--app $(call UPPER,$(a))=$(BUILD)/apps/$(a).pex,)) \
 	    --kernel-block $(KERNEL_BLOCK) --kernel-blocks $(KERNEL_BLOCKS) --apps-block $(APPS_BLOCK) --hfs
