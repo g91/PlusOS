@@ -4,15 +4,13 @@
 #include "power.h"
 
 static uint32_t last_activity_tick = 0;
-static uint32_t blank_timeout_ticks = 300 * 60; /* 5 minutes */
+static uint32_t blank_timeout_ticks = 0; /* 0 = off by default; safe at boot */
 static int      is_blanked = 0;
-static uint8_t *saved_screen = 0;
 
 void power_init(void)
 {
     last_activity_tick = tick_count();
     is_blanked = 0;
-    saved_screen = 0;
 }
 
 void power_activity(void)
@@ -26,21 +24,18 @@ void power_activity(void)
 void power_blank(int on)
 {
     uint8_t *scr = video_front();
+    uint8_t *bk = video_back();
     if (!scr) return;
 
     if (on && !is_blanked) {
-        /* Save screen to back buffer or temporary stash */
-        if (!saved_screen) {
-            saved_screen = (uint8_t *)kmalloc(512 * 342 / 8);
+        if (bk && bk != scr) {
+            memcpy(bk, scr, 512 * 342 / 8);
         }
-        if (saved_screen) {
-            memcpy(saved_screen, scr, 512 * 342 / 8);
-        }
-        memset(scr, 0, 512 * 342 / 8); /* Blank to pure white/black raster */
+        memset(scr, 0, 512 * 342 / 8);
         is_blanked = 1;
     } else if (!on && is_blanked) {
-        if (saved_screen) {
-            memcpy(scr, saved_screen, 512 * 342 / 8);
+        if (bk && bk != scr) {
+            memcpy(scr, bk, 512 * 342 / 8);
         }
         is_blanked = 0;
     }

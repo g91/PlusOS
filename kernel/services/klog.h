@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <plusos/syscall.h>
 
-#define KLOG_BUF_SIZE 4096
+#define KLOG_BUF_SIZE 2048
 
 void klog_init(void);
 void klog_write(int level, const char *msg, int len);

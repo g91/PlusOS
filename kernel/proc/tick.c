@@ -41,7 +41,6 @@ void tick_c(void)
     sound_vbl_tick();
     sched_on_tick();
     timer_vbl_tick();
-    power_vbl_tick();
     profiler_vbl_tick();
 }
 

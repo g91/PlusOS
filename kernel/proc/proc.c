@@ -40,28 +40,9 @@ static void rq_push(Proc *p)
 
 static Proc *rq_pop(void)
 {
-    if (!run_head) return 0;
-    Proc *best = run_head;
-    Proc *best_prev = 0;
-    Proc *prev = run_head;
-    Proc *curr = run_head->next;
-    while (curr) {
-        if (curr->priority < best->priority) {
-            best = curr;
-            best_prev = prev;
-        }
-        prev = curr;
-        curr = curr->next;
-    }
-    if (best_prev) {
-        best_prev->next = best->next;
-        if (!best->next) run_tail = best_prev;
-    } else {
-        run_head = best->next;
-        if (!run_head) run_tail = 0;
-    }
-    best->next = 0;
-    return best;
+    Proc *p = run_head;
+    if (p) { run_head = p->next; if (!run_head) run_tail = 0; }
+    return p;
 }
 
 /* ---- the switch ----------------------------------------------------------- */

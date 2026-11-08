@@ -42,5 +42,5 @@ IMAGE_TEST  ?= $(SDCARD)/BOOTTEST.hda
 
 # Disk layout (512-byte blocks, relative to the start of the HFS partition)
 KERNEL_BLOCK  := 60000      # kernel image (raw), loaded by the boot block
-KERNEL_BLOCKS := 384        # max kernel size: 384 * 512 = 192 KB
+KERNEL_BLOCKS := 512        # max kernel size: 512 * 512 = 256 KB (safe margin below BufPtr)
 APPS_BLOCK    := 61000      # raw app store (fallback when HFS loading is unavailable)

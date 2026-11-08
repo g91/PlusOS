@@ -5,8 +5,8 @@
 #include <stdint.h>
 #include <plusos/syscall.h>
 
-#define MAX_PIPES 8
-#define PIPE_BUF_SIZE 512
+#define MAX_PIPES 4
+#define PIPE_BUF_SIZE 256
 
 void pipe_init(void);
 int  pipe_create(int *read_fd, int *write_fd, int owner_pid);

@@ -16,7 +16,7 @@
 #define KERNEL_OFFSET (60000 * 512)
 #endif
 #ifndef KERNEL_BYTES
-#define KERNEL_BYTES  (384 * 512)
+#define KERNEL_BYTES  (512 * 512)
 #endif
 
         .text

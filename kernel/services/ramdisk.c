@@ -7,13 +7,7 @@ static uint32_t ramdisk_bitmap[RAMDISK_BLOCKS / 32];
 
 void ramdisk_init(void)
 {
-    /* Allocate 64KB for RAM disk if not already allocated */
-    if (!ramdisk_data) {
-        ramdisk_data = (uint8_t *)kmalloc(RAMDISK_BLOCKS * RAMDISK_BLOCK_SIZE);
-        if (ramdisk_data) {
-            memset(ramdisk_data, 0, RAMDISK_BLOCKS * RAMDISK_BLOCK_SIZE);
-        }
-    }
+    /* Lazy allocation: do not consume 64KB RAM at boot */
     memset(ramdisk_bitmap, 0, sizeof ramdisk_bitmap);
 }
 
@@ -28,8 +22,14 @@ int ramdisk_read(uint32_t block, uint32_t count, void *buf)
 
 int ramdisk_write(uint32_t block, uint32_t count, const void *buf)
 {
-    if (!ramdisk_data || !buf) return -1;
+    if (!buf) return -1;
     if (block + count > RAMDISK_BLOCKS) return -1;
+
+    if (!ramdisk_data) {
+        ramdisk_data = (uint8_t *)kmalloc(RAMDISK_BLOCKS * RAMDISK_BLOCK_SIZE);
+        if (!ramdisk_data) return -1;
+        memset(ramdisk_data, 0, RAMDISK_BLOCKS * RAMDISK_BLOCK_SIZE);
+    }
 
     memcpy(ramdisk_data + (block * RAMDISK_BLOCK_SIZE), buf, count * RAMDISK_BLOCK_SIZE);
     for (uint32_t i = 0; i < count; i++) {

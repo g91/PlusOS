@@ -6,11 +6,11 @@
 
 #define SLAB_CLASSES 5
 static const uint16_t slab_sizes[SLAB_CLASSES] = { 32, 64, 128, 256, 512 };
-#define SLAB_COUNTS_0 32
-#define SLAB_COUNTS_1 32
-#define SLAB_COUNTS_2 16
-#define SLAB_COUNTS_3 16
-#define SLAB_COUNTS_4 8
+#define SLAB_COUNTS_0 16
+#define SLAB_COUNTS_1 16
+#define SLAB_COUNTS_2 8
+#define SLAB_COUNTS_3 4
+#define SLAB_COUNTS_4 4
 
 static uint8_t slab_buf_0[SLAB_COUNTS_0 * 32];
 static uint8_t slab_buf_1[SLAB_COUNTS_1 * 64];
@@ -153,7 +153,7 @@ void kmem_free(void *p)
 
     KMemChunk *chunk = ((KMemChunk *)p) - 1;
     if (chunk->magic != KMEM_MAGIC_HEAD) {
-        corruption_count++;
+        DisposePtr((Ptr)p);
         return;
     }
 
@@ -226,8 +226,10 @@ int kmem_check(void)
 
 void kmem_compact(void)
 {
-    CompactMem(0x20000);
-    PurgeMem(0x20000);
+    if (g_flags & PLUSOS_HAVE_HEAP) {
+        CompactMem(0x10000);
+        PurgeMem(0x10000);
+    }
 }
 
 void kmem_stats(struct plusos_ram_stats *st)
@@ -244,7 +246,7 @@ void kmem_stats(struct plusos_ram_stats *st)
     uint32_t slab_free = 0;
     for (int i = 0; i < SLAB_CLASSES; i++) {
         uint32_t bm = slab_bitmap[i];
-        int max_c = (i == 0 || i == 1) ? 32 : (i == 2 || i == 3 ? 16 : 8);
+        int max_c = (i == 0 || i == 1) ? 16 : (i == 2 ? 8 : 4);
         for (int b = 0; b < max_c; b++) {
             if (bm & (1UL << b)) slab_used += slab_sizes[i];
             else slab_free++;
