@@ -83,6 +83,7 @@ enum {
     IDB_OPEN_EXPLORER_BTN,
     IDB_SAVE_CFG_BTN,
     IDB_INJECT_BTN,
+    IDB_SETUP_ENV_BTN,
     IDB_BUILD_LOG_EDIT
 };
 
@@ -93,6 +94,7 @@ public:
 
     bool create(HINSTANCE hInstance, int nCmdShow, ExplorerWindow* explorerWin);
     HWND get_hwnd() const { return m_hWnd; }
+    std::wstring get_repo_root() const { return m_repoRoot; }
     void show();
     void hide();
 
@@ -152,6 +154,7 @@ private:
     HWND m_hBtnOpenExplorer;
     HWND m_hBtnSaveConfig;
     HWND m_hBtnInjectApp;
+    HWND m_hBtnSetupEnv;
     HWND m_hGroupLog;
     HWND m_hEditBuildLog;
     HFONT m_hConsoleFont;
@@ -159,6 +162,8 @@ private:
     HFONT m_hHeaderFont;
     bool m_populatingApps = false;
     bool m_isBuilding = false;
+    std::wstring m_repoRoot;
+    std::wstring m_blueScsiDrive;
     std::vector<DiscoveredApp> m_discoveredApps;
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -194,5 +199,7 @@ private:
     void on_floppy_finished(DWORD exitCode);
 
     void action_browse_image();
+    void action_setup_environment();
+    void detect_and_init_environment();
     void action_inject_external();
 };

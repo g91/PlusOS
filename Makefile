@@ -31,7 +31,7 @@ KERNEL_CPPFLAGS := $(PLUSOS_CPPFLAGS) -Ikernel -Ikernel/core -Ikernel/cpu -Ikern
                    -Ikernel/drivers -Ikernel/drivers/video -Ikernel/drivers/input -Ikernel/drivers/sound \
                    -Ikernel/services -idirafter $(SDK_SE)/include
 
-.PHONY: all sdks sdklibs sdktest install clean kernel loader apps floppy
+.PHONY: all sdks sdklibs sdktest install clean kernel loader apps floppy studio
 all: sdklibs $(LOADER) $(KERNEL) apps
 	@$(SIZE) $(BUILD)/kernel/kernel.elf | tail -1 | awk '{print "kernel: text " $$1 "  data " $$2 "  bss " $$3}'
 
@@ -130,6 +130,13 @@ floppy: all
 	@$(CC) -m68000 -DKERNEL_OFFSET=51200 -DKERNEL_BYTES=184320 -c boot/loader.S -o $(BUILD)/boot/loader_floppy.o
 	@$(OBJCOPY) -O binary $(BUILD)/boot/loader_floppy.o $(BUILD)/boot/loader_floppy.bin
 	@python3 tools/make_floppy.py --output images/PlusOS_Floppy.dsk
+
+# ---- native linux disk studio & image manager -------------------------------
+studio:
+	@echo "Compiling native Linux PlusOS Disk Studio..."
+	@g++ -O2 -std=c++17 tools/disk_studio/studio_linux.cpp tools/disk_studio/disk_image.cpp tools/disk_studio/hfs_filesystem.cpp -o PlusOSDiskStudio_linux
+	@chmod +x PlusOSDiskStudio_linux
+	@echo "Ready: ./PlusOSDiskStudio_linux"
 
 clean:
 	rm -rf $(BUILD)

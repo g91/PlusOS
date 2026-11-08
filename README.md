@@ -58,6 +58,10 @@ The studio features two distinct, dedicated dialogues:
   - **Remove Selected**: Instantly uncheck built-in packages or delete custom external imports.
   - Only checked packages are copied into `:bin:` and `:Games:` (and raw fallback store) when compiling and building the hard drive image.
 - **Build Bootable Floppy (.dsk)**: One-click builder that generates `images/PlusOS_Floppy.dsk` (1.44M/800K Macintosh HFS floppy) containing only essential boot files and the hard drive installer (zero games).
+- **Setup Environment & Dependencies**: One-click action button that installs companion Python packages (`pip install -r requirements.txt` for `machfs`, `pyserial`, `requests`, `urllib3`), verifies your Linux cross-compilation environment (WSL Ubuntu), and guides you through automated setup.
+- **Universal Portability & Repository Auto-Download**: Fully portable across any folder or drive letter without hardcoded paths. If the PlusOS repository is not detected, Disk Studio automatically offers to download and initialize the build environment from GitHub (`https://github.com/g91/PlusOS.git`).
+- **Universal BlueSCSI Hardware Discovery**: Scans removable drive letters `D:` through `Z:` to automatically detect BlueSCSI SD cards (`BOOTTEST.hda`, `bluescsi.ini`, `HD60_512 PlusOS.hda`) without assuming a specific drive letter.
+- **Mandatory PlusOS Shell Lock**: The core runtime environment package (`SHELL`) is permanently locked as selected and required by the kernel across all package selections.
 - **Return to PlusOS Injector**: Configure the target SCSI ID and inject the Classic Mac OS return executable into any disk image or floppy disk image.
 - **Open Hard Drive Explorer**: Dedicated button to switch immediately into the Hard Drive Explorer with the built image.
 
@@ -68,6 +72,21 @@ The studio features two distinct, dedicated dialogues:
 - **File Inspection**: Double-click files for instant metadata and content preview.
 - **Return to PlusOS App Injection**: Inject the native Classic Mac OS executable (`Return to PlusOS`, `APPL`/`PLOS`) into `:Desktop:Return to PlusOS` on the current image, or into any external hard drive or floppy disk image (`.dsk`). Running this app inside Classic Mac OS rewrites Extended PRAM (XPRAM offset `$78`) and issues the Macintosh Toolbox `_Restart` trap (`$A888`), seamlessly returning the computer to PlusOS.
 - **Switch to OS Builder**: Quick button to return to the OS Builder dialogue at any time.
+
+### 3. Native Linux Edition (Run without Windows)
+PlusOS Disk Studio is available as a native compiled Linux binary and universal launcher:
+- **Direct CLI / TUI Launcher**: Run `./PlusOSDiskStudio` in the root repository.
+- **Compile Command**: Run `make studio` to compile `./PlusOSDiskStudio_linux` directly with `g++ -O2 -std=c++17`.
+- **Command-Line & Interactive Modes**:
+  ```bash
+  make studio                                # Compile native Linux binary
+  ./PlusOSDiskStudio                         # Interactive TUI Disk Studio
+  ./PlusOSDiskStudio info images/PlusOS.hda  # Inspect partition map & volume stats
+  ./PlusOSDiskStudio ls images/PlusOS.hda    # List files with types and sizes
+  ./PlusOSDiskStudio build                   # Compile kernel and install images
+  ./PlusOSDiskStudio floppy                  # Build bootable floppy (.dsk)
+  ./PlusOSDiskStudio setup                   # Install python pip dependencies
+  ```
 
 ---
 

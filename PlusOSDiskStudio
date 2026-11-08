@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# =========================================================================
+# PlusOS Disk Studio - Universal Native Linux Launcher
+# =========================================================================
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$DIR"
+
+# Ensure binary is built
+if [ ! -f "$DIR/PlusOSDiskStudio_linux" ]; then
+    echo "Building native Linux PlusOS Disk Studio binary..."
+    make studio
+fi
+
+# Run native Linux Disk Studio
+exec "$DIR/PlusOSDiskStudio_linux" "$@"

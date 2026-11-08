@@ -149,6 +149,132 @@ static std::wstring format_size_human(uint64_t bytes) {
     return b;
 }
 
+static std::wstring win_to_wsl_path(const std::wstring& winPath) {
+    if (winPath.length() >= 2 && winPath[1] == L':') {
+        WCHAR drive = (WCHAR)towlower(winPath[0]);
+        std::wstring rest = winPath.substr(2);
+        for (auto& c : rest) {
+            if (c == L'\\') c = L'/';
+        }
+        return L"/mnt/" + std::wstring(1, drive) + rest;
+    }
+    return winPath;
+}
+
+static std::wstring find_bluescsi_drive() {
+    for (WCHAR letter = L'D'; letter <= L'Z'; letter++) {
+        std::wstring root = std::wstring(1, letter) + L":\\";
+        UINT dt = GetDriveTypeW(root.c_str());
+        if (dt == DRIVE_REMOVABLE || dt == DRIVE_FIXED) {
+            if (GetFileAttributesW((root + L"BOOTTEST.hda").c_str()) != INVALID_FILE_ATTRIBUTES ||
+                GetFileAttributesW((root + L"HD60_512 PlusOS.hda").c_str()) != INVALID_FILE_ATTRIBUTES ||
+                GetFileAttributesW((root + L"bluescsi.ini").c_str()) != INVALID_FILE_ATTRIBUTES ||
+                GetFileAttributesW((root + L"NE4.hda").c_str()) != INVALID_FILE_ATTRIBUTES) {
+                return root;
+            }
+        }
+    }
+    return L"";
+}
+
+static bool dir_has_repo(const std::wstring& path) {
+    if (path.empty()) return false;
+    std::wstring mk = path + L"\\Makefile";
+    std::wstring kr = path + L"\\kernel";
+    return (GetFileAttributesW(mk.c_str()) != INVALID_FILE_ATTRIBUTES &&
+            GetFileAttributesW(kr.c_str()) != INVALID_FILE_ATTRIBUTES);
+}
+
+static std::wstring detect_repository_root() {
+    WCHAR szExe[MAX_PATH] = { 0 };
+    GetModuleFileNameW(nullptr, szExe, MAX_PATH);
+    std::wstring exeDir = szExe;
+    size_t lastSlash = exeDir.find_last_of(L"\\/");
+    if (lastSlash != std::wstring::npos) exeDir = exeDir.substr(0, lastSlash);
+
+    // 1. Directory where exe is located
+    if (dir_has_repo(exeDir)) return exeDir;
+
+    // 2. Parent directory (e.g. tools/disk_studio/ -> repo root)
+    size_t pSlash = exeDir.find_last_of(L"\\/");
+    if (pSlash != std::wstring::npos) {
+        std::wstring parent = exeDir.substr(0, pSlash);
+        if (dir_has_repo(parent)) return parent;
+
+        // 3. Grandparent
+        size_t gpSlash = parent.find_last_of(L"\\/");
+        if (gpSlash != std::wstring::npos) {
+            std::wstring gp = parent.substr(0, gpSlash);
+            if (dir_has_repo(gp)) return gp;
+        }
+    }
+
+    // 4. Current working directory
+    WCHAR szCwd[MAX_PATH] = { 0 };
+    GetCurrentDirectoryW(MAX_PATH, szCwd);
+    if (dir_has_repo(szCwd)) return szCwd;
+
+    // 5. Check subfolder 'PlusOS'
+    if (dir_has_repo(exeDir + L"\\PlusOS")) return exeDir + L"\\PlusOS";
+    if (dir_has_repo(std::wstring(szCwd) + L"\\PlusOS")) return std::wstring(szCwd) + L"\\PlusOS";
+
+    // 6. Fallback
+    if (dir_has_repo(L"C:\\Users\\Evil\\PlusOS")) return L"C:\\Users\\Evil\\PlusOS";
+
+    return L"";
+}
+
+void BuilderWindow::detect_and_init_environment()
+{
+    m_repoRoot = detect_repository_root();
+    if (m_repoRoot.empty()) {
+        WCHAR szExe[MAX_PATH] = { 0 };
+        GetModuleFileNameW(nullptr, szExe, MAX_PATH);
+        std::wstring targetDir = szExe;
+        size_t lastSlash = targetDir.find_last_of(L"\\/");
+        if (lastSlash != std::wstring::npos) targetDir = targetDir.substr(0, lastSlash);
+
+        std::wstring msg = L"PlusOS source repository was not found in this folder:\r\n" + targetDir +
+            L"\r\n\r\nWould you like Disk Studio to automatically download and configure the PlusOS repository here?\r\n\r\n"
+            L"Source: https://github.com/g91/PlusOS.git";
+        int choice = MessageBoxW(nullptr, msg.c_str(), L"Download PlusOS Repository", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1);
+        if (choice == IDYES) {
+            std::wstring psCmd = L"powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \""
+                L"$ProgressPreference = 'SilentlyContinue'; "
+                L"Set-Location -LiteralPath '" + targetDir + L"'; "
+                L"if (Get-Command git -ErrorAction SilentlyContinue) { "
+                L"    git clone https://github.com/g91/PlusOS.git . "
+                L"} else { "
+                L"    Invoke-WebRequest -Uri 'https://github.com/g91/PlusOS/archive/refs/heads/main.zip' -OutFile 'plusos.zip'; "
+                L"    Expand-Archive -Path 'plusos.zip' -DestinationPath 'temp_plusos' -Force; "
+                L"    Copy-Item -Path 'temp_plusos\\PlusOS-main\\*' -Destination '.' -Recurse -Force; "
+                L"    Remove-Item -Path 'temp_plusos', 'plusos.zip' -Recurse -Force; "
+                L"}\"";
+            STARTUPINFOW si = { sizeof(si) };
+            PROCESS_INFORMATION pi = {};
+            si.dwFlags = STARTF_USESHOWWINDOW;
+            si.wShowWindow = SW_HIDE;
+            std::vector<WCHAR> cmdVec(psCmd.begin(), psCmd.end());
+            cmdVec.push_back(0);
+            if (CreateProcessW(nullptr, cmdVec.data(), nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr, targetDir.c_str(), &si, &pi)) {
+                WaitForSingleObject(pi.hProcess, 90000);
+                CloseHandle(pi.hProcess);
+                CloseHandle(pi.hThread);
+            }
+            if (dir_has_repo(targetDir)) {
+                m_repoRoot = targetDir;
+            } else {
+                m_repoRoot = targetDir;
+            }
+        } else {
+            m_repoRoot = targetDir;
+        }
+    }
+
+    m_blueScsiDrive = find_bluescsi_drive();
+    m_cfg.image_path = m_repoRoot + L"\\images\\PlusOS.hda";
+}
+
 BuilderWindow::BuilderWindow()
     : m_hInstance(nullptr), m_hWnd(nullptr), m_explorerWin(nullptr),
       m_hComboHardware(nullptr), m_hEditImagePath(nullptr), m_hBtnBrowseImage(nullptr),
@@ -163,10 +289,11 @@ BuilderWindow::BuilderWindow()
       m_hBtnAppsRemove(nullptr), m_hStaticBaseSystem(nullptr), m_hStaticAppCount(nullptr),
       m_hStaticTotalDisk(nullptr), m_hStaticFloppyStatus(nullptr), m_hStaticFloppyTip(nullptr),
       m_hBtnBuildImage(nullptr), m_hBtnBuildFloppy(nullptr), m_hBtnOpenExplorer(nullptr),
-      m_hBtnSaveConfig(nullptr), m_hBtnInjectApp(nullptr), m_hGroupLog(nullptr), m_hEditBuildLog(nullptr),
+      m_hBtnSaveConfig(nullptr), m_hBtnInjectApp(nullptr), m_hBtnSetupEnv(nullptr),
+      m_hGroupLog(nullptr), m_hEditBuildLog(nullptr),
       m_hConsoleFont(nullptr), m_hBoldFont(nullptr), m_hHeaderFont(nullptr)
 {
-    m_cfg.image_path = L"C:\\Users\\Evil\\PlusOS\\images\\PlusOS.hda";
+    detect_and_init_environment();
     m_cfg.greeting = L"PlusOS 2.0 (Dual-Boot Mac Edition)";
 
     // Default boot entries
@@ -232,6 +359,12 @@ bool BuilderWindow::create(HINSTANCE hInstance, int nCmdShow, ExplorerWindow* ex
     UpdateWindow(m_hWnd);
 
     append_log(L"=== PlusOS OS Studio & Builder Ready ===");
+    append_log(L"Repository Root: " + m_repoRoot);
+    if (!m_blueScsiDrive.empty()) {
+        append_log(L"BlueSCSI Storage: " + m_blueScsiDrive + L" (Removable drive detected)");
+    } else {
+        append_log(L"BlueSCSI Storage: Auto-scan active (Insert SD card anytime)");
+    }
     append_log(L"Toolchain: Retro68 GCC (m68k-apple-macos-gcc 16.1.0) & Python3 detected.");
     append_log(L"Ready to configure dual-boot, visual themes, and build the hard drive image.\r\n");
 
@@ -282,12 +415,11 @@ void BuilderWindow::create_controls()
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 375, 57, 75, 24, m_hWnd, (HMENU)IDB_IMAGE_BROWSE_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnBrowseImage, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
-    std::wstring bscsi = L"BlueSCSI (F:): ";
-    if (GetFileAttributesW(L"F:\\BOOTTEST.hda") != INVALID_FILE_ATTRIBUTES ||
-        GetFileAttributesW(L"F:\\HD60_512 PlusOS.hda") != INVALID_FILE_ATTRIBUTES) {
-        bscsi += L"Detected! (BOOTTEST.hda updated on install)";
+    std::wstring bscsi;
+    if (!m_blueScsiDrive.empty()) {
+        bscsi = L"BlueSCSI (" + m_blueScsiDrive.substr(0, 2) + L"): Detected! (" + m_blueScsiDrive + L"BOOTTEST.hda updated on install)";
     } else {
-        bscsi += L"No SD card at F: (using local PlusOS.hda)";
+        bscsi = L"BlueSCSI: Auto-scan (No BlueSCSI SD card detected; using local PlusOS.hda)";
     }
     m_hStaticBlueSCSI = CreateWindowExW(0, L"STATIC", bscsi.c_str(), WS_CHILD | WS_VISIBLE, 25, 90, 425, 20, m_hWnd, nullptr, m_hInstance, nullptr);
     SendMessageW(m_hStaticBlueSCSI, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
@@ -413,28 +545,32 @@ void BuilderWindow::create_controls()
 
     // Group 4: Build Execution & Disk Manager
     HWND grpActions = CreateWindowExW(0, L"BUTTON", L" 4. Build Execution & Disk Manager ",
-        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 15, 520, 450, 195, m_hWnd, nullptr, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 15, 510, 450, 205, m_hWnd, nullptr, m_hInstance, nullptr);
     SendMessageW(grpActions, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
     m_hBtnBuildImage = CreateWindowExW(0, L"BUTTON", L"Compile & Build Hard Drive Image",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_DEFPUSHBUTTON, 25, 545, 210, 36, m_hWnd, (HMENU)IDB_BUILD_BTN, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_DEFPUSHBUTTON, 25, 532, 210, 32, m_hWnd, (HMENU)IDB_BUILD_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnBuildImage, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
     m_hBtnBuildFloppy = CreateWindowExW(0, L"BUTTON", L"Build Bootable Floppy (.dsk)",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 245, 545, 210, 36, m_hWnd, (HMENU)IDB_BUILD_FLOPPY_BTN, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 245, 532, 210, 32, m_hWnd, (HMENU)IDB_BUILD_FLOPPY_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnBuildFloppy, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
     m_hBtnOpenExplorer = CreateWindowExW(0, L"BUTTON", L"Open Disk Explorer / Manager",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 590, 210, 32, m_hWnd, (HMENU)IDB_OPEN_EXPLORER_BTN, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 568, 210, 30, m_hWnd, (HMENU)IDB_OPEN_EXPLORER_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnOpenExplorer, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnSaveConfig = CreateWindowExW(0, L"BUTTON", L"Save Configuration",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 245, 590, 210, 32, m_hWnd, (HMENU)IDB_SAVE_CFG_BTN, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 245, 568, 210, 30, m_hWnd, (HMENU)IDB_SAVE_CFG_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnSaveConfig, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnInjectApp = CreateWindowExW(0, L"BUTTON", L"Inject 'Return to PlusOS' to External Disk / Floppy...",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 632, 430, 32, m_hWnd, (HMENU)IDB_INJECT_BTN, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 602, 430, 30, m_hWnd, (HMENU)IDB_INJECT_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnInjectApp, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+
+    m_hBtnSetupEnv = CreateWindowExW(0, L"BUTTON", L"Setup Environment & Dependencies (Pip / WSL)...",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 636, 430, 30, m_hWnd, (HMENU)IDB_SETUP_ENV_BTN, m_hInstance, nullptr);
+    SendMessageW(m_hBtnSetupEnv, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     // Group 5: Software Applications & Floppy Capacity (Column 2)
     HWND grpApps = CreateWindowExW(0, L"BUTTON", L" 5. Software Packages & Floppy Capacity ",
@@ -599,7 +735,8 @@ void BuilderWindow::update_cfg_from_controls()
 
 void BuilderWindow::load_config_from_file()
 {
-    std::ifstream in("C:\\Users\\Evil\\PlusOS\\multiboot.cfg");
+    std::string cfgPath = to_narrow(m_repoRoot) + "\\multiboot.cfg";
+    std::ifstream in(cfgPath);
     if (!in.is_open()) return;
 
     std::vector<MultiBootEntry> entries;
@@ -648,6 +785,7 @@ void BuilderWindow::load_config_from_file()
                         m_cfg.included_apps.insert(item);
                     }
                 }
+                m_cfg.included_apps.insert("SHELL"); // SHELL is always mandatory
             }
             else if (k == "custom_apps") {
                 m_cfg.custom_apps.clear();
@@ -687,7 +825,8 @@ bool BuilderWindow::save_config_to_file()
 {
     update_cfg_from_controls();
 
-    std::ofstream out("C:\\Users\\Evil\\PlusOS\\multiboot.cfg");
+    std::string cfgPath = to_narrow(m_repoRoot) + "\\multiboot.cfg";
+    std::ofstream out(cfgPath);
     if (!out.is_open()) return false;
 
     out << "# PlusOS Multi-Boot & System Configuration\r\n";
@@ -802,7 +941,7 @@ uint64_t BuilderWindow::get_app_size_bytes(const std::string& name)
     // Check build/apps/<lower>.pex
     std::string lower = name;
     for (auto& c : lower) c = (char)tolower(c);
-    std::wstring p = L"C:\\Users\\Evil\\PlusOS\\build\\apps\\" + to_wide(lower) + L".pex";
+    std::wstring p = m_repoRoot + L"\\build\\apps\\" + to_wide(lower) + L".pex";
     uint64_t sz = get_file_size_on_disk(p);
     if (sz > 0) return sz;
 
@@ -840,13 +979,13 @@ uint64_t BuilderWindow::get_total_selected_size_bytes()
 uint64_t BuilderWindow::get_base_system_bytes() const
 {
     // 1. Boot blocks: Sectors 0 & 1 (loader.bin)
-    std::wstring bootPath = L"C:\\Users\\Evil\\PlusOS\\build\\boot\\loader.bin";
+    std::wstring bootPath = m_repoRoot + L"\\build\\boot\\loader.bin";
     uint64_t bootSz = get_file_size_on_disk(bootPath);
     if (bootSz == 0) bootSz = 1024;
     else bootSz = (bootSz + 511) / 512 * 512;
 
     // 2. PlusOS Kernel binary (kernel.pex)
-    std::wstring kernPath = L"C:\\Users\\Evil\\PlusOS\\build\\kernel\\kernel.pex";
+    std::wstring kernPath = m_repoRoot + L"\\build\\kernel\\kernel.pex";
     uint64_t kernSz = get_file_size_on_disk(kernPath);
     if (kernSz == 0) kernSz = 165 * 1024;
     else kernSz = (kernSz + 511) / 512 * 512;
@@ -867,7 +1006,7 @@ uint64_t BuilderWindow::get_total_bootable_size_bytes()
 
 void BuilderWindow::scan_compile_directory()
 {
-    std::wstring searchPattern = L"C:\\Users\\Evil\\PlusOS\\build\\apps\\*.pex";
+    std::wstring searchPattern = m_repoRoot + L"\\build\\apps\\*.pex";
     WIN32_FIND_DATAW fd;
     HANDLE hFind = FindFirstFileW(searchPattern.c_str(), &fd);
     if (hFind == INVALID_HANDLE_VALUE) return;
@@ -897,7 +1036,7 @@ void BuilderWindow::scan_compile_directory()
             auto it = std::find_if(m_discoveredApps.begin(), m_discoveredApps.end(),
                 [&](const DiscoveredApp& da) { return da.name == appName; });
 
-            std::wstring fullPath = L"C:\\Users\\Evil\\PlusOS\\build\\apps\\" + std::wstring(fd.cFileName);
+            std::wstring fullPath = m_repoRoot + L"\\build\\apps\\" + std::wstring(fd.cFileName);
             uint64_t sz = ((uint64_t)fd.nFileSizeHigh << 32) | fd.nFileSizeLow;
 
             if (it == m_discoveredApps.end()) {
@@ -942,9 +1081,14 @@ void BuilderWindow::populate_apps_list()
         std::wstring szStr = format_size_human(sz);
         ListView_SetItemText(m_hListViewApps, rowIndex, 2, (LPWSTR)szStr.c_str());
 
-        ListView_SetItemText(m_hListViewApps, rowIndex, 3, (LPWSTR)L"Built-in");
+        bool isShell = (_stricmp(ALL_BUILTIN_APPS[i].name, "SHELL") == 0);
+        if (isShell) {
+            ListView_SetItemText(m_hListViewApps, rowIndex, 3, (LPWSTR)L"Built-in (Required)");
+        } else {
+            ListView_SetItemText(m_hListViewApps, rowIndex, 3, (LPWSTR)L"Built-in");
+        }
 
-        bool checked = (m_cfg.included_apps.find(ALL_BUILTIN_APPS[i].name) != m_cfg.included_apps.end());
+        bool checked = isShell || (m_cfg.included_apps.find(ALL_BUILTIN_APPS[i].name) != m_cfg.included_apps.end());
         ListView_SetCheckState(m_hListViewApps, rowIndex, checked ? TRUE : FALSE);
         rowIndex++;
     }
@@ -1069,13 +1213,22 @@ void BuilderWindow::sync_included_apps_from_list()
 {
     if (m_populatingApps || !m_hListViewApps) return;
     m_cfg.included_apps.clear();
+    m_cfg.included_apps.insert("SHELL"); // SHELL is always mandatory
+
     int total = ListView_GetItemCount(m_hListViewApps);
     for (int i = 0; i < total; i++) {
-        if (ListView_GetCheckState(m_hListViewApps, i)) {
-            WCHAR buf[128] = L"";
-            ListView_GetItemText(m_hListViewApps, i, 0, buf, 128);
-            std::string name = to_narrow(buf);
-            for (auto& ch : name) ch = (char)toupper(ch);
+        WCHAR buf[128] = L"";
+        ListView_GetItemText(m_hListViewApps, i, 0, buf, 128);
+        std::string name = to_narrow(buf);
+        for (auto& ch : name) ch = (char)toupper(ch);
+
+        if (name == "SHELL") {
+            if (!ListView_GetCheckState(m_hListViewApps, i)) {
+                m_populatingApps = true;
+                ListView_SetCheckState(m_hListViewApps, i, TRUE);
+                m_populatingApps = false;
+            }
+        } else if (ListView_GetCheckState(m_hListViewApps, i)) {
             if (!name.empty()) {
                 m_cfg.included_apps.insert(name);
             }
@@ -1102,7 +1255,13 @@ void BuilderWindow::on_apps_select_none()
     m_populatingApps = true;
     int total = ListView_GetItemCount(m_hListViewApps);
     for (int i = 0; i < total; i++) {
-        ListView_SetCheckState(m_hListViewApps, i, FALSE);
+        WCHAR buf[128] = L"";
+        ListView_GetItemText(m_hListViewApps, i, 0, buf, 128);
+        if (_wcsicmp(buf, L"SHELL") == 0) {
+            ListView_SetCheckState(m_hListViewApps, i, TRUE); // Keep SHELL always selected
+        } else {
+            ListView_SetCheckState(m_hListViewApps, i, FALSE);
+        }
     }
     m_populatingApps = false;
     sync_included_apps_from_list();
@@ -1114,9 +1273,11 @@ void BuilderWindow::on_apps_sys_only()
     m_populatingApps = true;
     int total = ListView_GetItemCount(m_hListViewApps);
     for (int i = 0; i < total; i++) {
+        WCHAR buf[128] = L"";
+        ListView_GetItemText(m_hListViewApps, i, 0, buf, 128);
         WCHAR cat[64] = L"";
         ListView_GetItemText(m_hListViewApps, i, 1, cat, 64);
-        bool isSys = (wcscmp(cat, L"System") == 0 || wcscmp(cat, L"Tools") == 0);
+        bool isSys = (wcscmp(cat, L"System") == 0 || wcscmp(cat, L"Tools") == 0 || _wcsicmp(buf, L"SHELL") == 0);
         ListView_SetCheckState(m_hListViewApps, i, isSys ? TRUE : FALSE);
     }
     m_populatingApps = false;
@@ -1129,10 +1290,13 @@ void BuilderWindow::on_apps_games_only()
     m_populatingApps = true;
     int total = ListView_GetItemCount(m_hListViewApps);
     for (int i = 0; i < total; i++) {
+        WCHAR buf[128] = L"";
+        ListView_GetItemText(m_hListViewApps, i, 0, buf, 128);
         WCHAR cat[64] = L"";
         ListView_GetItemText(m_hListViewApps, i, 1, cat, 64);
         bool isGame = (wcscmp(cat, L"Games") == 0);
-        ListView_SetCheckState(m_hListViewApps, i, isGame ? TRUE : FALSE);
+        bool isShell = (_wcsicmp(buf, L"SHELL") == 0);
+        ListView_SetCheckState(m_hListViewApps, i, (isGame || isShell) ? TRUE : FALSE);
     }
     m_populatingApps = false;
     sync_included_apps_from_list();
@@ -1180,6 +1344,14 @@ void BuilderWindow::on_apps_remove_selected()
     ListView_GetItemText(m_hListViewApps, sel, 0, nameBuf, 128);
     std::string appName = to_narrow(nameBuf);
     for (auto& ch : appName) ch = (char)toupper(ch);
+
+    if (appName == "SHELL") {
+        MessageBoxW(m_hWnd,
+            L"The PlusOS Command Shell ('SHELL') is the core operating system runtime environment.\r\n\r\n"
+            L"It is required by the kernel and cannot be removed or unselected.",
+            L"Required System Package", MB_ICONINFORMATION | MB_OK);
+        return;
+    }
 
     auto it = m_cfg.custom_apps.find(appName);
     if (it != m_cfg.custom_apps.end()) {
@@ -1362,9 +1534,16 @@ void BuilderWindow::action_build_image()
     append_log(L"Default Theme: " + std::to_wstring(m_cfg.theme));
     append_log(L"Running 'make install' asynchronously in worker thread...");
 
-    std::wstring rootDir = L"C:\\Users\\Evil\\PlusOS";
-    std::wstring cmd = L"wsl.exe -d Ubuntu --cd /mnt/c/Users/Evil/PlusOS -- make install";
-    std::wstring fallbackCmd = L"cmd.exe /c \"call C:\\Users\\Evil\\PlusOS\\build.bat install\"";
+    std::wstring rootDir = m_repoRoot;
+    std::wstring wslRepo = win_to_wsl_path(m_repoRoot);
+    std::wstring extraMake = L"";
+    if (!m_blueScsiDrive.empty()) {
+        std::wstring wslDrive = win_to_wsl_path(m_blueScsiDrive);
+        while (!wslDrive.empty() && wslDrive.back() == L'/') wslDrive.pop_back();
+        extraMake = L" SDCARD=" + wslDrive;
+    }
+    std::wstring cmd = L"wsl.exe -d Ubuntu --cd " + wslRepo + L" -- make install" + extraMake;
+    std::wstring fallbackCmd = L"cmd.exe /c \"cd /d \"" + m_repoRoot + L"\" && call build.bat install\"";
 
     RunProcessAsyncWithLogging(m_hWnd, WM_BUILD_COMPLETED, cmd, fallbackCmd, rootDir);
 }
@@ -1462,9 +1641,10 @@ void BuilderWindow::action_build_floppy()
     append_log(L"Essential boot binaries & installer included (zero games).");
     append_log(L"Running 'make floppy' asynchronously in worker thread...");
 
-    std::wstring rootDir = L"C:\\Users\\Evil\\PlusOS";
-    std::wstring cmd = L"wsl.exe -d Ubuntu --cd /mnt/c/Users/Evil/PlusOS -- bash -l -c \"make floppy\"";
-    std::wstring fallbackCmd = L"cmd.exe /c \"call C:\\Users\\Evil\\PlusOS\\build.bat floppy\"";
+    std::wstring rootDir = m_repoRoot;
+    std::wstring wslRepo = win_to_wsl_path(m_repoRoot);
+    std::wstring cmd = L"wsl.exe -d Ubuntu --cd " + wslRepo + L" -- bash -l -c \"make floppy\"";
+    std::wstring fallbackCmd = L"cmd.exe /c \"cd /d \"" + m_repoRoot + L"\" && call build.bat floppy\"";
 
     RunProcessAsyncWithLogging(m_hWnd, WM_FLOPPY_COMPLETED, cmd, fallbackCmd, rootDir);
 }
@@ -1485,7 +1665,7 @@ void BuilderWindow::on_floppy_finished(DWORD exitCode)
             L"Bootable minimal installer floppy generated successfully!\r\n(images\\PlusOS_Floppy.dsk)\r\n\r\nWould you like to open it in the Disk Explorer now?",
             L"Floppy Build Successful", MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON1);
         if (c == IDYES && m_explorerWin) {
-            m_explorerWin->open_image(L"C:\\Users\\Evil\\PlusOS\\images\\PlusOS_Floppy.dsk");
+            m_explorerWin->open_image(m_repoRoot + L"\\images\\PlusOS_Floppy.dsk");
             m_explorerWin->show();
         }
     } else {
@@ -1493,6 +1673,55 @@ void BuilderWindow::on_floppy_finished(DWORD exitCode)
         append_log(L"[ERROR] Floppy build finished with exit code: " + std::to_wstring(exitCode));
         MessageBoxW(m_hWnd, L"Floppy build failed or completed with errors.", L"Build Warning", MB_ICONWARNING | MB_OK);
     }
+}
+
+void BuilderWindow::action_setup_environment()
+{
+    append_log(L"\r\n==================================================");
+    append_log(L"[SETUP] Setting Up Portable PlusOS Build Environment");
+    append_log(L"Repository Directory: " + m_repoRoot);
+
+    // 1. Python Pip Dependencies
+    append_log(L"[1/2] Installing companion Python dependencies (machfs, pyserial, requests, urllib3)...");
+    std::wstring pipCmd = L"cmd.exe /c \"cd /d \"" + m_repoRoot + L"\" && (py -m pip install -r requirements.txt || python -m pip install -r requirements.txt || pip install -r requirements.txt)\"";
+
+    // 2. WSL Ubuntu Verification
+    append_log(L"[2/2] Verifying Linux build environment (WSL Ubuntu)...");
+    STARTUPINFOW si = { sizeof(si) };
+    PROCESS_INFORMATION pi = {};
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    WCHAR wslCheck[] = L"wsl.exe -d Ubuntu -- uname -a";
+    bool wslOk = false;
+    if (CreateProcessW(nullptr, wslCheck, nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
+        DWORD ec = 1;
+        WaitForSingleObject(pi.hProcess, 5000);
+        GetExitCodeProcess(pi.hProcess, &ec);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        wslOk = (ec == 0);
+    }
+
+    if (wslOk) {
+        append_log(L"[OK] Linux build environment (WSL Ubuntu) is active.");
+        append_log(L"[OK] Ready for Motorola 68000 cross-compilation with Retro68 GCC.");
+    } else {
+        append_log(L"--------------------------------------------------");
+        append_log(L"[WARNING] WSL Ubuntu is not detected or not installed!");
+        append_log(L"[ACTION REQUIRED] PlusOS cross-compiles Motorola 68000 code via Linux.");
+        append_log(L"                  Open PowerShell as Administrator and execute:");
+        append_log(L"                  wsl --install -d Ubuntu");
+        append_log(L"--------------------------------------------------");
+        MessageBoxW(m_hWnd,
+            L"Linux Build Environment Required (WSL Ubuntu)\r\n\r\n"
+            L"PlusOS builds Motorola 68000 kernel binaries and ROM libraries using GCC in Linux.\r\n\r\n"
+            L"To enable compiling on this machine, please run the following command in PowerShell (Run as Administrator):\r\n\r\n"
+            L"    wsl --install -d Ubuntu\r\n\r\n"
+            L"Once Ubuntu is installed, restart Disk Studio or click 'Setup Environment' again.",
+            L"Linux Environment Setup", MB_ICONINFORMATION | MB_OK);
+    }
+
+    RunProcessAsyncWithLogging(m_hWnd, WM_NULL, pipCmd, L"", m_repoRoot);
 }
 
 void BuilderWindow::action_inject_external()
@@ -1577,6 +1806,7 @@ LRESULT BuilderWindow::handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
             }
             break;
         case IDB_INJECT_BTN: action_inject_external(); break;
+        case IDB_SETUP_ENV_BTN: action_setup_environment(); break;
         case IDB_BOOT_ADD_BTN: on_boot_add(); break;
         case IDB_BOOT_EDIT_BTN: on_boot_edit(); break;
         case IDB_BOOT_REMOVE_BTN: on_boot_remove(); break;
@@ -1598,6 +1828,19 @@ LRESULT BuilderWindow::handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
             NMLISTVIEW* pnmv = (NMLISTVIEW*)lParam;
             if ((pnmv->uChanged & LVIF_STATE) &&
                 ((pnmv->uOldState & LVIS_STATEIMAGEMASK) != (pnmv->uNewState & LVIS_STATEIMAGEMASK))) {
+                if (!m_populatingApps && pnmv->iItem >= 0) {
+                    WCHAR itemBuf[128] = L"";
+                    ListView_GetItemText(m_hListViewApps, pnmv->iItem, 0, itemBuf, 128);
+                    if (_wcsicmp(itemBuf, L"SHELL") == 0) {
+                        if (!ListView_GetCheckState(m_hListViewApps, pnmv->iItem)) {
+                            // User clicked to uncheck SHELL: force it back immediately!
+                            m_populatingApps = true;
+                            ListView_SetCheckState(m_hListViewApps, pnmv->iItem, TRUE);
+                            m_populatingApps = false;
+                            append_log(L"[NOTICE] PlusOS Command Shell ('SHELL') is the core runtime environment and cannot be unselected.");
+                        }
+                    }
+                }
                 sync_included_apps_from_list();
             }
         }

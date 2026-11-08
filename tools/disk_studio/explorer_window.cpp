@@ -102,7 +102,10 @@ void ExplorerWindow::show(const std::wstring& imagePath)
         if (!imagePath.empty() && m_disk.get_path() != imagePath) {
             open_image(imagePath);
         } else if (imagePath.empty() && !m_fs.is_mounted()) {
-            open_image(L"C:\\Users\\Evil\\PlusOS\\images\\PlusOS.hda");
+            std::wstring defaultImg = (m_builderWin && !m_builderWin->get_repo_root().empty())
+                ? (m_builderWin->get_repo_root() + L"\\images\\PlusOS.hda")
+                : L"images\\PlusOS.hda";
+            open_image(defaultImg);
         }
     }
 }

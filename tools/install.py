@@ -257,8 +257,9 @@ def install(image, a, apps):
                     print("  discovered new compiled application: %s (%s)" % (app_name, app_path))
 
     if included_set is not None:
+        included_set.add("SHELL")  # PlusOS Command Shell is always mandatory
         orig_count = len(apps)
-        apps = [item for item in apps if item[0].upper() in included_set or item[0].upper() in newly_discovered]
+        apps = [item for item in apps if item[0].upper() in included_set or item[0].upper() in newly_discovered or item[0].upper() == "SHELL"]
         print("  package filter: including %d of %d configured apps" % (len(apps), orig_count))
 
     for cname, cpath in custom_apps:

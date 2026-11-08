@@ -1,6 +1,22 @@
 #include "disk_image.h"
+
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#else
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <cstring>
+#include <cerrno>
+
+static std::string wstr_to_utf8(const std::wstring& w) {
+    std::string s;
+    for (wchar_t c : w) s.push_back((char)c);
+    return s;
+}
+#endif
 
 DiskImage::DiskImage()
     : m_handle(nullptr), m_read_only(false), m_file_size(0),
@@ -20,6 +36,7 @@ bool DiskImage::open(const std::wstring& path, bool read_only, std::string* erro
     m_path = path;
     m_read_only = read_only;
 
+#ifdef _WIN32
     DWORD access = GENERIC_READ | (read_only ? 0 : GENERIC_WRITE);
     DWORD share = FILE_SHARE_READ | (read_only ? FILE_SHARE_WRITE : 0);
 
@@ -59,6 +76,29 @@ bool DiskImage::open(const std::wstring& path, bool read_only, std::string* erro
 
     m_handle = (void*)h;
     m_file_size = (uint64_t)li.QuadPart;
+#else
+    std::string u8path = wstr_to_utf8(path);
+    int fd = ::open(u8path.c_str(), read_only ? O_RDONLY : O_RDWR);
+    if (fd < 0 && !read_only) {
+        fd = ::open(u8path.c_str(), O_RDONLY);
+        if (fd >= 0) m_read_only = true;
+    }
+
+    if (fd < 0) {
+        if (error_msg) *error_msg = strerror(errno);
+        return false;
+    }
+
+    struct stat st;
+    if (fstat(fd, &st) != 0) {
+        ::close(fd);
+        if (error_msg) *error_msg = strerror(errno);
+        return false;
+    }
+
+    m_handle = (void*)(intptr_t)fd;
+    m_file_size = (uint64_t)st.st_size;
+#endif
 
     if (!parse_partition_map(error_msg)) {
         close();
@@ -70,10 +110,16 @@ bool DiskImage::open(const std::wstring& path, bool read_only, std::string* erro
 
 void DiskImage::close()
 {
+#ifdef _WIN32
     if (m_handle && m_handle != INVALID_HANDLE_VALUE) {
         CloseHandle((HANDLE)m_handle);
-        m_handle = nullptr;
     }
+#else
+    if (m_handle) {
+        ::close((int)(intptr_t)m_handle);
+    }
+#endif
+    m_handle = nullptr;
     m_path.clear();
     m_read_only = false;
     m_file_size = 0;
@@ -96,6 +142,7 @@ bool DiskImage::read_blocks(uint32_t block, uint32_t count, void* buffer)
 {
     if (!m_handle || !buffer || count == 0) return false;
 
+#ifdef _WIN32
     LARGE_INTEGER offset;
     offset.QuadPart = (int64_t)block * 512;
 
@@ -108,12 +155,22 @@ bool DiskImage::read_blocks(uint32_t block, uint32_t count, void* buffer)
         return false;
     }
     return true;
+#else
+    int fd = (int)(intptr_t)m_handle;
+    off_t offset = (off_t)block * 512;
+    if (lseek(fd, offset, SEEK_SET) == (off_t)-1) return false;
+
+    ssize_t bytes_to_read = (ssize_t)count * 512;
+    ssize_t bytes_read = ::read(fd, buffer, bytes_to_read);
+    return bytes_read == bytes_to_read;
+#endif
 }
 
 bool DiskImage::write_blocks(uint32_t block, uint32_t count, const void* buffer)
 {
     if (!m_handle || !buffer || count == 0 || m_read_only) return false;
 
+#ifdef _WIN32
     LARGE_INTEGER offset;
     offset.QuadPart = (int64_t)block * 512;
 
@@ -126,6 +183,15 @@ bool DiskImage::write_blocks(uint32_t block, uint32_t count, const void* buffer)
         return false;
     }
     return true;
+#else
+    int fd = (int)(intptr_t)m_handle;
+    off_t offset = (off_t)block * 512;
+    if (lseek(fd, offset, SEEK_SET) == (off_t)-1) return false;
+
+    ssize_t bytes_to_write = (ssize_t)count * 512;
+    ssize_t bytes_written = ::write(fd, buffer, bytes_to_write);
+    return bytes_written == bytes_to_write;
+#endif
 }
 
 bool DiskImage::read_hfs_blocks(uint32_t part_block, uint32_t count, void* buffer)
@@ -141,7 +207,11 @@ bool DiskImage::write_hfs_blocks(uint32_t part_block, uint32_t count, const void
 bool DiskImage::flush()
 {
     if (!m_handle || m_read_only) return false;
+#ifdef _WIN32
     return FlushFileBuffers((HANDLE)m_handle) != 0;
+#else
+    return ::fsync((int)(intptr_t)m_handle) == 0;
+#endif
 }
 
 bool DiskImage::parse_partition_map(std::string* error_msg)
