@@ -49,7 +49,11 @@ static void init_task(void *arg)
     /* The boot setting picks the first program. Holding Option at boot forces
      * the shell, in case the desktop is broken. */
     int option_down = (LM_BYTE(0x174 + 7) & 0x04) != 0;        /* KeyMap: Option = key $3A */
-    int want_desktop = cfg_get(PLUSOS_CFG_BOOT) == PLUSOS_BOOT_DESKTOP && !option_down;
+    int boot_cfg = cfg_get(PLUSOS_CFG_BOOT);
+    if (boot_cfg == PLUSOS_BOOT_MENU && !option_down) {
+        menu_main();
+    }
+    int want_desktop = (boot_cfg == PLUSOS_BOOT_DESKTOP) && !option_down;
     const char *first = want_desktop ? "desktop" : "shell";
     const char *other = want_desktop ? "shell" : "desktop";
     for (;;) {
@@ -84,7 +88,7 @@ __attribute__((noreturn)) void __plusos_kernel_start(void)
 {
     __plusos_run_ctors();
     con_init();
-    printf("PlusOS %s on the %s - %s, %luK RAM\n", PLUSOS_VERSION, plusrom_machine_name(),
+    printf("PlusOS %s by the1Domo on the %s - %s, %luK RAM\n", PLUSOS_VERSION, plusrom_machine_name(),
            cpu_name(), (unsigned long)(ram_bytes() >> 10));
     exc_install();
     printf("Starting the ROM:\n");

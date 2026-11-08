@@ -74,14 +74,15 @@ static void draw_about(Window *w, int l, int t, int r, int b)
 {
     (void)w; (void)r; (void)b;
     char s[44];
-    gfx_text(l + 12, t + 8, "PlusOS 2.0 - Multi-OS Desktop", 0);
+    gfx_text(l + 12, t + 8, "PlusOS 2.0 by the1Domo", 0);
+    gfx_text(l + 12, t + 20, "Multi-OS Desktop Environment", 0);
     snprintf(s, sizeof s, "Theme: %s", plusos_theme_name(cur_theme));
-    gfx_text(l + 12, t + 22, s, 0);
-    gfx_text(l + 12, t + 38, "Switch OS look & feel anytime:", 0);
-    gfx_text(l + 12, t + 50, "Mac 7.1 | Amiga | Win95 | Win98", 0);
-    gfx_text(l + 12, t + 62, "Vista/7 Aero | Hacker Matrix", 0);
-    gfx_text(l + 12, t + 78, "Use Theme menu, Settings, or", 0);
-    gfx_text(l + 12, t + 88, "Cmd+1..6 / `theme` CLI tool.", 0);
+    gfx_text(l + 12, t + 34, s, 0);
+    gfx_text(l + 12, t + 48, "Switch OS look & feel anytime:", 0);
+    gfx_text(l + 12, t + 60, "Mac 7.1 | Amiga | Win95 | Win98", 0);
+    gfx_text(l + 12, t + 72, "Vista/7 Aero | Hacker Matrix", 0);
+    gfx_text(l + 12, t + 86, "Website: plusos.d0a.net", 0);
+    gfx_text(l + 12, t + 98, "Created by the1Domo", 0);
 }
 
 static void draw_info(Window *w, int l, int t, int r, int b)
@@ -192,7 +193,7 @@ static void click_programs(Window *w, int cx, int cy, int dbl)
 
 void open_about(void)
 {
-    Window *w = new_window(WK_ABOUT, "About PlusOS", 40, 44, 272, 118);
+    Window *w = new_window(WK_ABOUT, "About PlusOS", 40, 44, 272, 132);
     if (w) w->draw = draw_about;
 }
 void open_info(void)

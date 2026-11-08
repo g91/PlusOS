@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 {
     (void)argc; (void)argv;
     char line[128];
-    printf("\nPlusOS shell. Programs live in bin - try 'help'.\n");
+    printf("\nPlusOS shell by the1Domo. Programs live in bin - try 'help'.\n");
     for (;;) {
         reap_jobs();
         printf("plus> ");

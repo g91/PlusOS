@@ -146,6 +146,49 @@ def hfs_copy(image, partno, files):
             run("hattrib", "-t", "TEXT", "-c", "PLOS", ":Desktop:Read Me")
             os.unlink(t.name)
             print("  hfs: seeded Desktop/Read Me")
+
+        # Seed Return to PlusOS Mac application on Desktop
+        bin_app = os.path.join(os.path.dirname(__file__), "return_to_plusos", "Return to PlusOS.bin")
+        if os.path.exists(bin_app) and "Return to PlusOS" not in " ".join(have):
+            run("hcopy", "-m", bin_app, ":Desktop:Return to PlusOS")
+            print("  hfs: seeded Desktop/Return to PlusOS")
+
+        # Seed or update multiboot.cfg on volume root
+        repo_cfg = os.path.join(os.path.dirname(os.path.dirname(__file__)), "multiboot.cfg")
+        if os.path.exists(repo_cfg):
+            run("hdel", ":multiboot.cfg")
+            run("hcopy", "-r", repo_cfg, ":multiboot.cfg")
+            run("hattrib", "-t", "TEXT", "-c", "ttxt", ":multiboot.cfg")
+            print("  hfs: installed custom multiboot.cfg from repository root")
+        else:
+            root_files = run("hls", "-1", ":").stdout.split()
+            if "multiboot.cfg" not in root_files:
+                import tempfile
+                cfg_content = (
+                    "# PlusOS Multi-Boot Configuration\r\n"
+                    "boot_pref=2\r\n\r\n"
+                    "[entry]\r\n"
+                    "name=System 7.5.5\r\n"
+                    "id=3\r\n\r\n"
+                    "[entry]\r\n"
+                    "name=System 7.1\r\n"
+                    "id=2\r\n\r\n"
+                    "[entry]\r\n"
+                    "name=System 6.0.8\r\n"
+                    "id=1\r\n\r\n"
+                    "[entry]\r\n"
+                    "name=PlusOS Shell\r\n"
+                    "id=shell\r\n\r\n"
+                    "[entry]\r\n"
+                    "name=PlusOS Desktop\r\n"
+                    "id=desktop\r\n"
+                )
+                with tempfile.NamedTemporaryFile("w", suffix=".cfg", delete=False, newline="") as t:
+                    t.write(cfg_content)
+                run("hcopy", "-r", t.name, ":multiboot.cfg")
+                run("hattrib", "-t", "TEXT", "-c", "ttxt", ":multiboot.cfg")
+                os.unlink(t.name)
+                print("  hfs: seeded multiboot.cfg")
         for name, path in files:
             run("hdel", ":" + name)                    # remove stale root copy from older installs
             dst = ":bin:" + name

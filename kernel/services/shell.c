@@ -17,7 +17,7 @@ static void cmd_help(int, char **);
 static void cmd_cls(int argc, char **argv)  { con_clear(); }
 static void cmd_ver(int argc, char **argv)
 {
-    printf("PlusOS %s on the %s - %s, %luK RAM\n", PLUSOS_VERSION, plusrom_machine_name(), cpu_name(),
+    printf("PlusOS %s by the1Domo on the %s - %s, %luK RAM\n", PLUSOS_VERSION, plusrom_machine_name(), cpu_name(),
            (unsigned long)(ram_bytes() >> 10));
 }
 static void cmd_echo(int argc, char **argv)
@@ -372,7 +372,7 @@ void shell_main(void)
     static char line[128];
     static int banner;
     if (!banner++) {
-        printf("\nPlusOS recovery console (built into the kernel). Type 'help'.\n");
+        printf("\nPlusOS recovery console by the1Domo (built into the kernel). Type 'help'.\n");
     }
     for (;;) {
         con_set_invert(0);

@@ -147,6 +147,7 @@ struct plusos_reap { int pid; };                /* SYS_reapany writes the finish
 #define PLUSOS_CFG_BOOT      1      /* first program at boot: */
 #define PLUSOS_BOOT_SHELL    0      /*   the shell (default) */
 #define PLUSOS_BOOT_DESKTOP  1      /*   the desktop */
+#define PLUSOS_BOOT_MENU     2      /*   the multi-boot menu */
 
 struct plusos_spawn_args { const char *name; int argc; char **argv; };
 struct plusos_readline_args { char *buf; int size; };

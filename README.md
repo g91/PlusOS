@@ -1,8 +1,9 @@
-# PlusOS
+# PlusOS 2.0
 
 A bare-metal operating system for the Macintosh Plus and Macintosh SE,
-written in C on top of the Mac ROM, plus one SDK per machine.
+created by **the1Domo**, written in C on top of the vintage Mac ROM, plus one SDK per machine.
 
+🌐 **Website & Wiki:** [plusos.d0a.net](https://plusos.d0a.net)  
 [![Discord](https://img.shields.io/badge/Discord-Join%20Chat-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/hkpe76G7AU)
 
 <p align="center">
@@ -24,6 +25,36 @@ build sdks         regenerate both SDK folders from the Plus and SE ROM sources
 build sdktest      run both SDKs' self-tests
 build clean
 ```
+
+## PlusOS Disk Studio (GUI OS Builder & Hard Drive Explorer)
+
+Located right in the root of the repository — **`PlusOSDiskStudio.exe`** — this native, high-performance C++ tool lets you customize, compile, dual-boot, and manage Macintosh hard drive and floppy images (`.hda`, `.img`, `.dsk`).
+
+The studio features two distinct, dedicated dialogues:
+
+### 1. OS Builder & Dual-Boot System Configurator
+- **Compile & Build Hard Drive Images**: One-click build pipeline running `make install` inside WSL / `build.bat`, writing the boot blocks, kernel, and applications directly to `images/PlusOS.hda` and connected BlueSCSI SD cards (`F:`).
+- **Dual-Boot & Multi-Boot System Setup**:
+  - Configure the boot behavior: Boot directly into **Mac OS** (System 7.5.5, 7.1, 6.0.8, etc.), **PlusOS Desktop**, **PlusOS Shell**, or the **Interactive Multi-Boot Menu**.
+  - Edit boot records (`multiboot.cfg`): Add custom operating system entries, cycle boot target SCSI IDs (`0`–`7`, Shell, Desktop), remove, and reorder entries.
+  - Set an automated boot countdown timer (in seconds) or manual choice at startup.
+- **Pre-Build OS Customizations & Theming**:
+  - **Visual Themes**: Choose default styling from Mac OS 7.1 Platinum, Commodore Amiga Workbench 1.3/2.0, Windows 95, Windows 98, Windows Vista/7 Aero Glass, or Hacker CRT Dark Mode.
+  - **Wallpapers**: Select between Classic Mac 50% Gray stipple or live animated Matrix Digital Rain.
+  - **Startup Greeting & Hostname**: Set custom welcome greetings and titles.
+  - **App Bundles**: Choose whether to bundle the 17-game retro pack, developer emulators (CHIP-8, 6502, BASIC, 3D), and networking tools.
+- **Return to PlusOS Injector**: Configure the target SCSI ID and inject the Classic Mac OS return executable into any disk image or floppy disk image.
+- **Open Hard Drive Explorer**: Dedicated button to switch immediately into the Hard Drive Explorer with the built image.
+
+### 2. Hard Drive Explorer & Image Manager
+- **Dual-Pane HFS Explorer**: Left pane folder hierarchy tree view and right pane detailed file list (Name, Mac FourCC Type, Creator, Data Size, Resource Fork Size, CNID).
+- **Drag-and-Drop File Import**: Drag any file or application from Windows Explorer directly into the Disk Studio window to import it into the current HFS directory with automatic Mac FourCC type and creator detection.
+- **File Export & Delete**: Export files from vintage Mac disk images directly to your PC, or remove unwanted items.
+- **File Inspection**: Double-click files for instant metadata and content preview.
+- **Return to PlusOS App Injection**: Inject the native Classic Mac OS executable (`Return to PlusOS`, `APPL`/`PLOS`) into `:Desktop:Return to PlusOS` on the current image, or into any external hard drive or floppy disk image (`.dsk`). Running this app inside Classic Mac OS rewrites Extended PRAM (XPRAM offset `$78`) and issues the Macintosh Toolbox `_Restart` trap (`$A888`), seamlessly returning the computer to PlusOS.
+- **Switch to OS Builder**: Quick button to return to the OS Builder dialogue at any time.
+
+---
 
 ## Screenshots
 

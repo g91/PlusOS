@@ -64,7 +64,7 @@ int cfg_set(int key, int value)
     cfg_load();
     switch (key) {
     case PLUSOS_CFG_BOOT:
-        if (value != PLUSOS_BOOT_SHELL && value != PLUSOS_BOOT_DESKTOP) return -1;
+        if (value != PLUSOS_BOOT_SHELL && value != PLUSOS_BOOT_DESKTOP && value != PLUSOS_BOOT_MENU) return -1;
         cfg.boot = (int16_t)value;
         break;
     default:
