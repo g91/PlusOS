@@ -229,3 +229,19 @@ Have questions, want to request features, discuss vintage Mac hardware, or just 
 
 👉 **[Join the PlusOS Discord Server](https://discord.gg/hkpe76G7AU)** (https://discord.gg/hkpe76G7AU)
 
+---
+
+## License
+
+PlusOS 2.0 is designed and created by **the1Domo**.
+
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)** — see the [LICENSE](LICENSE) file for details.
+
+### What this means:
+- **Freedom to Use & Modify**: You are free to run, study, adapt, and build PlusOS for personal or community projects.
+- **Strong Copyleft Protection**: Any distributed derivative works, modifications, or bundled binary images **must** remain open source under the exact same GPL-3.0 license.
+- **No Proprietary Privatization**: No individual or company may take PlusOS, close the source code, or claim exclusive ownership.
+- **Attribution & Notice**: All original copyright banners, author credits to **the1Domo**, and license notices must be preserved.
+- **Warranty Disclaimer**: Provided strictly "AS IS" with no warranty or liability of any kind for vintage hardware or software operations.
+
+
