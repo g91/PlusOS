@@ -14,7 +14,17 @@
 #include <map>
 #include "hfs_filesystem.h"
 
+#define WM_BUILD_LOG_LINE    (WM_USER + 101)
+#define WM_BUILD_COMPLETED   (WM_USER + 102)
+#define WM_FLOPPY_COMPLETED  (WM_USER + 103)
+
 class ExplorerWindow;
+
+struct DiscoveredApp {
+    std::string name;
+    std::wstring path;
+    uint64_t size = 0;
+};
 
 struct BuilderConfig {
     std::wstring image_path;
@@ -63,7 +73,11 @@ enum {
     IDB_APPS_GAMES_ONLY_BTN,
     IDB_APPS_ADD_BTN,
     IDB_APPS_REMOVE_BTN,
+    IDB_BASE_SYSTEM_STATIC,
     IDB_APPS_COUNT_STATIC,
+    IDB_TOTAL_DISK_STATIC,
+    IDB_APPS_FLOPPY_STATUS_STATIC,
+    IDB_APPS_FLOPPY_TIP_STATIC,
     IDB_BUILD_BTN,
     IDB_BUILD_FLOPPY_BTN,
     IDB_OPEN_EXPLORER_BTN,
@@ -127,7 +141,11 @@ private:
     HWND m_hBtnAppsGamesOnly;
     HWND m_hBtnAppsAdd;
     HWND m_hBtnAppsRemove;
+    HWND m_hStaticBaseSystem;
     HWND m_hStaticAppCount;
+    HWND m_hStaticTotalDisk;
+    HWND m_hStaticFloppyStatus;
+    HWND m_hStaticFloppyTip;
 
     HWND m_hBtnBuildImage;
     HWND m_hBtnBuildFloppy;
@@ -140,6 +158,8 @@ private:
     HFONT m_hBoldFont;
     HFONT m_hHeaderFont;
     bool m_populatingApps = false;
+    bool m_isBuilding = false;
+    std::vector<DiscoveredApp> m_discoveredApps;
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     LRESULT handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -165,6 +185,13 @@ private:
     void on_apps_add_custom();
     void on_apps_remove_selected();
     void sync_included_apps_from_list();
+    void scan_compile_directory();
+    uint64_t get_app_size_bytes(const std::string& name);
+    uint64_t get_total_selected_size_bytes();
+    uint64_t get_base_system_bytes() const;
+    uint64_t get_total_bootable_size_bytes();
+    void on_build_finished(DWORD exitCode);
+    void on_floppy_finished(DWORD exitCode);
 
     void action_browse_image();
     void action_inject_external();

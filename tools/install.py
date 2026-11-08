@@ -240,9 +240,25 @@ def install(image, a, apps):
                                 if os.path.exists(cpath):
                                     custom_apps.append((cname.strip().upper(), cpath.strip()))
 
+    # Scan compile directory (build/apps/) for any new applications
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    build_apps_dir = os.path.join(repo_root, "build", "apps")
+    known_names = {name.upper() for name, _ in apps}
+    newly_discovered = []
+    if os.path.isdir(build_apps_dir):
+        for entry in sorted(os.listdir(build_apps_dir)):
+            if entry.endswith(".pex"):
+                app_name = os.path.splitext(entry)[0].upper()
+                if app_name not in known_names:
+                    app_path = os.path.join(build_apps_dir, entry)
+                    apps.append((app_name, app_path))
+                    known_names.add(app_name)
+                    newly_discovered.append(app_name)
+                    print("  discovered new compiled application: %s (%s)" % (app_name, app_path))
+
     if included_set is not None:
         orig_count = len(apps)
-        apps = [item for item in apps if item[0].upper() in included_set]
+        apps = [item for item in apps if item[0].upper() in included_set or item[0].upper() in newly_discovered]
         print("  package filter: including %d of %d configured apps" % (len(apps), orig_count))
 
     for cname, cpath in custom_apps:

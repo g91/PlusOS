@@ -42,11 +42,19 @@ The studio features two distinct, dedicated dialogues:
   - **Visual Themes**: Choose default styling from Mac OS 7.1 Platinum, Commodore Amiga Workbench 1.3/2.0, Windows 95, Windows 98, Windows Vista/7 Aero Glass, or Hacker CRT Dark Mode.
   - **Wallpapers**: Select between Classic Mac 50% Gray stipple or live animated Matrix Digital Rain.
   - **Startup Greeting & Hostname**: Set custom welcome greetings and titles.
-- **Granular Software Package Checklist**:
-  - Interactive multi-column checklist with checkboxes next to all 62 built-in applications (System, Tools, Games, Development, Network).
+- **Granular Software Package Checklist & Boot Core Sizing**:
+  - **Base Boot Core Accounting**: Automatically calculates and displays the mandatory boot requirements before software packages: **Boot Blocks (`loader.bin`, 1 KB)**, **PlusOS Kernel (`kernel.pex`, ~165 KB)**, and **HFS Filesystem Overhead & Config (~25 KB)** for a total **Base OS Core of ~191 KB** required to boot.
+  - Interactive multi-column checklist with checkboxes next to all 66 applications (System, Tools, Games, Development, Network).
+  - **Automatic Compile Directory Scanner**: Both Disk Studio and `install.py` scan `build/apps/` for newly compiled `.pex` binaries. Any application built outside the standard catalog is automatically discovered, added to the package checklist with its exact size on disk, and installed.
+  - **Individual Package Sizes**: Shows the exact byte/KB size of each binary on disk directly in the list.
+  - **Live 3-Tier Footprint Calculation**: Updates in real-time as packages are checked/unchecked:
+    - `Base OS Core: ~191 KB (Kernel, Boot Blocks & HFS - Required)`
+    - `Selected Software: X of Y packages (Z KB)`
+    - `Total Bootable Footprint: Z KB (Base OS + Software)`
+  - **Floppy Compilation Guidelines & Status**: Displays whether the total bootable footprint fits within standard Macintosh floppy limits. On an **800 KB** floppy disk, software packages must stay under **~609 KB** (total bootable size < 800 KB). On a **1.44 MB (1.4M)** High-Density floppy disk, up to 1.44 MB total footprint is supported. Includes capacity alerts and warnings if limits are exceeded.
   - Remembers your package selections across sessions (persisted directly to `multiboot.cfg` via `include_apps=` and `custom_apps=`).
   - Quick filter presets: **All**, **None**, **System** (System & Tools), and **Games**.
-  - **Add Custom App...**: Browse and include external third-party `.pex` or `.bin` binaries into the build pipeline.
+  - **Add Custom App...**: Browse and include external third-party `.pex` or `.bin` binaries into the build pipeline with automatic size inspection.
   - **Remove Selected**: Instantly uncheck built-in packages or delete custom external imports.
   - Only checked packages are copied into `:bin:` and `:Games:` (and raw fallback store) when compiling and building the hard drive image.
 - **Build Bootable Floppy (.dsk)**: One-click builder that generates `images/PlusOS_Floppy.dsk` (1.44M/800K Macintosh HFS floppy) containing only essential boot files and the hard drive installer (zero games).

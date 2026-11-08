@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include <thread>
 
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "shell32.lib")
@@ -40,82 +41,113 @@ struct AppPackageMeta {
     const char* name;
     const char* category;
     const char* description;
+    uint32_t fallback_size;
 };
 
 static const AppPackageMeta ALL_BUILTIN_APPS[] = {
     // System
-    { "BOOT", "System", "Startup disk selector & SCSI chainbooter" },
-    { "DESKTOP", "System", "Graphical window manager & theme compositor" },
-    { "INSTALLER", "System", "PlusOS Hard Drive Installation Utility" },
-    { "OFF", "System", "Safe power off & shutdown utility" },
-    { "PKGMGR", "System", "Graphical software center package manager" },
-    { "REBOOT", "System", "Warm system reboot utility" },
-    { "RET", "System", "Return to Mac OS from PlusOS" },
-    { "SHELL", "System", "Interactive command line interpreter" },
-    { "STARTUP", "System", "Configure default boot application" },
+    { "BOOT", "System", "Startup disk selector & SCSI chainbooter", 6668 },
+    { "DESKTOP", "System", "Graphical window manager & theme compositor", 62208 },
+    { "INSTALLER", "System", "PlusOS Hard Drive Installation Utility", 10164 },
+    { "OFF", "System", "Safe power off & shutdown utility", 508 },
+    { "PKGMGR", "System", "Graphical software center package manager", 30372 },
+    { "REBOOT", "System", "Warm system reboot utility", 508 },
+    { "RET", "System", "Return to Mac OS from PlusOS", 492 },
+    { "SHELL", "System", "Interactive command line interpreter", 8044 },
+    { "STARTUP", "System", "Configure default boot application", 6404 },
 
     // Tools
-    { "CALC", "Tools", "Desktop floating-point calculator" },
-    { "CAT", "Tools", "Concatenate and print text files" },
-    { "CLEAR", "Tools", "Clear terminal console screen" },
-    { "CLIP", "Tools", "Clipboard scrap viewer and text buffer" },
-    { "DATE", "Tools", "Display or set current date and time" },
-    { "DMESG", "Tools", "Dump kernel boot and driver log messages" },
-    { "ECHO", "Tools", "Print arguments to console" },
-    { "FILES", "Tools", "Interactive dual-pane HFS file manager" },
-    { "GC", "Tools", "Kernel garbage collector stats and cycle" },
-    { "HELP", "Tools", "List all commands and user guides" },
-    { "HEXEDIT", "Tools", "Hexadecimal binary file editor & viewer" },
-    { "KILL", "Tools", "Terminate process by PID" },
-    { "LS", "Tools", "List files and directories" },
-    { "MEM", "Tools", "Display free and used RAM statistics" },
-    { "NOTES", "Tools", "Notepad text editor with persistent storage" },
-    { "PS", "Tools", "List running processes and thread states" },
-    { "RAM", "Tools", "Display RAM memory layout and heap bars" },
-    { "REG", "Tools", "System registry viewer and modifier" },
-    { "SLEEP", "Tools", "Delay execution for given seconds" },
-    { "SOUND", "Tools", "4-voice PWM audio synthesizer test" },
-    { "SYSINFO", "Tools", "CPU, ROM, screen, and hardware audit" },
-    { "TASKMAN", "Tools", "Live CPU and memory usage task manager" },
-    { "THEME", "Tools", "Multi-OS visual theme selector" },
-    { "TOP", "Tools", "Live system monitor and process viewer" },
-    { "UPTIME", "Tools", "Show system running time and ticks" },
-    { "VER", "Tools", "Display PlusOS kernel and SDK version" },
+    { "CALC", "Tools", "Desktop floating-point calculator", 13908 },
+    { "CAT", "Tools", "Concatenate and print text files", 6688 },
+    { "CLEAR", "Tools", "Clear terminal console screen", 508 },
+    { "CLIP", "Tools", "Clipboard scrap viewer and text buffer", 7268 },
+    { "DATE", "Tools", "Display or set current date and time", 6448 },
+    { "DMESG", "Tools", "Dump kernel boot and driver log messages", 6248 },
+    { "ECHO", "Tools", "Print arguments to console", 6092 },
+    { "FILES", "Tools", "Interactive dual-pane HFS file manager", 18648 },
+    { "GC", "Tools", "Kernel garbage collector stats and cycle", 6848 },
+    { "HELP", "Tools", "List all commands and user guides", 7044 },
+    { "HEXEDIT", "Tools", "Hexadecimal binary file editor & viewer", 11440 },
+    { "KILL", "Tools", "Terminate process by PID", 6528 },
+    { "LS", "Tools", "List files and directories", 6940 },
+    { "MEM", "Tools", "Display free and used RAM statistics", 6076 },
+    { "NOTES", "Tools", "Notepad text editor with persistent storage", 14876 },
+    { "PS", "Tools", "List running processes and thread states", 6388 },
+    { "RAM", "Tools", "Display RAM memory layout and heap bars", 7284 },
+    { "REG", "Tools", "System registry viewer and modifier", 6732 },
+    { "SLEEP", "Tools", "Delay execution for given seconds", 928 },
+    { "SOUND", "Tools", "4-voice PWM audio synthesizer test", 7912 },
+    { "SYSINFO", "Tools", "CPU, ROM, screen, and hardware audit", 6424 },
+    { "TASKMAN", "Tools", "Live CPU and memory usage task manager", 12440 },
+    { "THEME", "Tools", "Multi-OS visual theme selector", 8816 },
+    { "TOP", "Tools", "Live system monitor and process viewer", 7648 },
+    { "UPTIME", "Tools", "Show system running time and ticks", 6732 },
+    { "VER", "Tools", "Display PlusOS kernel and SDK version", 6076 },
 
     // Games
-    { "ASTEROIDS", "Games", "Vector Asteroids arcade game with physics" },
-    { "BREAKOUT", "Games", "Paddle and brick breakout arcade game" },
-    { "DUNGEON", "Games", "Roguelike dungeon crawler adventure RPG" },
-    { "FLAPPY", "Games", "Flappy Mac side-scrolling arcade challenge" },
-    { "INVADERS", "Games", "Space Invaders arcade defense game" },
-    { "LUNAR", "Games", "Lunar Lander physics simulation" },
-    { "MINES", "Games", "Minesweeper puzzle game" },
-    { "PACMAN", "Games", "Classic maze ghost-chase arcade game" },
-    { "PUZZLE", "Games", "15-tile sliding number puzzle DA" },
-    { "RACER", "Games", "Top-down retro road racing game" },
-    { "SNAKE", "Games", "Classic nibbles snake arcade game" },
-    { "STARFLIGHT", "Games", "Deep space exploration and galaxy combat RPG" },
-    { "TETRIS", "Games", "Classic falling block puzzle game" },
+    { "ASTEROIDS", "Games", "Vector Asteroids arcade game with physics", 10036 },
+    { "BREAKOUT", "Games", "Paddle and brick breakout arcade game", 11264 },
+    { "DUNGEON", "Games", "Roguelike dungeon crawler adventure RPG", 11360 },
+    { "FLAPPY", "Games", "Flappy Mac side-scrolling arcade challenge", 15280 },
+    { "INVADERS", "Games", "Space Invaders arcade defense game", 6120 },
+    { "LUNAR", "Games", "Lunar Lander physics simulation", 8512 },
+    { "MINES", "Games", "Minesweeper puzzle game", 6600 },
+    { "PACMAN", "Games", "Classic maze ghost-chase arcade game", 5228 },
+    { "PUZZLE", "Games", "15-tile sliding number puzzle DA", 12680 },
+    { "RACER", "Games", "Top-down retro road racing game", 13636 },
+    { "SNAKE", "Games", "Classic nibbles snake arcade game", 5112 },
+    { "STARFLIGHT", "Games", "Deep space exploration and galaxy combat RPG", 17112 },
+    { "TETRIS", "Games", "Classic falling block puzzle game", 4640 },
 
     // Development & Emulation
-    { "BASIC", "Dev", "Retro BASIC interpreter with graphics & math" },
-    { "CHIP8", "Dev", "CHIP-8 virtual machine & retro arcade emulator" },
-    { "CUBE3D", "Dev", "Real-time 3D wireframe & solid spinning cube" },
-    { "EMU6502", "Dev", "MOS 6502 CPU and Apple I Woz Monitor" },
-    { "HELLO", "Dev", "Minimal SDK hello world demo" },
-    { "MACRUN", "Dev", "Classic Mac OS APPL executable loader" },
-    { "QDEMO", "Dev", "QuickDraw shapes and pattern showcase" },
-    { "SOLARSYS", "Dev", "Solar system planetary orbit simulation" },
-    { "SPIN", "Dev", "Real-time 3D solid mesh rotating model" },
+    { "APPLE2E", "Dev", "Apple //e 65C02 128K microcomputer emulator", 23360 },
+    { "BASIC", "Dev", "Retro BASIC interpreter with graphics & math", 21968 },
+    { "C128", "Dev", "Commodore 128 / 64 dual-mode microcomputer", 15008 },
+    { "C64", "Dev", "Commodore 64 MOS 6510 & SID microcomputer emulator", 15320 },
+    { "CHIP8", "Dev", "CHIP-8 virtual machine & retro arcade emulator", 14488 },
+    { "CUBE3D", "Dev", "Real-time 3D wireframe & solid spinning cube", 44240 },
+    { "EMU6502", "Dev", "MOS 6502 CPU and Apple I Woz Monitor", 13748 },
+    { "EMU8080", "Dev", "Intel 8080 CPU and CP/M 2.2 microcomputer emulator", 15704 },
+    { "HELLO", "Dev", "Minimal SDK hello world demo", 6652 },
+    { "MACRUN", "Dev", "Classic Mac OS APPL executable loader", 10380 },
+    { "QDEMO", "Dev", "QuickDraw shapes and pattern showcase", 7468 },
+    { "SOLARSYS", "Dev", "Solar system planetary orbit simulation", 9992 },
+    { "SPIN", "Dev", "Real-time 3D solid mesh rotating model", 6444 },
 
     // Network
-    { "IRC", "Network", "Internet Relay Chat client over BlueSCSI" },
-    { "NET", "Network", "TCP/IP configuration and DaynaPORT stats" },
-    { "PING", "Network", "ICMP network ping utility" },
-    { "PKG", "Network", "APT/YUM style package manager CLI" },
-    { "TELNET", "Network", "Telnet network terminal client" }
+    { "IRC", "Network", "Internet Relay Chat client over BlueSCSI", 22788 },
+    { "NET", "Network", "TCP/IP configuration and DaynaPORT stats", 18316 },
+    { "PING", "Network", "ICMP network ping utility", 18300 },
+    { "PKG", "Network", "APT/YUM style package manager CLI", 25020 },
+    { "TELNET", "Network", "Telnet network terminal client", 19680 }
 };
 static const int NUM_BUILTIN_APPS = sizeof(ALL_BUILTIN_APPS) / sizeof(ALL_BUILTIN_APPS[0]);
+
+static uint64_t get_file_size_on_disk(const std::wstring& path) {
+    WIN32_FILE_ATTRIBUTE_DATA fad;
+    if (GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &fad)) {
+        return ((uint64_t)fad.nFileSizeHigh << 32) | fad.nFileSizeLow;
+    }
+    return 0;
+}
+
+static std::wstring format_size_human(uint64_t bytes) {
+    if (bytes == 0) return L"0 B";
+    if (bytes < 1024) {
+        WCHAR b[32]; wsprintfW(b, L"%u B", (unsigned int)bytes);
+        return b;
+    }
+    double kb = (double)bytes / 1024.0;
+    WCHAR b[32];
+    if (kb < 100.0) {
+        swprintf_s(b, L"%.1f KB", kb);
+    } else if (kb < 1024.0) {
+        swprintf_s(b, L"%.0f KB", kb);
+    } else {
+        swprintf_s(b, L"%.2f MB", kb / 1024.0);
+    }
+    return b;
+}
 
 BuilderWindow::BuilderWindow()
     : m_hInstance(nullptr), m_hWnd(nullptr), m_explorerWin(nullptr),
@@ -128,7 +160,8 @@ BuilderWindow::BuilderWindow()
       m_hCheckGames(nullptr), m_hCheckDev(nullptr), m_hCheckTools(nullptr),
       m_hListViewApps(nullptr), m_hBtnAppsSelectAll(nullptr), m_hBtnAppsSelectNone(nullptr),
       m_hBtnAppsSysOnly(nullptr), m_hBtnAppsGamesOnly(nullptr), m_hBtnAppsAdd(nullptr),
-      m_hBtnAppsRemove(nullptr), m_hStaticAppCount(nullptr),
+      m_hBtnAppsRemove(nullptr), m_hStaticBaseSystem(nullptr), m_hStaticAppCount(nullptr),
+      m_hStaticTotalDisk(nullptr), m_hStaticFloppyStatus(nullptr), m_hStaticFloppyTip(nullptr),
       m_hBtnBuildImage(nullptr), m_hBtnBuildFloppy(nullptr), m_hBtnOpenExplorer(nullptr),
       m_hBtnSaveConfig(nullptr), m_hBtnInjectApp(nullptr), m_hGroupLog(nullptr), m_hEditBuildLog(nullptr),
       m_hConsoleFont(nullptr), m_hBoldFont(nullptr), m_hHeaderFont(nullptr)
@@ -185,7 +218,7 @@ bool BuilderWindow::create(HINSTANCE hInstance, int nCmdShow, ExplorerWindow* ex
         wc.lpszClassName,
         L"PlusOS OS Builder & Dual-Boot System Configurator",
         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
-        CW_USEDEFAULT, CW_USEDEFAULT, 1280, 780,
+        CW_USEDEFAULT, CW_USEDEFAULT, 1320, 780,
         nullptr, nullptr, hInstance, this
     );
 
@@ -403,66 +436,84 @@ void BuilderWindow::create_controls()
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 632, 430, 32, m_hWnd, (HMENU)IDB_INJECT_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnInjectApp, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
-    // Group 5: Software Applications to Install (Column 2)
-    HWND grpApps = CreateWindowExW(0, L"BUTTON", L" 5. Software Packages to Install ",
-        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 475, 10, 360, 705, m_hWnd, nullptr, m_hInstance, nullptr);
+    // Group 5: Software Applications & Floppy Capacity (Column 2)
+    HWND grpApps = CreateWindowExW(0, L"BUTTON", L" 5. Software Packages & Floppy Capacity ",
+        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 470, 10, 395, 705, m_hWnd, nullptr, m_hInstance, nullptr);
     SendMessageW(grpApps, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
     m_hListViewApps = CreateWindowExW(WS_EX_CLIENTEDGE, WC_LISTVIEWW, nullptr,
         WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_REPORT | LVS_SHOWSELALWAYS,
-        485, 35, 340, 560, m_hWnd, (HMENU)IDB_APPS_LISTVIEW, m_hInstance, nullptr);
+        480, 33, 375, 480, m_hWnd, (HMENU)IDB_APPS_LISTVIEW, m_hInstance, nullptr);
     SendMessageW(m_hListViewApps, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
     SendMessageW(m_hListViewApps, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     LVCOLUMNW appCol = {};
     appCol.mask = LVCF_TEXT | LVCF_WIDTH;
-    appCol.cx = 165; appCol.pszText = (LPWSTR)L"Application"; ListView_InsertColumn(m_hListViewApps, 0, &appCol);
-    appCol.cx = 85;  appCol.pszText = (LPWSTR)L"Category";    ListView_InsertColumn(m_hListViewApps, 1, &appCol);
-    appCol.cx = 75;  appCol.pszText = (LPWSTR)L"Origin";      ListView_InsertColumn(m_hListViewApps, 2, &appCol);
+    appCol.cx = 145; appCol.pszText = (LPWSTR)L"Application"; ListView_InsertColumn(m_hListViewApps, 0, &appCol);
+    appCol.cx = 75;  appCol.pszText = (LPWSTR)L"Category";    ListView_InsertColumn(m_hListViewApps, 1, &appCol);
+    appCol.cx = 80;  appCol.pszText = (LPWSTR)L"Size";        ListView_InsertColumn(m_hListViewApps, 2, &appCol);
+    appCol.cx = 65;  appCol.pszText = (LPWSTR)L"Origin";      ListView_InsertColumn(m_hListViewApps, 3, &appCol);
 
     m_hBtnAppsSelectAll = CreateWindowExW(0, L"BUTTON", L"All", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        485, 603, 78, 26, m_hWnd, (HMENU)IDB_APPS_SELECT_ALL_BTN, m_hInstance, nullptr);
+        480, 520, 88, 26, m_hWnd, (HMENU)IDB_APPS_SELECT_ALL_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsSelectAll, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnAppsSelectNone = CreateWindowExW(0, L"BUTTON", L"None", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        570, 603, 78, 26, m_hWnd, (HMENU)IDB_APPS_SELECT_NONE_BTN, m_hInstance, nullptr);
+        575, 520, 88, 26, m_hWnd, (HMENU)IDB_APPS_SELECT_NONE_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsSelectNone, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnAppsSysOnly = CreateWindowExW(0, L"BUTTON", L"System", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        655, 603, 82, 26, m_hWnd, (HMENU)IDB_APPS_SYS_ONLY_BTN, m_hInstance, nullptr);
+        670, 520, 90, 26, m_hWnd, (HMENU)IDB_APPS_SYS_ONLY_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsSysOnly, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnAppsGamesOnly = CreateWindowExW(0, L"BUTTON", L"Games", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        743, 603, 82, 26, m_hWnd, (HMENU)IDB_APPS_GAMES_ONLY_BTN, m_hInstance, nullptr);
+        765, 520, 90, 26, m_hWnd, (HMENU)IDB_APPS_GAMES_ONLY_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsGamesOnly, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnAppsAdd = CreateWindowExW(0, L"BUTTON", L"Add Custom App...", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        485, 636, 165, 28, m_hWnd, (HMENU)IDB_APPS_ADD_BTN, m_hInstance, nullptr);
+        480, 552, 183, 28, m_hWnd, (HMENU)IDB_APPS_ADD_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsAdd, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnAppsRemove = CreateWindowExW(0, L"BUTTON", L"Remove Selected", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        660, 636, 165, 28, m_hWnd, (HMENU)IDB_APPS_REMOVE_BTN, m_hInstance, nullptr);
+        672, 552, 183, 28, m_hWnd, (HMENU)IDB_APPS_REMOVE_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsRemove, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
-    m_hStaticAppCount = CreateWindowExW(0, L"STATIC", L"Selected: 62 of 62 applications",
-        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 485, 672, 340, 22, m_hWnd, (HMENU)IDB_APPS_COUNT_STATIC, m_hInstance, nullptr);
-    SendMessageW(m_hStaticAppCount, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
+    m_hStaticBaseSystem = CreateWindowExW(0, L"STATIC", L"Base OS Core: Calculating size...",
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 582, 375, 18, m_hWnd, (HMENU)IDB_BASE_SYSTEM_STATIC, m_hInstance, nullptr);
+    SendMessageW(m_hStaticBaseSystem, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+
+    m_hStaticAppCount = CreateWindowExW(0, L"STATIC", L"Selected Software: 66 of 66 packages (0 KB)",
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 601, 375, 18, m_hWnd, (HMENU)IDB_APPS_COUNT_STATIC, m_hInstance, nullptr);
+    SendMessageW(m_hStaticAppCount, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+
+    m_hStaticTotalDisk = CreateWindowExW(0, L"STATIC", L"Total Bootable Footprint: 0 KB (Base OS + Software)",
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 620, 375, 19, m_hWnd, (HMENU)IDB_TOTAL_DISK_STATIC, m_hInstance, nullptr);
+    SendMessageW(m_hStaticTotalDisk, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
+
+    m_hStaticFloppyStatus = CreateWindowExW(0, L"STATIC", L"Floppy: Calculating size...",
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 641, 375, 20, m_hWnd, (HMENU)IDB_APPS_FLOPPY_STATUS_STATIC, m_hInstance, nullptr);
+    SendMessageW(m_hStaticFloppyStatus, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
+
+    m_hStaticFloppyTip = CreateWindowExW(0, L"STATIC",
+        L"Floppy Guide: Base OS (~191 KB) is essential and included on every disk. On 800K floppies, software must stay under ~609 KB (Total < 800 KB). 1.44M HD disks support up to 1.44 MB.",
+        WS_CHILD | WS_VISIBLE | SS_LEFT, 480, 663, 375, 46, m_hWnd, (HMENU)IDB_APPS_FLOPPY_TIP_STATIC, m_hInstance, nullptr);
+    SendMessageW(m_hStaticFloppyTip, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     // Group 6: Live Build Log & System Diagnostics (Column 3)
     m_hGroupLog = CreateWindowExW(0, L"BUTTON", L" Build Output & Compilation Log ",
-        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 845, 10, 400, 705, m_hWnd, nullptr, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 875, 10, 430, 705, m_hWnd, nullptr, m_hInstance, nullptr);
     SendMessageW(m_hGroupLog, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
     m_hEditBuildLog = CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"",
         WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
-        855, 35, 380, 665, m_hWnd, (HMENU)IDB_BUILD_LOG_EDIT, m_hInstance, nullptr);
+        885, 35, 410, 665, m_hWnd, (HMENU)IDB_BUILD_LOG_EDIT, m_hInstance, nullptr);
     SendMessageW(m_hEditBuildLog, WM_SETFONT, (WPARAM)m_hConsoleFont, TRUE);
 }
 
 void BuilderWindow::layout_controls(int width, int height)
 {
-    if (width < 860) width = 860;
-    int logLeft = 845;
+    if (width < 900) width = 900;
+    int logLeft = 875;
     int logWidth = width - logLeft - 15;
     if (logWidth < 200) logWidth = 200;
     int logHeight = height - 40;
@@ -739,9 +790,138 @@ void BuilderWindow::on_boot_down()
     ListView_SetItemState(m_hListViewBoot, sel + 1, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
 }
 
+uint64_t BuilderWindow::get_app_size_bytes(const std::string& name)
+{
+    // Check custom apps first
+    auto it = m_cfg.custom_apps.find(name);
+    if (it != m_cfg.custom_apps.end()) {
+        uint64_t sz = get_file_size_on_disk(it->second);
+        if (sz > 0) return sz;
+    }
+
+    // Check build/apps/<lower>.pex
+    std::string lower = name;
+    for (auto& c : lower) c = (char)tolower(c);
+    std::wstring p = L"C:\\Users\\Evil\\PlusOS\\build\\apps\\" + to_wide(lower) + L".pex";
+    uint64_t sz = get_file_size_on_disk(p);
+    if (sz > 0) return sz;
+
+    // Check discovered compiled applications
+    for (const auto& da : m_discoveredApps) {
+        if (_stricmp(da.name.c_str(), name.c_str()) == 0) {
+            if (da.size > 0) return da.size;
+        }
+    }
+
+    // Check builtin fallback metadata table
+    for (int i = 0; i < NUM_BUILTIN_APPS; i++) {
+        if (_stricmp(ALL_BUILTIN_APPS[i].name, name.c_str()) == 0) {
+            return ALL_BUILTIN_APPS[i].fallback_size;
+        }
+    }
+    return 10240; // 10 KB default fallback
+}
+
+uint64_t BuilderWindow::get_total_selected_size_bytes()
+{
+    uint64_t total = 0;
+    if (!m_hListViewApps) return 0;
+    int count = ListView_GetItemCount(m_hListViewApps);
+    for (int i = 0; i < count; i++) {
+        if (ListView_GetCheckState(m_hListViewApps, i)) {
+            WCHAR buf[128] = L"";
+            ListView_GetItemText(m_hListViewApps, i, 0, buf, 128);
+            total += get_app_size_bytes(to_narrow(buf));
+        }
+    }
+    return total;
+}
+
+uint64_t BuilderWindow::get_base_system_bytes() const
+{
+    // 1. Boot blocks: Sectors 0 & 1 (loader.bin)
+    std::wstring bootPath = L"C:\\Users\\Evil\\PlusOS\\build\\boot\\loader.bin";
+    uint64_t bootSz = get_file_size_on_disk(bootPath);
+    if (bootSz == 0) bootSz = 1024;
+    else bootSz = (bootSz + 511) / 512 * 512;
+
+    // 2. PlusOS Kernel binary (kernel.pex)
+    std::wstring kernPath = L"C:\\Users\\Evil\\PlusOS\\build\\kernel\\kernel.pex";
+    uint64_t kernSz = get_file_size_on_disk(kernPath);
+    if (kernSz == 0) kernSz = 165 * 1024;
+    else kernSz = (kernSz + 511) / 512 * 512;
+
+    // 3. Macintosh HFS volume structures & partition headers (MDB, VBM, B-trees, Desktop)
+    uint64_t hfsOverhead = 24 * 1024;
+
+    // 4. System startup configuration (multiboot.cfg)
+    uint64_t cfgSz = 1024;
+
+    return bootSz + kernSz + hfsOverhead + cfgSz;
+}
+
+uint64_t BuilderWindow::get_total_bootable_size_bytes()
+{
+    return get_base_system_bytes() + get_total_selected_size_bytes();
+}
+
+void BuilderWindow::scan_compile_directory()
+{
+    std::wstring searchPattern = L"C:\\Users\\Evil\\PlusOS\\build\\apps\\*.pex";
+    WIN32_FIND_DATAW fd;
+    HANDLE hFind = FindFirstFileW(searchPattern.c_str(), &fd);
+    if (hFind == INVALID_HANDLE_VALUE) return;
+
+    do {
+        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+            std::wstring fname = fd.cFileName;
+            size_t dotPos = fname.find_last_of(L'.');
+            if (dotPos != std::wstring::npos) fname = fname.substr(0, dotPos);
+            std::string appName = to_narrow(fname);
+            for (auto& c : appName) c = (char)toupper(c);
+
+            // Check if already in built-in list
+            bool isBuiltin = false;
+            for (int i = 0; i < NUM_BUILTIN_APPS; i++) {
+                if (_stricmp(ALL_BUILTIN_APPS[i].name, appName.c_str()) == 0) {
+                    isBuiltin = true;
+                    break;
+                }
+            }
+            if (isBuiltin) continue;
+
+            // Check if in custom apps
+            if (m_cfg.custom_apps.find(appName) != m_cfg.custom_apps.end()) continue;
+
+            // Check if already in m_discoveredApps
+            auto it = std::find_if(m_discoveredApps.begin(), m_discoveredApps.end(),
+                [&](const DiscoveredApp& da) { return da.name == appName; });
+
+            std::wstring fullPath = L"C:\\Users\\Evil\\PlusOS\\build\\apps\\" + std::wstring(fd.cFileName);
+            uint64_t sz = ((uint64_t)fd.nFileSizeHigh << 32) | fd.nFileSizeLow;
+
+            if (it == m_discoveredApps.end()) {
+                DiscoveredApp da;
+                da.name = appName;
+                da.path = fullPath;
+                da.size = sz;
+                m_discoveredApps.push_back(da);
+                m_cfg.included_apps.insert(appName);
+                append_log(L"[SCAN] Discovered new compiled application: " + to_wide(appName) + L" (" + format_size_human(sz) + L")");
+            } else {
+                it->size = sz;
+                it->path = fullPath;
+            }
+        }
+    } while (FindNextFileW(hFind, &fd));
+
+    FindClose(hFind);
+}
+
 void BuilderWindow::populate_apps_list()
 {
     if (!m_hListViewApps) return;
+    scan_compile_directory();
     m_populatingApps = true;
     ListView_DeleteAllItems(m_hListViewApps);
 
@@ -757,7 +937,12 @@ void BuilderWindow::populate_apps_list()
 
         std::wstring catW = to_wide(ALL_BUILTIN_APPS[i].category);
         ListView_SetItemText(m_hListViewApps, rowIndex, 1, (LPWSTR)catW.c_str());
-        ListView_SetItemText(m_hListViewApps, rowIndex, 2, (LPWSTR)L"Built-in");
+
+        uint64_t sz = get_app_size_bytes(ALL_BUILTIN_APPS[i].name);
+        std::wstring szStr = format_size_human(sz);
+        ListView_SetItemText(m_hListViewApps, rowIndex, 2, (LPWSTR)szStr.c_str());
+
+        ListView_SetItemText(m_hListViewApps, rowIndex, 3, (LPWSTR)L"Built-in");
 
         bool checked = (m_cfg.included_apps.find(ALL_BUILTIN_APPS[i].name) != m_cfg.included_apps.end());
         ListView_SetCheckState(m_hListViewApps, rowIndex, checked ? TRUE : FALSE);
@@ -774,9 +959,35 @@ void BuilderWindow::populate_apps_list()
         ListView_InsertItem(m_hListViewApps, &item);
 
         ListView_SetItemText(m_hListViewApps, rowIndex, 1, (LPWSTR)L"Custom");
-        ListView_SetItemText(m_hListViewApps, rowIndex, 2, (LPWSTR)L"External");
+
+        uint64_t sz = get_app_size_bytes(kv.first);
+        std::wstring szStr = format_size_human(sz);
+        ListView_SetItemText(m_hListViewApps, rowIndex, 2, (LPWSTR)szStr.c_str());
+
+        ListView_SetItemText(m_hListViewApps, rowIndex, 3, (LPWSTR)L"External");
 
         bool checked = (m_cfg.included_apps.find(kv.first) != m_cfg.included_apps.end());
+        ListView_SetCheckState(m_hListViewApps, rowIndex, checked ? TRUE : FALSE);
+        rowIndex++;
+    }
+
+    // Discovered compiled applications from build directory
+    for (const auto& da : m_discoveredApps) {
+        LVITEMW item = {};
+        item.mask = LVIF_TEXT;
+        item.iItem = rowIndex;
+        std::wstring nameW = to_wide(da.name);
+        item.pszText = (LPWSTR)nameW.c_str();
+        ListView_InsertItem(m_hListViewApps, &item);
+
+        ListView_SetItemText(m_hListViewApps, rowIndex, 1, (LPWSTR)L"Compiled");
+
+        std::wstring szStr = format_size_human(da.size > 0 ? da.size : get_app_size_bytes(da.name));
+        ListView_SetItemText(m_hListViewApps, rowIndex, 2, (LPWSTR)szStr.c_str());
+
+        ListView_SetItemText(m_hListViewApps, rowIndex, 3, (LPWSTR)L"Discovered");
+
+        bool checked = (m_cfg.included_apps.find(da.name) != m_cfg.included_apps.end());
         ListView_SetCheckState(m_hListViewApps, rowIndex, checked ? TRUE : FALSE);
         rowIndex++;
     }
@@ -787,17 +998,71 @@ void BuilderWindow::populate_apps_list()
 
 void BuilderWindow::update_apps_count_label()
 {
-    if (!m_hListViewApps || !m_hStaticAppCount) return;
+    if (!m_hListViewApps) return;
     int total = ListView_GetItemCount(m_hListViewApps);
     int selected = 0;
+    uint64_t appBytes = 0;
     for (int i = 0; i < total; i++) {
         if (ListView_GetCheckState(m_hListViewApps, i)) {
             selected++;
+            WCHAR nameBuf[128] = L"";
+            ListView_GetItemText(m_hListViewApps, i, 0, nameBuf, 128);
+            appBytes += get_app_size_bytes(to_narrow(nameBuf));
         }
     }
-    WCHAR buf[128];
-    wsprintfW(buf, L"Selected: %d of %d applications", selected, total);
-    SetWindowTextW(m_hStaticAppCount, buf);
+
+    uint64_t baseBytes = get_base_system_bytes();
+    uint64_t totalBootable = baseBytes + appBytes;
+
+    std::wstring appStr = format_size_human(appBytes);
+    std::wstring baseStr = format_size_human(baseBytes);
+    std::wstring totalStr = format_size_human(totalBootable);
+
+    // 1. Base OS Boot Core (Kernel + Bootloader + Filesystem Overhead)
+    if (m_hStaticBaseSystem) {
+        WCHAR baseBuf[192];
+        wsprintfW(baseBuf, L"Base OS Core: %s (Kernel, Boot Blocks & HFS - Required)", baseStr.c_str());
+        SetWindowTextW(m_hStaticBaseSystem, baseBuf);
+    }
+
+    // 2. Selected Software Packages
+    if (m_hStaticAppCount) {
+        WCHAR countBuf[192];
+        wsprintfW(countBuf, L"Selected Software: %d of %d packages (%s)", selected, total, appStr.c_str());
+        SetWindowTextW(m_hStaticAppCount, countBuf);
+    }
+
+    // 3. Total Bootable Footprint
+    if (m_hStaticTotalDisk) {
+        WCHAR totalBuf[220];
+        wsprintfW(totalBuf, L"Total Bootable Footprint: %s (%s Base + %s Apps)", totalStr.c_str(), baseStr.c_str(), appStr.c_str());
+        SetWindowTextW(m_hStaticTotalDisk, totalBuf);
+    }
+
+    // 4. Floppy Status with live capacity checks
+    if (m_hStaticFloppyStatus) {
+        WCHAR statusBuf[256];
+        if (totalBootable <= 800 * 1024) {
+            uint64_t free800 = (800 * 1024) - totalBootable;
+            wsprintfW(statusBuf, L"Floppy: Fits 800K & 1.44M (%s / 800 KB | %s Free)", totalStr.c_str(), format_size_human(free800).c_str());
+        } else if (totalBootable <= 1440 * 1024) {
+            uint64_t free1440 = (1440 * 1024) - totalBootable;
+            wsprintfW(statusBuf, L"Floppy: Fits 1.44M HD ONLY (%s / 1.44 MB | %s Free - EXCEEDS 800K!)", totalStr.c_str(), format_size_human(free1440).c_str());
+        } else {
+            wsprintfW(statusBuf, L"Floppy: EXCEEDS 1.44M! (%s - Hard Drive Only)", totalStr.c_str());
+        }
+        SetWindowTextW(m_hStaticFloppyStatus, statusBuf);
+    }
+
+    // 5. Floppy Guidance Tip
+    if (m_hStaticFloppyTip) {
+        uint64_t maxSoftware800 = (800 * 1024 > baseBytes) ? ((800 * 1024) - baseBytes) : 0;
+        WCHAR tipBuf[320];
+        wsprintfW(tipBuf,
+            L"Floppy Guide: Base OS (%s) is essential to boot. On 800K floppies, software must stay under %s (Total < 800 KB). 1.44M HD disks support up to 1.44 MB.",
+            baseStr.c_str(), format_size_human(maxSoftware800).c_str());
+        SetWindowTextW(m_hStaticFloppyTip, tipBuf);
+    }
 }
 
 void BuilderWindow::sync_included_apps_from_list()
@@ -923,9 +1188,17 @@ void BuilderWindow::on_apps_remove_selected()
         populate_apps_list();
         append_log(L"Removed custom application package: " + to_wide(appName));
     } else {
-        ListView_SetCheckState(m_hListViewApps, sel, FALSE);
-        sync_included_apps_from_list();
-        append_log(L"Unchecked built-in package: " + to_wide(appName));
+        auto itDisc = std::find_if(m_discoveredApps.begin(), m_discoveredApps.end(),
+            [&](const DiscoveredApp& da) { return da.name == appName; });
+        if (itDisc != m_discoveredApps.end()) {
+            ListView_SetCheckState(m_hListViewApps, sel, FALSE);
+            sync_included_apps_from_list();
+            append_log(L"Unchecked discovered compiled package: " + to_wide(appName));
+        } else {
+            ListView_SetCheckState(m_hListViewApps, sel, FALSE);
+            sync_included_apps_from_list();
+            append_log(L"Unchecked built-in package: " + to_wide(appName));
+        }
     }
 }
 
@@ -956,109 +1229,269 @@ void BuilderWindow::action_open_explorer()
     }
 }
 
-void BuilderWindow::action_build_image()
+static void RunProcessAsyncWithLogging(HWND hWnd, UINT completeMsg, const std::wstring& cmd, const std::wstring& fallbackCmd, const std::wstring& rootDir)
 {
-    update_cfg_from_controls();
-    save_config_to_file();
+    std::thread([hWnd, completeMsg, cmd, fallbackCmd, rootDir]() {
+        SECURITY_ATTRIBUTES sa = {};
+        sa.nLength = sizeof(sa);
+        sa.bInheritHandle = TRUE;
+        sa.lpSecurityDescriptor = nullptr;
 
-    append_log(L"\r\n--------------------------------------------------");
-    append_log(L"[BUILD] Starting PlusOS Hard Drive Image Build Pipeline");
-    append_log(L"Target: " + m_cfg.image_path);
-    append_log(L"Boot Preference: " + std::to_wstring(m_cfg.boot_pref));
-    append_log(L"Default Theme: " + std::to_wstring(m_cfg.theme));
-    append_log(L"Running 'make install' inside WSL environment...");
+        HANDLE hReadPipe = nullptr;
+        HANDLE hWritePipe = nullptr;
+        if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0)) {
+            std::wstring* pErr = new std::wstring(L"[ERROR] Failed to create output pipe.");
+            PostMessageW(hWnd, WM_BUILD_LOG_LINE, 0, (LPARAM)pErr);
+            PostMessageW(hWnd, completeMsg, 1, 0);
+            return;
+        }
+        SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0);
 
-    std::wstring rootDir = L"C:\\Users\\Evil\\PlusOS";
-    std::wstring cmd = L"wsl.exe -d Ubuntu --cd /mnt/c/Users/Evil/PlusOS -- make install";
+        STARTUPINFOW si = {};
+        si.cb = sizeof(si);
+        si.dwFlags |= STARTF_USESTDHANDLES;
+        si.hStdOutput = hWritePipe;
+        si.hStdError = hWritePipe;
 
-    STARTUPINFOW si = {};
-    si.cb = sizeof(si);
-    PROCESS_INFORMATION pi = {};
+        PROCESS_INFORMATION pi = {};
+        std::wstring currentCmd = cmd;
 
-    BOOL ok = CreateProcessW(nullptr, (LPWSTR)cmd.c_str(), nullptr, nullptr, FALSE, 0, nullptr, rootDir.c_str(), &si, &pi);
-    if (!ok) {
-        append_log(L"Notice: WSL command failed to start, falling back to build.bat...");
-        cmd = L"cmd.exe /c \"call C:\\Users\\Evil\\PlusOS\\build.bat install\"";
-        ok = CreateProcessW(nullptr, (LPWSTR)cmd.c_str(), nullptr, nullptr, FALSE, 0, nullptr, rootDir.c_str(), &si, &pi);
-    }
+        BOOL ok = CreateProcessW(
+            nullptr,
+            &currentCmd[0],
+            nullptr,
+            nullptr,
+            TRUE,
+            CREATE_NO_WINDOW,
+            nullptr,
+            rootDir.c_str(),
+            &si,
+            &pi
+        );
 
-    if (ok) {
-        WaitForSingleObject(pi.hProcess, 300000); // Wait up to 5 minutes
+        if (!ok && !fallbackCmd.empty()) {
+            std::wstring* pNotice = new std::wstring(L"Notice: Primary command failed to start, trying fallback: " + fallbackCmd);
+            PostMessageW(hWnd, WM_BUILD_LOG_LINE, 0, (LPARAM)pNotice);
+            currentCmd = fallbackCmd;
+            ok = CreateProcessW(
+                nullptr,
+                &currentCmd[0],
+                nullptr,
+                nullptr,
+                TRUE,
+                CREATE_NO_WINDOW,
+                nullptr,
+                rootDir.c_str(),
+                &si,
+                &pi
+            );
+        }
+
+        CloseHandle(hWritePipe);
+
+        if (!ok) {
+            CloseHandle(hReadPipe);
+            std::wstring* pErr = new std::wstring(L"[ERROR] Failed to start build process: " + currentCmd);
+            PostMessageW(hWnd, WM_BUILD_LOG_LINE, 0, (LPARAM)pErr);
+            PostMessageW(hWnd, completeMsg, 1, 0);
+            return;
+        }
+
+        char buffer[2048];
+        DWORD bytesRead = 0;
+        std::string partialLine;
+
+        while (ReadFile(hReadPipe, buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
+            buffer[bytesRead] = '\0';
+            partialLine.append(buffer, bytesRead);
+
+            size_t newlinePos = 0;
+            while ((newlinePos = partialLine.find('\n')) != std::string::npos) {
+                std::string line = partialLine.substr(0, newlinePos);
+                if (!line.empty() && line.back() == '\r') line.pop_back();
+                partialLine.erase(0, newlinePos + 1);
+
+                std::wstring* pLineW = new std::wstring(to_wide(line));
+                PostMessageW(hWnd, WM_BUILD_LOG_LINE, 0, (LPARAM)pLineW);
+            }
+        }
+
+        if (!partialLine.empty()) {
+            if (partialLine.back() == '\r') partialLine.pop_back();
+            std::wstring* pLineW = new std::wstring(to_wide(partialLine));
+            PostMessageW(hWnd, WM_BUILD_LOG_LINE, 0, (LPARAM)pLineW);
+        }
+
+        CloseHandle(hReadPipe);
+        WaitForSingleObject(pi.hProcess, INFINITE);
+
         DWORD exitCode = 1;
         GetExitCodeProcess(pi.hProcess, &exitCode);
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
 
-        if (exitCode == 0) {
-            append_log(L"[SUCCESS] Build & installation succeeded!");
-            append_log(L"Kernel, boot blocks, raw store, and all 59 apps written.");
-            append_log(L"Custom multiboot.cfg and Desktop Return-to-PlusOS seeded.");
-            append_log(L"Ready! Click 'Open Hard Drive Explorer / Manager' to inspect.");
+        PostMessageW(hWnd, completeMsg, (WPARAM)exitCode, 0);
+    }).detach();
+}
 
-            int c = MessageBoxW(m_hWnd,
-                L"Build completed successfully!\r\n\r\nWould you like to open the Hard Drive Explorer now?",
-                L"Build Successful", MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON1);
-            if (c == IDYES) {
-                action_open_explorer();
-            }
-        } else {
-            append_log(L"[ERROR] Build finished with non-zero exit code: " + std::to_wstring(exitCode));
-            MessageBoxW(m_hWnd, L"Build failed or completed with errors. See build log for details.", L"Build Warning", MB_ICONWARNING | MB_OK);
+void BuilderWindow::action_build_image()
+{
+    if (m_isBuilding) {
+        MessageBoxW(m_hWnd, L"A build is already in progress. Please wait for it to complete.", L"Build Running", MB_ICONINFORMATION | MB_OK);
+        return;
+    }
+
+    update_cfg_from_controls();
+    save_config_to_file();
+
+    m_isBuilding = true;
+    EnableWindow(m_hBtnBuildImage, FALSE);
+    EnableWindow(m_hBtnBuildFloppy, FALSE);
+
+    uint64_t appBytes = get_total_selected_size_bytes();
+    uint64_t baseBytes = get_base_system_bytes();
+    uint64_t totalBootable = baseBytes + appBytes;
+
+    append_log(L"\r\n==================================================");
+    append_log(L"[BUILD] Starting PlusOS Hard Drive Image Build Pipeline");
+    append_log(L"Target: " + m_cfg.image_path);
+    append_log(L"Base OS Core: " + format_size_human(baseBytes) + L" (Kernel, Boot Blocks & HFS Overhead - Required)");
+    append_log(L"Selected Software: " + format_size_human(appBytes));
+    append_log(L"Total Bootable Footprint: " + format_size_human(totalBootable));
+    append_log(L"Boot Preference: " + std::to_wstring(m_cfg.boot_pref));
+    append_log(L"Default Theme: " + std::to_wstring(m_cfg.theme));
+    append_log(L"Running 'make install' asynchronously in worker thread...");
+
+    std::wstring rootDir = L"C:\\Users\\Evil\\PlusOS";
+    std::wstring cmd = L"wsl.exe -d Ubuntu --cd /mnt/c/Users/Evil/PlusOS -- make install";
+    std::wstring fallbackCmd = L"cmd.exe /c \"call C:\\Users\\Evil\\PlusOS\\build.bat install\"";
+
+    RunProcessAsyncWithLogging(m_hWnd, WM_BUILD_COMPLETED, cmd, fallbackCmd, rootDir);
+}
+
+void BuilderWindow::on_build_finished(DWORD exitCode)
+{
+    m_isBuilding = false;
+    EnableWindow(m_hBtnBuildImage, TRUE);
+    EnableWindow(m_hBtnBuildFloppy, TRUE);
+
+    if (exitCode == 0) {
+        append_log(L"--------------------------------------------------");
+        append_log(L"[SUCCESS] Hard drive build & installation succeeded!");
+        append_log(L"Kernel, boot blocks, raw store, and all applications written.");
+        append_log(L"Custom multiboot.cfg and Desktop Return-to-PlusOS seeded.");
+        populate_apps_list();
+        append_log(L"Ready! Click 'Open Disk Explorer / Manager' to inspect.");
+
+        int c = MessageBoxW(m_hWnd,
+            L"Hard drive build completed successfully!\r\n\r\nWould you like to open the Disk Explorer now to inspect files?",
+            L"Build Successful", MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON1);
+        if (c == IDYES) {
+            action_open_explorer();
         }
     } else {
-        append_log(L"[ERROR] Failed to launch build process.");
-        MessageBoxW(m_hWnd, L"Failed to launch compiler process.", L"Execution Error", MB_ICONERROR | MB_OK);
+        append_log(L"--------------------------------------------------");
+        append_log(L"[ERROR] Build finished with exit code: " + std::to_wstring(exitCode));
+        MessageBoxW(m_hWnd, L"Build failed or completed with errors. See build log for details.", L"Build Warning", MB_ICONWARNING | MB_OK);
     }
 }
 
 void BuilderWindow::action_build_floppy()
 {
+    if (m_isBuilding) {
+        MessageBoxW(m_hWnd, L"A build is already in progress. Please wait for it to complete.", L"Build Running", MB_ICONINFORMATION | MB_OK);
+        return;
+    }
+
+    uint64_t appBytes = get_total_selected_size_bytes();
+    uint64_t baseBytes = get_base_system_bytes();
+    uint64_t totalBootable = baseBytes + appBytes;
+    std::wstring appStr = format_size_human(appBytes);
+    std::wstring baseStr = format_size_human(baseBytes);
+    std::wstring totalStr = format_size_human(totalBootable);
+
+    if (totalBootable > 1440 * 1024) {
+        std::wstring msg = L"Floppy Size Warning:\r\n\r\n"
+            L"Total bootable footprint: " + totalStr + L"\r\n"
+            L" - Base OS Core (Kernel, Boot Blocks & HFS Overhead): " + baseStr + L" (Required to Boot)\r\n"
+            L" - Selected Software: " + appStr + L"\r\n\r\n"
+            L"This exceeds the 1.44 MB physical capacity limit of a Macintosh floppy disk!\r\n\r\n"
+            L"When compiling for floppy, total bootable size must stay under 800 KB (for standard 800K disks) "
+            L"or under 1.44 MB (for 1.4M High Density disks).\r\n\r\n"
+            L"The bootable floppy will be built using the minimal essential system preset (~500 KB).\r\n\r\n"
+            L"Do you want to proceed?";
+        int res = MessageBoxW(m_hWnd, msg.c_str(), L"Floppy Capacity Exceeded", MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2);
+        if (res != IDYES) return;
+    } else if (totalBootable > 800 * 1024) {
+        uint64_t maxSoftware800 = (800 * 1024 > baseBytes) ? ((800 * 1024) - baseBytes) : 0;
+        std::wstring msg = L"800K Floppy Capacity Notice:\r\n\r\n"
+            L"Total bootable footprint: " + totalStr + L"\r\n"
+            L" - Base OS Core (Kernel, Boot Blocks & HFS Overhead): " + baseStr + L" (Required to Boot)\r\n"
+            L" - Selected Software: " + appStr + L"\r\n\r\n"
+            L"This exceeds the 800 KB limit for standard 800K floppy disks (Mac Plus / original Mac SE), "
+            L"requiring a 1.44 MB (1.4M) High Density floppy disk.\r\n\r\n"
+            L"If targeting an 800K disk drive, please uncheck packages to keep software under " + format_size_human(maxSoftware800) + L".\r\n\r\n"
+            L"Proceed with generating 1.44M High Density floppy image?";
+        int res = MessageBoxW(m_hWnd, msg.c_str(), L"800K Floppy Notice", MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON1);
+        if (res != IDYES) return;
+    }
+
     save_config_to_file();
-    append_log(L"============================================================");
+
+    m_isBuilding = true;
+    EnableWindow(m_hBtnBuildImage, FALSE);
+    EnableWindow(m_hBtnBuildFloppy, FALSE);
+
+    append_log(L"\r\n==================================================");
     append_log(L"Starting Minimal Bootable Installer Floppy Generation...");
-    append_log(L"Target: images\\PlusOS_Floppy.dsk (1.44M Macintosh HFS Disk)");
+    append_log(L"Target: images\\PlusOS_Floppy.dsk (Macintosh HFS Floppy)");
+    append_log(L"Base OS Core: " + baseStr + L" (Kernel, Boot Blocks & HFS Overhead - Required)");
+    append_log(L"Selected Software: " + appStr);
+    append_log(L"Total Bootable Footprint: " + totalStr);
+    if (totalBootable <= 800 * 1024) {
+        uint64_t free800 = (800 * 1024) - totalBootable;
+        append_log(L"Capacity Check: OK for both 800K & 1.44M floppy disks (Free: " + format_size_human(free800) + L" on 800K).");
+    } else if (totalBootable <= 1440 * 1024) {
+        uint64_t free1440 = (1440 * 1024) - totalBootable;
+        append_log(L"Capacity Check: Fits 1.44M HD Floppy ONLY (Free: " + format_size_human(free1440) + L"). Exceeds 800K.");
+    } else {
+        append_log(L"Capacity Check: Exceeds 1.44M floppy limit! (Hard Drive install recommended).");
+    }
     append_log(L"Essential boot binaries & installer included (zero games).");
-    append_log(L"Running 'make floppy' inside build environment...");
+    append_log(L"Running 'make floppy' asynchronously in worker thread...");
+    append_log(L"Essential boot binaries & installer included (zero games).");
+    append_log(L"Running 'make floppy' asynchronously in worker thread...");
 
     std::wstring rootDir = L"C:\\Users\\Evil\\PlusOS";
     std::wstring cmd = L"wsl.exe -d Ubuntu --cd /mnt/c/Users/Evil/PlusOS -- bash -l -c \"make floppy\"";
+    std::wstring fallbackCmd = L"cmd.exe /c \"call C:\\Users\\Evil\\PlusOS\\build.bat floppy\"";
 
-    STARTUPINFOW si = {};
-    si.cb = sizeof(si);
-    PROCESS_INFORMATION pi = {};
+    RunProcessAsyncWithLogging(m_hWnd, WM_FLOPPY_COMPLETED, cmd, fallbackCmd, rootDir);
+}
 
-    BOOL ok = CreateProcessW(nullptr, (LPWSTR)cmd.c_str(), nullptr, nullptr, FALSE, 0, nullptr, rootDir.c_str(), &si, &pi);
-    if (!ok) {
-        cmd = L"cmd.exe /c \"call C:\\Users\\Evil\\PlusOS\\build.bat floppy\"";
-        ok = CreateProcessW(nullptr, (LPWSTR)cmd.c_str(), nullptr, nullptr, FALSE, 0, nullptr, rootDir.c_str(), &si, &pi);
-    }
+void BuilderWindow::on_floppy_finished(DWORD exitCode)
+{
+    m_isBuilding = false;
+    EnableWindow(m_hBtnBuildImage, TRUE);
+    EnableWindow(m_hBtnBuildFloppy, TRUE);
 
-    if (ok) {
-        WaitForSingleObject(pi.hProcess, 300000);
-        DWORD exitCode = 1;
-        GetExitCodeProcess(pi.hProcess, &exitCode);
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
+    if (exitCode == 0) {
+        append_log(L"--------------------------------------------------");
+        append_log(L"[SUCCESS] Minimal bootable floppy successfully generated!");
+        append_log(L"Image: images\\PlusOS_Floppy.dsk");
+        append_log(L"Ready! You can now boot this floppy in Mini vMac or test on hardware.");
 
-        if (exitCode == 0) {
-            append_log(L"[SUCCESS] Minimal bootable floppy successfully generated!");
-            append_log(L"Image: images\\PlusOS_Floppy.dsk");
-            append_log(L"Ready! You can now boot this floppy in Mini vMac or test on hardware.");
-
-            int c = MessageBoxW(m_hWnd,
-                L"Bootable minimal installer floppy generated successfully!\r\n(images\\PlusOS_Floppy.dsk)\r\n\r\nWould you like to open it in the Disk Explorer now?",
-                L"Floppy Build Successful", MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON1);
-            if (c == IDYES && m_explorerWin) {
-                m_explorerWin->open_image(L"C:\\Users\\Evil\\PlusOS\\images\\PlusOS_Floppy.dsk");
-                m_explorerWin->show();
-            }
-        } else {
-            append_log(L"[ERROR] Floppy build finished with exit code: " + std::to_wstring(exitCode));
-            MessageBoxW(m_hWnd, L"Floppy build failed or completed with errors.", L"Build Warning", MB_ICONWARNING | MB_OK);
+        int c = MessageBoxW(m_hWnd,
+            L"Bootable minimal installer floppy generated successfully!\r\n(images\\PlusOS_Floppy.dsk)\r\n\r\nWould you like to open it in the Disk Explorer now?",
+            L"Floppy Build Successful", MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON1);
+        if (c == IDYES && m_explorerWin) {
+            m_explorerWin->open_image(L"C:\\Users\\Evil\\PlusOS\\images\\PlusOS_Floppy.dsk");
+            m_explorerWin->show();
         }
     } else {
-        append_log(L"[ERROR] Failed to launch floppy build process.");
-        MessageBoxW(m_hWnd, L"Failed to launch floppy compiler process.", L"Execution Error", MB_ICONERROR | MB_OK);
+        append_log(L"--------------------------------------------------");
+        append_log(L"[ERROR] Floppy build finished with exit code: " + std::to_wstring(exitCode));
+        MessageBoxW(m_hWnd, L"Floppy build failed or completed with errors.", L"Build Warning", MB_ICONWARNING | MB_OK);
     }
 }
 
@@ -1109,6 +1542,27 @@ LRESULT BuilderWindow::handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
     case WM_SIZE:
         layout_controls(LOWORD(lParam), HIWORD(lParam));
         return 0;
+
+    case WM_BUILD_LOG_LINE: {
+        std::wstring* pLine = (std::wstring*)lParam;
+        if (pLine) {
+            append_log(*pLine);
+            delete pLine;
+        }
+        return 0;
+    }
+
+    case WM_BUILD_COMPLETED: {
+        DWORD exitCode = (DWORD)wParam;
+        on_build_finished(exitCode);
+        return 0;
+    }
+
+    case WM_FLOPPY_COMPLETED: {
+        DWORD exitCode = (DWORD)wParam;
+        on_floppy_finished(exitCode);
+        return 0;
+    }
 
     case WM_COMMAND: {
         int id = LOWORD(wParam);
