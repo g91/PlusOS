@@ -1,0 +1,3 @@
+apps/games/tetris/tetris.c:15:12: warning: ‘level’ defined but not used [-Wunused-variable]
+   15 | static int level = 1;
+      |            ^~~~~

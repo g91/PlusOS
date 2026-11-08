@@ -1,0 +1,17 @@
+# Build artifacts
+build/
+*.o
+*.elf
+*.bin
+*.pex
+*.log
+*.map
+*.d
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS generated files
+.DS_Store
+Thumbs.db

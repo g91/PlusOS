@@ -15,15 +15,21 @@ include config.mk
 BUILD  := build
 UPPER   = $(shell echo $(1) | tr a-z A-Z)
 
-KSRC   := $(wildcard kernel/*.c) $(wildcard kernel/*.S)
+# Kernel sources across all subdirectories (core, cpu, proc, drivers, services)
+KSRC   := $(wildcard kernel/*.c kernel/*.S kernel/*/*.c kernel/*/*.S kernel/*/*/*.c kernel/*/*/*.S)
 KOBJ   := $(patsubst %,$(BUILD)/%.o,$(KSRC))
 KERNEL := $(BUILD)/kernel/kernel.pex
 LOADER := $(BUILD)/boot/loader.bin
-APPS   := $(notdir $(wildcard apps/*))
-APPPEX := $(foreach a,$(APPS),$(BUILD)/apps/$(a).pex)
 
-# the kernel also reads the Mac SE SDK's call catalog (serom/catalog.h)
-KERNEL_CPPFLAGS := $(PLUSOS_CPPFLAGS) -Ikernel -idirafter $(SDK_SE)/include
+# Apps categorized by type: games, development, tools, network, system (and top-level fallback)
+app_dir = $(firstword $(wildcard apps/*/$(1) apps/$(1)))
+APPS    := $(sort $(notdir $(wildcard apps/*/*)))
+APPPEX  := $(foreach a,$(APPS),$(BUILD)/apps/$(a).pex)
+
+# The kernel includes all kernel subdirectories and SE SDK catalog
+KERNEL_CPPFLAGS := $(PLUSOS_CPPFLAGS) -Ikernel -Ikernel/core -Ikernel/cpu -Ikernel/proc \
+                   -Ikernel/drivers -Ikernel/drivers/video -Ikernel/drivers/input -Ikernel/drivers/sound \
+                   -Ikernel/services -idirafter $(SDK_SE)/include
 
 .PHONY: all sdks sdklibs sdktest install clean kernel loader apps
 all: sdklibs $(LOADER) $(KERNEL) apps
@@ -51,7 +57,7 @@ strict-apps: sdklibs $(APPPEX)
 DEPFLAGS = -MMD -MP
 -include $(shell find $(BUILD) -name '*.d' 2>/dev/null)
 
-# ---- kernel ----------------------------------------------------------------
+# ---- kernel: compiled from modular subfolders (core, cpu, proc, drivers, services) -
 $(BUILD)/kernel/%.c.o: kernel/%.c
 	@mkdir -p $(dir $@)
 	@echo "  CC   $<"; $(CC) $(KERNEL_CPPFLAGS) $(PLUSOS_CFLAGS) $(DEPFLAGS) -c $< -o $@
@@ -62,25 +68,30 @@ $(BUILD)/kernel/%.S.o: kernel/%.S
 $(KERNEL): $(KOBJ) $(PLUSOS_LIBS_DEPS) $(PLUSOS_EXTRA_LIBS) $(PLUSOS_SDK)/ld/plusos.ld
 	$(call plusos_link_kernel,$@,$(KOBJ),PLUSOS)
 
-# ---- apps: each built against the Mac Plus SDK, or the Mac SE SDK if apps/<name>/SE exists
-sdk_of = $(if $(wildcard apps/$(1)/SE),$(SDK_SE),$(SDK_PLUS))
+# ---- apps: each built against the Mac Plus SDK, or the Mac SE SDK if SE file exists
 define APP_RULES
-$(1)_SDK := $(call sdk_of,$(1))
-$(1)_ROM := $(if $(wildcard apps/$(1)/SE),serom,plusrom)
-$(1)_CPP := -nostdinc -isystem $(GCCINC) -I$$($(1)_SDK)/include/libc -I$$($(1)_SDK)/include
+$(1)_DIR := $$(call app_dir,$(1))
+$(1)_SDK := $$(if $$(wildcard $$($(1)_DIR)/SE),$$(SDK_SE),$$(SDK_PLUS))
+$(1)_ROM := $$(if $$(wildcard $$($(1)_DIR)/SE),serom,plusrom)
+$(1)_CPP := -nostdinc -isystem $$(GCCINC) -I$$($(1)_SDK)/include/libc -I$$($(1)_SDK)/include
 $(1)_LIB := $$($(1)_SDK)/build/lib
-$(1)_OBJ := $$(patsubst %,$(BUILD)/%.o,$$(wildcard apps/$(1)/*.c apps/$(1)/*.cpp apps/$(1)/*.S))
-$(BUILD)/apps/$(1)/%.c.o: apps/$(1)/%.c
+$(1)_SRC := $$(wildcard $$($(1)_DIR)/*.c $$($(1)_DIR)/*.cpp $$($(1)_DIR)/*.S)
+$(1)_OBJ := $$(patsubst %,$(BUILD)/%.o,$$($(1)_SRC))
+
+$$(BUILD)/$$($(1)_DIR)/%.c.o: $$($(1)_DIR)/%.c
 	@mkdir -p $$(dir $$@)
-	@echo "  CC   $$< ($$(notdir $$($(1)_SDK)))"; $(CC) $$($(1)_CPP) $(PLUSOS_CFLAGS) $(DEPFLAGS) -c $$< -o $$@
-$(BUILD)/apps/$(1)/%.cpp.o: apps/$(1)/%.cpp
+	@echo "  CC   $$< ($$(notdir $$($(1)_SDK)))"; $$(CC) $$($(1)_CPP) $$(PLUSOS_CFLAGS) $$(DEPFLAGS) -c $$< -o $$@
+
+$$(BUILD)/$$($(1)_DIR)/%.cpp.o: $$($(1)_DIR)/%.cpp
 	@mkdir -p $$(dir $$@)
-	@echo "  CXX  $$< ($$(notdir $$($(1)_SDK)))"; $(CXX) $$($(1)_CPP) $(PLUSOS_CXXFLAGS) $(DEPFLAGS) -c $$< -o $$@
-$(BUILD)/apps/$(1).pex: $$($(1)_OBJ) sdklibs
-	$(LD) -T $$($(1)_SDK)/ld/plusos.ld -q --gc-sections --no-warn-rwx-segments -o $(BUILD)/apps/$(1).elf \
+	@echo "  CXX  $$< ($$(notdir $$($(1)_SDK)))"; $$(CXX) $$($(1)_CPP) $$(PLUSOS_CXXFLAGS) $$(DEPFLAGS) -c $$< -o $$@
+
+$$(BUILD)/apps/$(1).pex: $$($(1)_OBJ) sdklibs
+	@mkdir -p $$(dir $$@)
+	$$(LD) -T $$($(1)_SDK)/ld/plusos.ld -q --gc-sections --no-warn-rwx-segments -o $$(BUILD)/apps/$(1).elf \
 	    $$($(1)_LIB)/crt0_app.o $$($(1)_OBJ) --start-group $$($(1)_LIB)/librt_app.a $$($(1)_LIB)/libplusgfx.a $$($(1)_LIB)/libplusnet.a $$($(1)_LIB)/libplusos.a \
-	    $$($(1)_LIB)/lib$$($(1)_ROM).a $$($(1)_LIB)/libc.a $(LIBGCC) --end-group
-	$(PY) $$($(1)_SDK)/tools/mkexe.py $(BUILD)/apps/$(1).elf $$@ --name $(call UPPER,$(1))
+	    $$($(1)_LIB)/lib$$($(1)_ROM).a $$($(1)_LIB)/libc.a $$(LIBGCC) --end-group
+	$$(PY) $$($(1)_SDK)/tools/mkexe.py $$(BUILD)/apps/$(1).elf $$@ --name $$(call UPPER,$(1))
 endef
 $(foreach a,$(APPS),$(eval $(call APP_RULES,$(a))))
 

@@ -49,8 +49,8 @@ has no DaynaPORT — so the live online session is shown on hardware, not here.
 | `sdks/macplus/` | **Macintosh Plus SDK**: standalone library. `<plusrom/...>` headers, `libplusrom.a`. Programs built with it run on the Plus and the SE. |
 | `sdks/macse/` | **Macintosh SE SDK**: standalone library. `<serom/...>` headers, `libserom.a`. Adds the SE-only ROM calls (ADB Manager, KeyTranslate, ...). |
 | `boot/loader.S` | boot block: loads the kernel from the disk (assembly: it must fit in 1 KB and runs before anything else exists) |
-| `kernel/` | the kernel: ROM start-up, console, keyboard, program loader, shell, boot menu. One kernel for both machines. |
-| `apps/` | example programs: `hello` (C), `qdemo` (C++ / QuickDraw). An app folder containing a file named `SE` builds with the Mac SE SDK. |
+| `kernel/` | **the kernel**: modular subsystems in `core/` (entry, ROM init), `cpu/` (traps, syscalls, exceptions), `proc/` (multitasking scheduler), `drivers/` (video, input, sound), and `services/` (exec, macloader, window server). |
+| `apps/` | **programs categorized by type**: `games/` (13 games), `development/` (emulators, 3D, SDK demos), `tools/` (utilities, task manager), `network/` (TCP/IP clients), and `system/` (desktop, shell, boot). An app folder containing a file named `SE` builds with the Mac SE SDK. |
 | `tools/sdkgen/` | generates the two SDKs: assembles the Plus and SE ROMs from the mac_rom sources (checked bit-identical to the originals), decodes their trap tables, writes one header + one C file per ROM manager |
 | `tools/` | disk installer, Mini vMac test harness |
 

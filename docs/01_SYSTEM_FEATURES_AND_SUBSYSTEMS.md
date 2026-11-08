@@ -190,9 +190,33 @@ PlusOS connects to modern local networks and the Internet via a **BlueSCSI v2** 
 
 ---
 
-## 9. Hardware Sound Engine (`kernel/sound.c`)
+## 9. Hardware Sound Engine (`kernel/drivers/sound/sound.c`)
 
 Classic compact Macs generate sound through the 6522 VIA and custom analog circuitry that clocks out a byte of audio sample data during each horizontal blanking interval (~22,255 Hz):
 - PlusOS provides a **4-voice PWM tone and wave synthesizer**.
 - Supports square waves, triangle waves, noise generation, and frequency ramps for games and alert sounds.
 - Syscall `plusos->sound_play(freq, duration_ticks)` allows user applications to produce asynchronous non-blocking audio alerts.
+
+---
+
+## 10. Modular Repository & Subsystem Directory Topology
+
+PlusOS organizes its kernel and application ecosystem into clean, modular subdirectories:
+
+### Kernel Architecture (`kernel/`)
+* **`kernel/core/`**: Central kernel entry point (`main.c`), ROM bringup sequence (`rominit.c`), Classic Mac OS chainloading (`chainboot.c`), system shutdown/reboot (`sys.c`), and master API dispatch table (`api.c`, `kernel.h`).
+* **`kernel/cpu/`**: Low-level 68000 CPU gates: Line 1010 A-line trap gate (`aline.S`), `TRAP #1` syscall dispatcher (`trap.S`, `syscall.c`, `syscall.h`), CPU exception vectors (`exc.S`), hardware interrupts (`irq.S`), and crash register dump (`crash.c`).
+* **`kernel/proc/`**: Preemptive multitasking process scheduler (`proc.c`, `proc.h`), assembly context switcher (`switch.S`), and VBL timer tick handler (`tick.c`, `tick.S`).
+* **`kernel/drivers/`**: Hardware device drivers:
+  * `video/`: Framebuffer presentation (`video.c`), 16-longword unrolled scanline blitter (`vblit.S`), 64×42 virtual text console (`console.c`), and QuickDraw demo primitives (`gfx.c`).
+  * `input/`: Mac Plus & SE ADB keyboard handler (`kbd.c`), keymaps (`keymap.c`), and translation routine (`keytrans.S`).
+  * `sound/`: 4-voice PWM audio driver (`sound.c`).
+* **`kernel/services/`**: High-level system services: binary executor (`exec.c`), Classic Mac `'APPL'` A5 World loader (`macloader.c`), graphical window server (`winsrv.c`), boot recovery menu (`menu.c`), kernel shell (`shell.c`), scrap clipboard (`scrap.c`), configuration (`config.c`), and system registry (`registry.c`).
+
+### Categorized Applications Ecosystem (`apps/`)
+All 54 programs are separated into dedicated category folders:
+* **`apps/games/`** (13 games): `asteroids`, `breakout`, `dungeon`, `flappy`, `invaders`, `lunar`, `mines`, `pacman`, `puzzle`, `racer`, `snake`, `starflight`, `tetris`.
+* **`apps/development/`** (10 programs): `basic`, `chip8`, `cube3d`, `emu6502`, `hello`, `hexedit`, `macrun`, `qdemo`, `solarsys`, `spin`.
+* **`apps/tools/`** (21 utilities): `calc`, `cat`, `clear`, `clip`, `date`, `echo`, `files`, `help`, `kill`, `ls`, `mem`, `notes`, `ps`, `reg`, `ret`, `sleep`, `sound`, `sysinfo`, `taskman`, `theme`, `ver`.
+* **`apps/network/`** (4 clients): `irc`, `net`, `ping`, `telnet`.
+* **`apps/system/`** (6 core apps): `boot`, `desktop`, `off`, `reboot`, `shell`, `startup`.
