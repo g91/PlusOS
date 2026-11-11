@@ -149,6 +149,7 @@ static std::wstring format_size_human(uint64_t bytes) {
     return b;
 }
 
+// Convert "C:\foo\bar"  →  "/mnt/c/foo/bar"  (WSL path format)
 static std::wstring win_to_wsl_path(const std::wstring& winPath) {
     if (winPath.length() >= 2 && winPath[1] == L':') {
         WCHAR drive = (WCHAR)towlower(winPath[0]);
@@ -159,6 +160,197 @@ static std::wstring win_to_wsl_path(const std::wstring& winPath) {
         return L"/mnt/" + std::wstring(1, drive) + rest;
     }
     return winPath;
+}
+
+// Convert "C:\foo\bar"  →  "/c/foo/bar"  (MSYS2 mount format)
+static std::wstring win_to_msys2_path(const std::wstring& winPath) {
+    if (winPath.length() >= 2 && winPath[1] == L':') {
+        WCHAR drive = (WCHAR)towlower(winPath[0]);
+        std::wstring rest = winPath.substr(2);
+        for (auto& c : rest) {
+            if (c == L'\\') c = L'/';
+        }
+        return L"/" + std::wstring(1, drive) + rest;
+    }
+    return winPath;
+}
+
+// Read a key=value text file (env.txt written by setup.ps1)
+static std::map<std::wstring, std::wstring> read_env_txt(const std::wstring& path) {
+    std::map<std::wstring, std::wstring> kv;
+    std::ifstream f(path);
+    if (!f.is_open()) return kv;
+    std::string line;
+    while (std::getline(f, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        auto eq = line.find('=');
+        if (eq == std::string::npos) continue;
+        std::wstring key   = to_wide(line.substr(0, eq));
+        std::wstring value = to_wide(line.substr(eq + 1));
+        // Trim trailing whitespace / CR
+        while (!value.empty() && (value.back() == L'\r' || value.back() == L' '))
+            value.pop_back();
+        kv[key] = value;
+    }
+    return kv;
+}
+
+// Persist / recall the user's backend preference in tools\winbuild\build_config.txt
+static BuildBackend load_backend_pref(const std::wstring& repoRoot) {
+    std::wstring path = repoRoot + L"\\tools\\winbuild\\build_config.txt";
+    std::ifstream f(path);
+    if (!f.is_open()) return BB_NONE;
+    std::string line;
+    while (std::getline(f, line)) {
+        if (line.rfind("BUILD_BACKEND=", 0) == 0) {
+            std::string val = line.substr(14);
+            while (!val.empty() && (val.back() == '\r' || val.back() == ' ')) val.pop_back();
+            if (val == "wsl")   return BB_WSL;
+            if (val == "msys2") return BB_MSYS2_LOCAL;
+        }
+    }
+    return BB_NONE;
+}
+
+static void save_backend_pref(const std::wstring& repoRoot, BuildBackend backend) {
+    std::wstring dir  = repoRoot + L"\\tools\\winbuild";
+    CreateDirectoryW(dir.c_str(), nullptr);  // no-op if exists
+    std::wstring path = dir + L"\\build_config.txt";
+    std::ofstream f(path, std::ios::trunc);
+    if (!f.is_open()) return;
+    f << "# PlusOS build backend preference (written by Disk Studio)\n";
+    f << "BUILD_BACKEND=" << (backend == BB_WSL ? "wsl" : "msys2") << "\n";
+}
+
+// Probe the build backend: MSYS2 (local/system) → WSL → nothing.
+// Populates m_backend, m_backendBash, m_localToolchain.
+void BuilderWindow::detect_build_backend() {
+    m_backend       = BB_NONE;
+    m_backendBash   = L"";
+    m_localToolchain = L"";
+
+    // 1. Read env.txt written by setup.ps1 (highest priority)
+    std::wstring envTxt = m_repoRoot + L"\\tools\\winbuild\\env.txt";
+    if (GetFileAttributesW(envTxt.c_str()) != INVALID_FILE_ATTRIBUTES) {
+        auto kv = read_env_txt(envTxt);
+        auto itBash = kv.find(L"MSYS2_BASH");
+        auto itTC   = kv.find(L"TOOLCHAIN_DIR");
+        if (itBash != kv.end() && GetFileAttributesW(itBash->second.c_str()) != INVALID_FILE_ATTRIBUTES) {
+            m_backendBash = itBash->second;
+            m_backend     = BB_MSYS2_LOCAL;
+        }
+        if (itTC != kv.end() && GetFileAttributesW(itTC->second.c_str()) != INVALID_FILE_ATTRIBUTES) {
+            m_localToolchain = itTC->second;
+        }
+    }
+
+    // 2. Local MSYS2 inside the repo (tools\winbuild\msys2\)
+    if (m_backend == BB_NONE) {
+        std::wstring localBash = m_repoRoot + L"\\tools\\winbuild\\msys2\\usr\\bin\\bash.exe";
+        if (GetFileAttributesW(localBash.c_str()) != INVALID_FILE_ATTRIBUTES) {
+            m_backendBash = localBash;
+            m_backend     = BB_MSYS2_LOCAL;
+        }
+    }
+
+    // 3. System-wide MSYS2 at C:\msys64 or C:\msys2
+    if (m_backend == BB_NONE) {
+        const wchar_t* sysLocations[] = {
+            L"C:\\msys64\\usr\\bin\\bash.exe",
+            L"C:\\msys2\\usr\\bin\\bash.exe",
+            nullptr
+        };
+        for (int i = 0; sysLocations[i]; i++) {
+            if (GetFileAttributesW(sysLocations[i]) != INVALID_FILE_ATTRIBUTES) {
+                m_backendBash = sysLocations[i];
+                m_backend     = BB_MSYS2_SYSTEM;
+                break;
+            }
+        }
+    }
+
+    // 4. WSL Ubuntu fallback
+    if (m_backend == BB_NONE) {
+        STARTUPINFOW si = { sizeof(si) };
+        si.dwFlags = STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_HIDE;
+        PROCESS_INFORMATION pi = {};
+        WCHAR wslCheck[] = L"wsl.exe -d Ubuntu -- uname";
+        if (CreateProcessW(nullptr, wslCheck, nullptr, nullptr, FALSE, CREATE_NO_WINDOW,
+                           nullptr, nullptr, &si, &pi)) {
+            DWORD ec = 1;
+            WaitForSingleObject(pi.hProcess, 5000);
+            GetExitCodeProcess(pi.hProcess, &ec);
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+            if (ec == 0) m_backend = BB_WSL;
+        }
+    }
+
+    // Also check for local toolchain even if MSYS2 came from env.txt
+    if (m_localToolchain.empty()) {
+        std::wstring localTC = m_repoRoot + L"\\tools\\winbuild\\toolchain";
+        std::wstring tcGcc   = localTC + L"\\bin\\m68k-apple-macos-gcc.exe";
+        if (GetFileAttributesW(tcGcc.c_str()) != INVALID_FILE_ATTRIBUTES) {
+            m_localToolchain = localTC;
+        }
+    }
+}
+
+// Build the shell command to invoke 'make <target> [extras]' using the
+// detected backend. Returns an empty string if no backend is available.
+std::wstring BuilderWindow::build_make_command(const std::wstring& target,
+                                               const std::wstring& extraFlags) const {
+    if (m_backend == BB_MSYS2_LOCAL || m_backend == BB_MSYS2_SYSTEM) {
+        std::wstring msys2Repo = win_to_msys2_path(m_repoRoot);
+        std::wstring envSetup  = L"export MSYSTEM=UCRT64; export PATH='/ucrt64/bin:/usr/bin:$PATH'";
+        std::wstring makeCmd   = L"make " + target + extraFlags;
+        if (!m_localToolchain.empty()) {
+            makeCmd += L" TOOLCHAIN='" + win_to_msys2_path(m_localToolchain) + L"'";
+        }
+        return L"\"" + m_backendBash + L"\" --login -c \"" +
+               envSetup + L"; cd '" + msys2Repo + L"' && " + makeCmd + L"\"";
+    }
+    if (m_backend == BB_WSL) {
+        std::wstring wslRepo = win_to_wsl_path(m_repoRoot);
+        return L"wsl.exe -d Ubuntu --cd " + wslRepo + L" -- make " + target + extraFlags;
+    }
+    return L""; // BB_NONE
+}
+
+// Show a "choose build environment" dialog, save the preference, return the choice.
+// Returns BB_NONE if the user cancelled.
+// forSetup = true  → wording about setting up / installing
+// forSetup = false → wording about building now
+BuildBackend BuilderWindow::prompt_build_backend(bool forSetup) {
+    // Decide the default button: saved pref > detected backend > MSYS2
+    BuildBackend saved = load_backend_pref(m_repoRoot);
+    if (saved == BB_NONE) saved = m_backend;
+    if (saved == BB_NONE) saved = BB_MSYS2_LOCAL;  // default to native
+
+    std::wstring currentName = (saved == BB_WSL) ? L"WSL Ubuntu" : L"MSYS2 (Windows-Native)";
+    std::wstring verb = forSetup ? L"set up" : L"build with";
+
+    std::wstring msg =
+        L"Select Build Environment to " + verb + L":\r\n\r\n"
+        L"  [Yes]    MSYS2  — Windows-native, no Linux required\r\n"
+        L"  [No]     WSL Ubuntu  — Linux subsystem (requires WSL installed)\r\n"
+        L"  [Cancel] Cancel\r\n\r\n"
+        L"Last saved: " + currentName;
+
+    UINT flags = MB_YESNOCANCEL | MB_ICONQUESTION;
+    flags |= (saved == BB_WSL) ? MB_DEFBUTTON2 : MB_DEFBUTTON1;
+    int r = MessageBoxW(m_hWnd, msg.c_str(), L"Build Environment", flags);
+
+    if (r == IDYES) {
+        save_backend_pref(m_repoRoot, BB_MSYS2_LOCAL);
+        return BB_MSYS2_LOCAL;
+    }
+    if (r == IDNO) {
+        save_backend_pref(m_repoRoot, BB_WSL);
+        return BB_WSL;
+    }
+    return BB_NONE;  // cancelled
 }
 
 static std::wstring find_bluescsi_drive() {
@@ -273,6 +465,7 @@ void BuilderWindow::detect_and_init_environment()
 
     m_blueScsiDrive = find_bluescsi_drive();
     m_cfg.image_path = m_repoRoot + L"\\images\\PlusOS.hda";
+    detect_build_backend();
 }
 
 BuilderWindow::BuilderWindow()
@@ -290,6 +483,7 @@ BuilderWindow::BuilderWindow()
       m_hStaticTotalDisk(nullptr), m_hStaticFloppyStatus(nullptr), m_hStaticFloppyTip(nullptr),
       m_hBtnBuildImage(nullptr), m_hBtnBuildFloppy(nullptr), m_hBtnOpenExplorer(nullptr),
       m_hBtnSaveConfig(nullptr), m_hBtnInjectApp(nullptr), m_hBtnSetupEnv(nullptr),
+      m_hBtnBootVM(nullptr),
       m_hGroupLog(nullptr), m_hEditBuildLog(nullptr),
       m_hConsoleFont(nullptr), m_hBoldFont(nullptr), m_hHeaderFont(nullptr)
 {
@@ -365,7 +559,30 @@ bool BuilderWindow::create(HINSTANCE hInstance, int nCmdShow, ExplorerWindow* ex
     } else {
         append_log(L"BlueSCSI Storage: Auto-scan active (Insert SD card anytime)");
     }
-    append_log(L"Toolchain: Retro68 GCC (m68k-apple-macos-gcc 16.1.0) & Python3 detected.");
+    // Show detected build backend
+    switch (m_backend) {
+    case BB_MSYS2_LOCAL:
+        append_log(L"Build Backend: MSYS2 (portable, inside tools\\winbuild\\msys2\\)");
+        if (!m_localToolchain.empty())
+            append_log(L"Toolchain: Retro68 (local) " + m_localToolchain);
+        else
+            append_log(L"Toolchain: Retro68 — run Setup to build it.");
+        break;
+    case BB_MSYS2_SYSTEM:
+        append_log(L"Build Backend: MSYS2 (system-wide)  " + m_backendBash);
+        if (!m_localToolchain.empty())
+            append_log(L"Toolchain: Retro68 (local) " + m_localToolchain);
+        else
+            append_log(L"Toolchain: Retro68 — run Setup to build it.");
+        break;
+    case BB_WSL:
+        append_log(L"Build Backend: WSL Ubuntu (legacy)");
+        append_log(L"Tip: Run 'Auto-Setup Build Environment' to migrate to native Windows build.");
+        break;
+    default:
+        append_log(L"Build Backend: NOT FOUND — click 'Auto-Setup Build Environment' to install.");
+        break;
+    }
     append_log(L"Ready to configure dual-boot, visual themes, and build the hard drive image.\r\n");
 
     return true;
@@ -401,7 +618,9 @@ void BuilderWindow::create_controls()
     SendMessageW(m_hComboHardware, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
     SendMessageW(m_hComboHardware, CB_ADDSTRING, 0, (LPARAM)L"Macintosh Plus (8 MHz 68000, 1MB-4MB RAM, SCSI)");
     SendMessageW(m_hComboHardware, CB_ADDSTRING, 0, (LPARAM)L"Macintosh SE (8 MHz 68000, ADB, XPRAM Dual-Boot)");
-    SendMessageW(m_hComboHardware, CB_ADDSTRING, 0, (LPARAM)L"Macintosh SE/30 (16 MHz 68030, PMMU)");
+    SendMessageW(m_hComboHardware, CB_ADDSTRING, 0, (LPARAM)L"Macintosh Classic (8 MHz 68000, ADB, 512x342)");
+    SendMessageW(m_hComboHardware, CB_ADDSTRING, 0, (LPARAM)L"Macintosh LC III / Performa 450 (25 MHz 68030, 32-bit Bus, 640x480 RGB)");
+    SendMessageW(m_hComboHardware, CB_ADDSTRING, 0, (LPARAM)L"Universal - ONE image, boots any Mac (auto-detects 68000 / 68030 at startup)");
     SendMessageW(m_hComboHardware, CB_SETCURSEL, 1, 0);
 
     HWND lblImg = CreateWindowExW(0, L"STATIC", L"Target Image:", WS_CHILD | WS_VISIBLE, 25, 60, 95, 20, m_hWnd, nullptr, m_hInstance, nullptr);
@@ -568,9 +787,13 @@ void BuilderWindow::create_controls()
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 602, 430, 30, m_hWnd, (HMENU)IDB_INJECT_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnInjectApp, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
-    m_hBtnSetupEnv = CreateWindowExW(0, L"BUTTON", L"Setup Environment & Dependencies (Pip / WSL)...",
+    m_hBtnSetupEnv = CreateWindowExW(0, L"BUTTON", L"Auto-Setup Build Environment (Windows-Native)...",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 636, 430, 30, m_hWnd, (HMENU)IDB_SETUP_ENV_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnSetupEnv, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+
+    m_hBtnBootVM = CreateWindowExW(0, L"BUTTON", L"Boot Hard Drive Image in Mini vMac (BlueSCSI)...",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 670, 430, 30, m_hWnd, (HMENU)IDB_BOOT_VM_BTN, m_hInstance, nullptr);
+    SendMessageW(m_hBtnBootVM, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     // Group 5: Software Applications & Floppy Capacity (Column 2)
     HWND grpApps = CreateWindowExW(0, L"BUTTON", L" 5. Software Packages & Floppy Capacity ",
@@ -1506,6 +1729,34 @@ static void RunProcessAsyncWithLogging(HWND hWnd, UINT completeMsg, const std::w
     }).detach();
 }
 
+/* After a BlueSCSI SD card is reinserted, WSL's /mnt/<drive> drvfs mount goes
+ * stale: writes appear to succeed but never reach the card, so `make install`
+ * silently installs nothing and the Mac keeps booting the OLD image. Refresh
+ * the mount (umount + remount) before every build so the install really lands
+ * on the card. Runs synchronously so the build that follows sees a live mount. */
+void BuilderWindow::remount_bluescsi()
+{
+    if (m_blueScsiDrive.empty()) return;
+    wchar_t up = m_blueScsiDrive[0];
+    if (up >= L'a' && up <= L'z') up = (wchar_t)(up - L'a' + L'A');
+    wchar_t lo = (up >= L'A' && up <= L'Z') ? (wchar_t)(up - L'A' + L'a') : up;
+
+    std::wstring mnt = std::wstring(L"/mnt/") + lo;
+    std::wstring cmd = L"wsl.exe -d Ubuntu -u root -- bash -lc \"umount -l " + mnt +
+                       L" 2>/dev/null; mount -t drvfs " + up + L": " + mnt +
+                       L" 2>/dev/null; true\"";
+    append_log(std::wstring(L"Refreshing SD card mount (") + up + L":) so the install reaches the card...");
+
+    STARTUPINFOW si; ZeroMemory(&si, sizeof si); si.cb = sizeof si;
+    PROCESS_INFORMATION pi; ZeroMemory(&pi, sizeof pi);
+    std::vector<wchar_t> buf(cmd.begin(), cmd.end()); buf.push_back(0);
+    if (CreateProcessW(nullptr, buf.data(), nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, 20000);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+}
+
 void BuilderWindow::action_build_image()
 {
     if (m_isBuilding) {
@@ -1513,8 +1764,13 @@ void BuilderWindow::action_build_image()
         return;
     }
 
+    // Always ask which build environment to use
+    BuildBackend chosen = prompt_build_backend(false);
+    if (chosen == BB_NONE) return;  // user cancelled
+
     update_cfg_from_controls();
     save_config_to_file();
+    if (chosen == BB_WSL) remount_bluescsi();  // only needed for WSL drvfs mounts
 
     m_isBuilding = true;
     EnableWindow(m_hBtnBuildImage, FALSE);
@@ -1526,6 +1782,7 @@ void BuilderWindow::action_build_image()
 
     append_log(L"\r\n==================================================");
     append_log(L"[BUILD] Starting PlusOS Hard Drive Image Build Pipeline");
+    append_log(L"Backend: " + std::wstring(chosen == BB_WSL ? L"WSL Ubuntu" : L"MSYS2 (Windows-Native)"));
     append_log(L"Target: " + m_cfg.image_path);
     append_log(L"Base OS Core: " + format_size_human(baseBytes) + L" (Kernel, Boot Blocks & HFS Overhead - Required)");
     append_log(L"Selected Software: " + format_size_human(appBytes));
@@ -1535,15 +1792,36 @@ void BuilderWindow::action_build_image()
     append_log(L"Running 'make install' asynchronously in worker thread...");
 
     std::wstring rootDir = m_repoRoot;
-    std::wstring wslRepo = win_to_wsl_path(m_repoRoot);
-    std::wstring extraMake = L"";
+    std::wstring machineFlag = L" MACHINE=se";
+    if (m_cfg.target_hardware == 0) machineFlag = L" MACHINE=plus";
+    else if (m_cfg.target_hardware == 1) machineFlag = L" MACHINE=se";
+    else if (m_cfg.target_hardware == 2) machineFlag = L" MACHINE=classic";
+    else if (m_cfg.target_hardware == 3) machineFlag = L" MACHINE=lc3";
+    else if (m_cfg.target_hardware == 4) machineFlag = L" MACHINE=universal";
+
+    std::wstring extraMake = machineFlag;
     if (!m_blueScsiDrive.empty()) {
-        std::wstring wslDrive = win_to_wsl_path(m_blueScsiDrive);
-        while (!wslDrive.empty() && wslDrive.back() == L'/') wslDrive.pop_back();
-        extraMake = L" SDCARD=" + wslDrive;
+        std::wstring sdPath = (chosen == BB_WSL)
+            ? win_to_wsl_path(m_blueScsiDrive)
+            : win_to_msys2_path(m_blueScsiDrive);
+        while (!sdPath.empty() && sdPath.back() == L'/') sdPath.pop_back();
+        extraMake += L" SDCARD=" + sdPath;
     }
-    std::wstring cmd = L"wsl.exe -d Ubuntu --cd " + wslRepo + L" -- make install" + extraMake;
-    std::wstring fallbackCmd = L"cmd.exe /c \"cd /d \"" + m_repoRoot + L"\" && call build.bat install\"";
+
+    // Temporarily switch backend for this call so build_make_command uses chosen
+    BuildBackend saved = m_backend;
+    m_backend = chosen;
+    std::wstring cmd = build_make_command(L"install", extraMake);
+    m_backend = saved;
+
+    std::wstring fallbackCmd = L"cmd.exe /c \"cd /d \"" + m_repoRoot + L"\" && call build.bat install" + machineFlag + L"\"";
+    if (cmd.empty()) {
+        append_log(L"[ERROR] Build environment not found. Run 'Auto-Setup Build Environment' first.");
+        m_isBuilding = false;
+        EnableWindow(m_hBtnBuildImage, TRUE);
+        EnableWindow(m_hBtnBuildFloppy, TRUE);
+        return;
+    }
 
     RunProcessAsyncWithLogging(m_hWnd, WM_BUILD_COMPLETED, cmd, fallbackCmd, rootDir);
 }
@@ -1581,6 +1859,12 @@ void BuilderWindow::action_build_floppy()
         MessageBoxW(m_hWnd, L"A build is already in progress. Please wait for it to complete.", L"Build Running", MB_ICONINFORMATION | MB_OK);
         return;
     }
+
+    // Always ask which build environment to use
+    BuildBackend chosen = prompt_build_backend(false);
+    if (chosen == BB_NONE) return;  // user cancelled
+
+    update_cfg_from_controls();     /* capture the current Target Machine selection */
 
     uint64_t appBytes = get_total_selected_size_bytes();
     uint64_t baseBytes = get_base_system_bytes();
@@ -1642,9 +1926,31 @@ void BuilderWindow::action_build_floppy()
     append_log(L"Running 'make floppy' asynchronously in worker thread...");
 
     std::wstring rootDir = m_repoRoot;
-    std::wstring wslRepo = win_to_wsl_path(m_repoRoot);
-    std::wstring cmd = L"wsl.exe -d Ubuntu --cd " + wslRepo + L" -- bash -l -c \"make floppy\"";
-    std::wstring fallbackCmd = L"cmd.exe /c \"cd /d \"" + m_repoRoot + L"\" && call build.bat floppy\"";
+    /* The floppy's boot block stays the universal minimal loader, but the KERNEL
+     * it bundles is machine-specific, so pass the Target Machine to make. */
+    std::wstring machineFlag = L" MACHINE=se";
+    if (m_cfg.target_hardware == 0) machineFlag = L" MACHINE=plus";
+    else if (m_cfg.target_hardware == 1) machineFlag = L" MACHINE=se";
+    else if (m_cfg.target_hardware == 2) machineFlag = L" MACHINE=classic";
+    else if (m_cfg.target_hardware == 3) machineFlag = L" MACHINE=lc3";
+    else if (m_cfg.target_hardware == 4) machineFlag = L" MACHINE=universal";
+    append_log(L"Target Machine:" + machineFlag);
+    append_log(L"Backend: " + std::wstring(chosen == BB_WSL ? L"WSL Ubuntu" : L"MSYS2 (Windows-Native)"));
+
+    // Temporarily switch backend for this call so build_make_command uses chosen
+    BuildBackend saved = m_backend;
+    m_backend = chosen;
+    std::wstring cmd = build_make_command(L"floppy", machineFlag);
+    m_backend = saved;
+
+    std::wstring fallbackCmd = L"cmd.exe /c \"cd /d \"" + m_repoRoot + L"\" && call build.bat floppy" + machineFlag + L"\"";
+    if (cmd.empty()) {
+        append_log(L"[ERROR] Build environment not found. Run 'Auto-Setup Build Environment' first.");
+        m_isBuilding = false;
+        EnableWindow(m_hBtnBuildImage, TRUE);
+        EnableWindow(m_hBtnBuildFloppy, TRUE);
+        return;
+    }
 
     RunProcessAsyncWithLogging(m_hWnd, WM_FLOPPY_COMPLETED, cmd, fallbackCmd, rootDir);
 }
@@ -1677,51 +1983,292 @@ void BuilderWindow::on_floppy_finished(DWORD exitCode)
 
 void BuilderWindow::action_setup_environment()
 {
+    // Let the user choose (and persist) which backend to set up
+    BuildBackend chosen = prompt_build_backend(true);
+    if (chosen == BB_NONE) return;  // user cancelled
+
     append_log(L"\r\n==================================================");
-    append_log(L"[SETUP] Setting Up Portable PlusOS Build Environment");
-    append_log(L"Repository Directory: " + m_repoRoot);
+    if (chosen == BB_WSL) {
+        append_log(L"[SETUP] Setting Up WSL Ubuntu Build Environment");
+    } else {
+        append_log(L"[SETUP] Setting Up MSYS2 (Windows-Native) Build Environment");
+    }
+    append_log(L"Repository: " + m_repoRoot);
 
-    // 1. Python Pip Dependencies
-    append_log(L"[1/2] Installing companion Python dependencies (machfs, pyserial, requests, urllib3)...");
-    std::wstring pipCmd = L"cmd.exe /c \"cd /d \"" + m_repoRoot + L"\" && (py -m pip install -r requirements.txt || python -m pip install -r requirements.txt || pip install -r requirements.txt)\"";
+    // Step 1: Python pip dependencies (quick, synchronous)
+    append_log(L"Installing Python companion packages...");
+    std::wstring pipCmd = L"cmd.exe /c \"cd /d \"" + m_repoRoot +
+        L"\" && (py -m pip install -r requirements.txt 2>nul || python -m pip install -r requirements.txt 2>nul || pip install -r requirements.txt 2>nul)\"";
+    {
+        STARTUPINFOW si = { sizeof(si) };
+        si.dwFlags = STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_HIDE;
+        PROCESS_INFORMATION pi = {};
+        std::vector<WCHAR> pipVec(pipCmd.begin(), pipCmd.end());
+        pipVec.push_back(0);
+        if (CreateProcessW(nullptr, pipVec.data(), nullptr, nullptr, FALSE, CREATE_NO_WINDOW,
+                           nullptr, nullptr, &si, &pi)) {
+            WaitForSingleObject(pi.hProcess, 15000);
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        }
+        append_log(L"[OK] Python packages installed (or already present).");
+    }
 
-    // 2. WSL Ubuntu Verification
-    append_log(L"[2/2] Verifying Linux build environment (WSL Ubuntu)...");
+    if (chosen == BB_WSL) {
+        // ── WSL path ──────────────────────────────────────────────────────
+        append_log(L"Verifying WSL Ubuntu...");
+        STARTUPINFOW si = { sizeof(si) };
+        si.dwFlags = STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_HIDE;
+        PROCESS_INFORMATION pi = {};
+        WCHAR wslCheck[] = L"wsl.exe -d Ubuntu -- uname -a";
+        bool wslOk = false;
+        if (CreateProcessW(nullptr, wslCheck, nullptr, nullptr, FALSE, CREATE_NO_WINDOW,
+                           nullptr, nullptr, &si, &pi)) {
+            DWORD ec = 1;
+            WaitForSingleObject(pi.hProcess, 8000);
+            GetExitCodeProcess(pi.hProcess, &ec);
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+            wslOk = (ec == 0);
+        }
+        if (!wslOk) {
+            append_log(L"[ERROR] WSL Ubuntu is not installed or not responding.");
+            append_log(L"        Open PowerShell as Administrator and run:  wsl --install -d Ubuntu");
+            MessageBoxW(m_hWnd,
+                L"WSL Ubuntu is not installed.\r\n\r\n"
+                L"Open PowerShell as Administrator and run:\r\n"
+                L"    wsl --install -d Ubuntu\r\n\r\n"
+                L"After Ubuntu is installed and started once, click Setup again.",
+                L"WSL Required", MB_ICONWARNING | MB_OK);
+            return;
+        }
+        append_log(L"[OK] WSL Ubuntu is active.");
+        // Run the bootstrap script inside WSL to install packages + Retro68
+        std::wstring scriptWsl = win_to_wsl_path(m_repoRoot) + L"/tools/winbuild/bootstrap_toolchain.sh";
+        // Adapt install prefix to WSL home
+        std::wstring wslCmd = L"wsl.exe -d Ubuntu -- bash -l \"" + scriptWsl +
+            L"\" \"$HOME/Retro68-build/toolchain\" \"" + win_to_wsl_path(m_repoRoot) + L"\"";
+        append_log(L"Running bootstrap_toolchain.sh inside WSL Ubuntu (~20-40 min)...");
+        append_log(L"--------------------------------------------------");
+        RunProcessAsyncWithLogging(m_hWnd, WM_SETUP_COMPLETED, wslCmd, L"", m_repoRoot);
+    } else {
+        // ── MSYS2 path ────────────────────────────────────────────────────
+        append_log(L"This will install MSYS2 into tools\\winbuild\\msys2\\,");
+        append_log(L"then build Retro68 GCC cross-compiler from source (~20-40 min).");
+        std::wstring setupPs1 = m_repoRoot + L"\\tools\\winbuild\\setup.ps1";
+        if (GetFileAttributesW(setupPs1.c_str()) == INVALID_FILE_ATTRIBUTES) {
+            append_log(L"[ERROR] Cannot find tools\\winbuild\\setup.ps1 — repo may be incomplete.");
+            return;
+        }
+        append_log(L"Launching tools\\winbuild\\setup.ps1  (live output below)...");
+        append_log(L"--------------------------------------------------");
+        std::wstring psCmd = L"powershell.exe -NoProfile -ExecutionPolicy Bypass -File \""
+            + setupPs1 + L"\"";
+        RunProcessAsyncWithLogging(m_hWnd, WM_SETUP_COMPLETED, psCmd, L"", m_repoRoot);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Boot VM helpers
+// ---------------------------------------------------------------------------
+
+// Scan well-known locations for the Mini vMac (BlueSCSI patched) executable.
+static std::wstring find_vmac_exe(const std::wstring& repoRoot) {
+    static const wchar_t* names[] = {
+        L"Mini vMac (BlueSCSI patched).exe",
+        L"Mini vMac.exe",
+        nullptr
+    };
+    std::wstring dirs[] = {
+        repoRoot + L"\\tools\\emulator\\",
+        repoRoot + L"\\",
+        L"F:\\",
+        L""
+    };
+    for (const auto& dir : dirs) {
+        if (dir.empty()) break;
+        for (int i = 0; names[i]; i++) {
+            std::wstring p = dir + names[i];
+            if (GetFileAttributesW(p.c_str()) != INVALID_FILE_ATTRIBUTES)
+                return p;
+        }
+    }
+    return L"";
+}
+
+// Scan for a Mac ROM file that Mini vMac accepts.
+// Mini vMac must have the ROM in its working directory, so we check there first,
+// then check other common spots and offer to copy if found elsewhere.
+static std::wstring find_rom_file(const std::wstring& exeDir,
+                                  const std::wstring& repoRoot) {
+    static const wchar_t* names[] = {
+        L"vMac.ROM",
+        L"Mac Plus.ROM",
+        L"MacPlus.ROM",
+        L"Mac SE.ROM",
+        L"MacSE.ROM",
+        L"vMacSE.ROM",
+        L"ROM",        // some builds use just "ROM"
+        nullptr
+    };
+    std::wstring searchDirs[] = {
+        exeDir + L"\\",
+        repoRoot + L"\\images\\",
+        repoRoot + L"\\",
+        L"F:\\",
+        L""
+    };
+    for (const auto& dir : searchDirs) {
+        if (dir.empty()) break;
+        for (int i = 0; names[i]; i++) {
+            std::wstring p = dir + names[i];
+            if (GetFileAttributesW(p.c_str()) != INVALID_FILE_ATTRIBUTES)
+                return p;
+        }
+    }
+    return L"";
+}
+
+// Return the best available disk image to boot.
+std::wstring BuilderWindow::find_boot_image() const {
+    std::vector<std::wstring> candidates = {
+        m_cfg.image_path,
+        m_repoRoot + L"\\images\\BOOTTEST.hda",
+        m_repoRoot + L"\\images\\PlusOS.hda",
+        m_repoRoot + L"\\images\\HD60_512 PlusOS.hda",
+    };
+    if (!m_blueScsiDrive.empty()) {
+        std::wstring sd = m_blueScsiDrive;
+        if (!sd.empty() && sd.back() != L'\\') sd += L'\\';
+        candidates.push_back(sd + L"BOOTTEST.hda");
+        candidates.push_back(sd + L"HD60_512 PlusOS.hda");
+        candidates.push_back(sd + L"PlusOS.hda");
+    }
+    for (const auto& p : candidates) {
+        if (!p.empty() && GetFileAttributesW(p.c_str()) != INVALID_FILE_ATTRIBUTES)
+            return p;
+    }
+    return L"";
+}
+
+void BuilderWindow::action_boot_vm()
+{
+    // ── 1. Find the emulator ──────────────────────────────────────────────
+    std::wstring exePath = find_vmac_exe(m_repoRoot);
+    if (exePath.empty()) {
+        append_log(L"\r\n[BOOT VM] Emulator not found.");
+        MessageBoxW(m_hWnd,
+            L"Mini vMac (BlueSCSI patched) not found.\r\n\r\n"
+            L"Place the emulator in one of these locations:\r\n"
+            L"  tools\\emulator\\Mini vMac (BlueSCSI patched).exe\r\n"
+            L"  tools\\emulator\\Mini vMac.exe\r\n\r\n"
+            L"The emulator is not included in the PlusOS repository.\r\n"
+            L"Download a BlueSCSI-patched Mini vMac build from the project wiki.",
+            L"Emulator Not Found", MB_ICONWARNING | MB_OK);
+        return;
+    }
+
+    // Derive exe directory (Mini vMac looks for the ROM in its working dir)
+    std::wstring exeDir = exePath;
+    size_t slash = exeDir.find_last_of(L"\\/");
+    if (slash != std::wstring::npos) exeDir = exeDir.substr(0, slash);
+
+    // ── 2. Find the ROM ───────────────────────────────────────────────────
+    std::wstring romPath = find_rom_file(exeDir, m_repoRoot);
+    if (romPath.empty()) {
+        append_log(L"[BOOT VM] ROM file not found.");
+        std::wstring romMsg =
+            L"Mac ROM file not found.\r\n\r\n"
+            L"Mini vMac requires a Macintosh ROM dump (vMac.ROM) placed in the\r\n"
+            L"same folder as the emulator:\r\n"
+            L"  " + exeDir + L"\\vMac.ROM\r\n\r\n"
+            L"This file is not included in the repository.\r\n"
+            L"Dump the ROM from your own Macintosh or use a legal source.";
+        MessageBoxW(m_hWnd, romMsg.c_str(), L"ROM Not Found", MB_ICONWARNING | MB_OK);
+        return;
+    }
+
+    // If the ROM is not already in the exe dir, offer to copy it there
+    std::wstring romDir = romPath;
+    size_t rs = romDir.find_last_of(L"\\/");
+    if (rs != std::wstring::npos) romDir = romDir.substr(0, rs);
+
+    if (_wcsicmp(romDir.c_str(), exeDir.c_str()) != 0) {
+        std::wstring romFile = romPath.substr(romPath.find_last_of(L"\\/") + 1);
+        std::wstring destRom = exeDir + L"\\" + romFile;
+        int r = MessageBoxW(m_hWnd,
+            (L"ROM found outside the emulator folder:\r\n  " + romPath +
+             L"\r\n\r\nMini vMac requires the ROM in the same folder as the .exe.\r\n\r\n"
+             L"Copy it there now?\r\n  → " + destRom).c_str(),
+            L"Copy ROM?", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1);
+        if (r == IDYES) {
+            if (!CopyFileW(romPath.c_str(), destRom.c_str(), FALSE)) {
+                DWORD err = GetLastError();
+                MessageBoxW(m_hWnd,
+                    (L"Failed to copy ROM (error " + std::to_wstring(err) + L").\r\n"
+                     L"Copy it manually to: " + destRom).c_str(),
+                    L"Copy Failed", MB_ICONERROR | MB_OK);
+                return;
+            }
+            romPath = destRom;
+            append_log(L"[BOOT VM] ROM copied to emulator folder.");
+        } else {
+            return;
+        }
+    }
+
+    // ── 3. Find the disk image ────────────────────────────────────────────
+    std::wstring imagePath = find_boot_image();
+    if (imagePath.empty()) {
+        append_log(L"[BOOT VM] No disk image found.");
+        MessageBoxW(m_hWnd,
+            L"No hard drive image found.\r\n\r\n"
+            L"Build the image first using 'Compile & Build Hard Drive Image',\r\n"
+            L"or place a .hda file in:\r\n"
+            L"  images\\BOOTTEST.hda\r\n"
+            L"  images\\PlusOS.hda",
+            L"No Disk Image", MB_ICONWARNING | MB_OK);
+        return;
+    }
+
+    // ── 4. Launch ─────────────────────────────────────────────────────────
+    append_log(L"\r\n==================================================");
+    append_log(L"[BOOT VM] Launching Mini vMac (BlueSCSI patched)");
+    append_log(L"Emulator : " + exePath);
+    append_log(L"ROM      : " + romPath);
+    append_log(L"Image    : " + imagePath);
+
+    // Close any existing Mini vMac instance so it doesn't lock the image
+    {
+        HWND hVMac = FindWindowW(nullptr, L"Mini vMac");
+        if (!hVMac) hVMac = FindWindowW(nullptr, L"Mini vMac (BlueSCSI patched)");
+        if (hVMac) {
+            append_log(L"Closing existing Mini vMac instance...");
+            PostMessageW(hVMac, WM_CLOSE, 0, 0);
+            Sleep(400);
+        }
+    }
+
+    std::wstring cmdLine = L"\"" + exePath + L"\" \"" + imagePath + L"\"";
+    std::vector<WCHAR> cmd(cmdLine.begin(), cmdLine.end());
+    cmd.push_back(0);
+
     STARTUPINFOW si = { sizeof(si) };
     PROCESS_INFORMATION pi = {};
-    si.dwFlags = STARTF_USESHOWWINDOW;
-    si.wShowWindow = SW_HIDE;
-    WCHAR wslCheck[] = L"wsl.exe -d Ubuntu -- uname -a";
-    bool wslOk = false;
-    if (CreateProcessW(nullptr, wslCheck, nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi)) {
-        DWORD ec = 1;
-        WaitForSingleObject(pi.hProcess, 5000);
-        GetExitCodeProcess(pi.hProcess, &ec);
+    if (CreateProcessW(nullptr, cmd.data(), nullptr, nullptr, FALSE,
+                       0, nullptr, exeDir.c_str(), &si, &pi)) {
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
-        wslOk = (ec == 0);
-    }
-
-    if (wslOk) {
-        append_log(L"[OK] Linux build environment (WSL Ubuntu) is active.");
-        append_log(L"[OK] Ready for Motorola 68000 cross-compilation with Retro68 GCC.");
+        append_log(L"[OK] Mini vMac launched. Enjoy PlusOS!");
     } else {
-        append_log(L"--------------------------------------------------");
-        append_log(L"[WARNING] WSL Ubuntu is not detected or not installed!");
-        append_log(L"[ACTION REQUIRED] PlusOS cross-compiles Motorola 68000 code via Linux.");
-        append_log(L"                  Open PowerShell as Administrator and execute:");
-        append_log(L"                  wsl --install -d Ubuntu");
-        append_log(L"--------------------------------------------------");
+        DWORD err = GetLastError();
+        append_log(L"[ERROR] Failed to launch emulator (Win32 error " + std::to_wstring(err) + L").");
         MessageBoxW(m_hWnd,
-            L"Linux Build Environment Required (WSL Ubuntu)\r\n\r\n"
-            L"PlusOS builds Motorola 68000 kernel binaries and ROM libraries using GCC in Linux.\r\n\r\n"
-            L"To enable compiling on this machine, please run the following command in PowerShell (Run as Administrator):\r\n\r\n"
-            L"    wsl --install -d Ubuntu\r\n\r\n"
-            L"Once Ubuntu is installed, restart Disk Studio or click 'Setup Environment' again.",
-            L"Linux Environment Setup", MB_ICONINFORMATION | MB_OK);
+            (L"Failed to launch Mini vMac.\r\nWin32 error: " + std::to_wstring(err)).c_str(),
+            L"Launch Failed", MB_ICONERROR | MB_OK);
     }
-
-    RunProcessAsyncWithLogging(m_hWnd, WM_NULL, pipCmd, L"", m_repoRoot);
 }
 
 void BuilderWindow::action_inject_external()
@@ -1793,6 +2340,40 @@ LRESULT BuilderWindow::handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
         return 0;
     }
 
+    case WM_SETUP_COMPLETED: {
+        DWORD exitCode = (DWORD)wParam;
+        append_log(L"--------------------------------------------------");
+        if (exitCode == 0) {
+            // Re-probe backend now that setup.ps1 has finished
+            detect_build_backend();
+            append_log(L"[SUCCESS] Build environment setup complete!");
+            switch (m_backend) {
+            case BB_MSYS2_LOCAL:
+                append_log(L"Backend: MSYS2 (portable)  " + m_backendBash);
+                if (!m_localToolchain.empty())
+                    append_log(L"Toolchain: " + m_localToolchain);
+                break;
+            case BB_MSYS2_SYSTEM:
+                append_log(L"Backend: MSYS2 (system)  " + m_backendBash);
+                break;
+            default:
+                append_log(L"[WARNING] Backend not detected after setup — check log above.");
+                break;
+            }
+            append_log(L"You can now build PlusOS using 'Build & Install Hard Drive Image'.");
+        } else {
+            append_log(L"[ERROR] Setup script exited with code: " + std::to_wstring(exitCode));
+            append_log(L"Check the log above for details. You may need to run setup.ps1 manually.");
+            MessageBoxW(m_hWnd,
+                L"Build environment setup encountered errors.\r\n\r\n"
+                L"See the build log for details.\r\n\r\n"
+                L"You can also run setup manually:\r\n"
+                L"  powershell -ExecutionPolicy Bypass -File tools\\winbuild\\setup.ps1",
+                L"Setup Warning", MB_ICONWARNING | MB_OK);
+        }
+        return 0;
+    }
+
     case WM_COMMAND: {
         int id = LOWORD(wParam);
         switch (id) {
@@ -1807,6 +2388,7 @@ LRESULT BuilderWindow::handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
             break;
         case IDB_INJECT_BTN: action_inject_external(); break;
         case IDB_SETUP_ENV_BTN: action_setup_environment(); break;
+        case IDB_BOOT_VM_BTN: action_boot_vm(); break;
         case IDB_BOOT_ADD_BTN: on_boot_add(); break;
         case IDB_BOOT_EDIT_BTN: on_boot_edit(); break;
         case IDB_BOOT_REMOVE_BTN: on_boot_remove(); break;

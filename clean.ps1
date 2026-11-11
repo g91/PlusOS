@@ -184,7 +184,12 @@ if ($All) {
         $wslAvailable = Get-Command "wsl" -ErrorAction SilentlyContinue
         if ($wslAvailable) {
             Write-Host "  Invoking WSL make clean..." -ForegroundColor DarkGray
-            wsl -d Ubuntu --cd /mnt/c/Users/Evil/PlusOS -- make clean
+            $WSLClean = $null
+            try { $WSLClean = (wsl -d Ubuntu -- wslpath -a ($repoRoot.Replace('\','/'))) 2>$null } catch {}
+            if (-not $WSLClean) {
+                $WSLClean = "/mnt/" + $repoRoot[0].ToString().ToLower() + $repoRoot.Substring(2).Replace('\','/')
+            }
+            wsl -d Ubuntu --cd $WSLClean -- make clean
         } else {
             Remove-CleanDirectory "$repoRoot\build" "Full build tree"
         }

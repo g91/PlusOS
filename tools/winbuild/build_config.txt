@@ -1,0 +1,2 @@
+# PlusOS build backend preference (written by Disk Studio)
+BUILD_BACKEND=wsl

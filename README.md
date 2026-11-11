@@ -171,17 +171,34 @@ Each SDK folder is self-contained (ROM layer, C library, PlusOS runtime,
 linker script, Makefile, `sdk.mk`, docs, tests) and can be copied anywhere.
 Don't edit the generated SDK folders: change `tools/sdkgen` and run `build sdks`.
 
-## Plus vs. SE
+## Hardware Compatibility & Targets
 
-| | Mac Plus | Mac SE |
-|---|---|---|
-| ROM | 128 KB, version $0075 | 256 KB, version $0276 (SE and SE FDHD) |
-| Traps / usable calls | 626 / 641 | 660 / 693 |
-| Keyboard | Mac Plus keyboard protocol; PlusOS installs the key translator | ADB; PlusOS reads the KeyMap the ROM's ADB driver maintains |
-| Toolbox trap table | $0C00 | $0E00 |
+| Feature | Mac Plus | Mac SE & Classic | Mac LC III / Performa 450 |
+|---|---|---|---|
+| **CPU** | Motorola 68000 @ 8 MHz (16-bit) | Motorola 68000 @ 8 MHz (16-bit) | Motorola 68030 @ 25 MHz (32-bit Bus) |
+| **ROM** | 128 KB, version $0075 | 256 KB / 512 KB, version $0276 | 1 MB, version $067C (32-bit Clean) |
+| **Display** | 512 &times; 342 (64 bytes/row) | 512 &times; 342 (64 bytes/row) | 640 &times; 480 (80 bytes/row, Sonora) |
+| **Keyboard** | Mac Plus serial protocol | ADB (ROM ADB driver) | Apple Desktop Bus (ADB) |
+| **SCSI** | NCR 5380 (polled) | NCR 5380 (handshake DMA) | NCR 53C96 High-Speed SCSI |
+| **Compiler Flag** | `MACHINE=plus` (`-m68000`) | `MACHINE=se` (`-m68000`) | `MACHINE=lc3` (`-m68030`) |
 
-The same disk image boots either machine; the kernel detects which one from
-the ROM version.
+### Targeting Machines via Compiler or Disk Studio
+
+You can build for any machine from the command line or from **PlusOS Disk Studio**:
+
+```bash
+# Build for Macintosh LC III (68030, 640x480):
+make install MACHINE=lc3
+
+# Build for Macintosh SE (Default, 68000, 512x342):
+make install MACHINE=se
+
+# Build for Macintosh Plus (68000, serial keyboard):
+make install MACHINE=plus
+
+# Build for Macintosh Classic (68000, ADB):
+make install MACHINE=classic
+```
 
 ## How it boots
 

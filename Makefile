@@ -15,6 +15,36 @@ include config.mk
 BUILD  := build
 UPPER   = $(shell echo $(1) | tr a-z A-Z)
 
+# Smart MD5 build ledger — two-phase system:
+#
+#   Phase 1  prescan  (runs once before the build):
+#     Loads build/.build_ledger.json, hashes every tracked source file, and
+#     pre-touches .o files for unchanged sources so make skips their compiler
+#     invocations.  Prints "compile environment instructions" — a per-file
+#     build plan showing exactly what will (and won't) be recompiled.
+#
+#   Phase 2  SMARTCC  (wraps every individual CC/CXX/AS call):
+#     On each compiler invocation checks the ledger; on a hit touches .o and
+#     returns immediately; on a miss compiles and writes the new hash back.
+#     Covers .c, .cpp, .S, .s, .asm files for both cross-compiler and host.
+#
+# Falls back gracefully when Python3 is unavailable.
+HASHCC_PY := $(CURDIR)/tools/hashcc.py
+_PYTHON3  := $(shell command -v python3 2>/dev/null)
+SMARTCC    = $(if $(_PYTHON3),python3 $(HASHCC_PY),)
+_PRESCAN   = $(if $(_PYTHON3),python3 $(HASHCC_PY) --prescan --machine $(MACHINE),)
+
+# Machine stamp: make keys on file timestamps, not the MACHINE value, so
+# switching targets (e.g. lc3 -> se) would otherwise reuse stale objects built
+# with the wrong -DPLUSOS_MACHINE_*. This stamp's name encodes MACHINE; when it
+# changes, the old stamp is removed and the new one is newer than every
+# machine-specific object, forcing the loader and kernel to rebuild.
+MACHINE_STAMP := $(BUILD)/.machine.$(MACHINE)
+$(MACHINE_STAMP):
+	@mkdir -p $(BUILD)
+	@rm -f $(BUILD)/.machine.* 2>/dev/null || true
+	@touch $@
+
 # Kernel sources across all subdirectories (core, cpu, proc, drivers, services)
 KSRC   := $(wildcard kernel/*.c kernel/*.S kernel/*/*.c kernel/*/*.S kernel/*/*/*.c kernel/*/*/*.S)
 KOBJ   := $(patsubst %,$(BUILD)/%.o,$(KSRC))
@@ -26,13 +56,25 @@ app_dir = $(firstword $(wildcard apps/*/$(1) apps/$(1)))
 APPS    := $(sort $(notdir $(wildcard apps/*/*)))
 APPPEX  := $(foreach a,$(APPS),$(BUILD)/apps/$(a).pex)
 
+# Live network debugger (netdbg) auto-start is OFF by default for security and
+# performance. Build with NETDBG=1 to compile in its boot-time auto-start:
+#     make NETDBG=1 install        (or:  build.bat netdbg install)
+NETDBG ?= 0
+ifeq ($(NETDBG),1)
+EXTRA_CPPFLAGS += -DPLUSOS_ENABLE_NETDBG
+endif
+
 # The kernel includes all kernel subdirectories and SE SDK catalog
-KERNEL_CPPFLAGS := $(PLUSOS_CPPFLAGS) -Ikernel -Ikernel/core -Ikernel/cpu -Ikernel/proc \
+KERNEL_CPPFLAGS := $(PLUSOS_CPPFLAGS) $(PLUSOS_MACHINE_CPPFLAGS) $(EXTRA_CPPFLAGS) -Ikernel -Ikernel/core -Ikernel/cpu -Ikernel/proc \
                    -Ikernel/drivers -Ikernel/drivers/video -Ikernel/drivers/input -Ikernel/drivers/sound \
                    -Ikernel/services -idirafter $(SDK_SE)/include
 
-.PHONY: all sdks sdklibs sdktest install clean kernel loader apps floppy studio
-all: sdklibs $(LOADER) $(KERNEL) apps
+.PHONY: all sdks sdklibs sdktest install clean kernel loader apps floppy studio prescan dump-cache clean-cache
+# prescan: phase 1 — scan ledger and pre-touch cached .o files before make runs
+prescan:
+	@if [ -n "$(_PYTHON3)" ]; then $(_PRESCAN); fi
+
+all: prescan sdklibs $(LOADER) $(KERNEL) apps
 	@$(SIZE) $(BUILD)/kernel/kernel.elf | tail -1 | awk '{print "kernel: text " $$1 "  data " $$2 "  bss " $$3}'
 
 sdklibs:
@@ -41,29 +83,34 @@ sdklibs:
 sdktest:
 	@$(MAKE) --no-print-directory -C $(SDK_PLUS) test
 	@$(MAKE) --no-print-directory -C $(SDK_SE) test
-kernel: sdklibs $(KERNEL)
+kernel: prescan sdklibs $(KERNEL)
 loader: $(LOADER)
 # Best-effort: build each app on its own so one that fails to compile is skipped
 # with a warning instead of stopping the whole build. `make strict-apps` fails hard.
-apps: sdklibs
+apps: prescan sdklibs
 	@mkdir -p $(BUILD)/apps
 	@ok=; bad=; for a in $(APPS); do \
 	  if $(MAKE) --no-print-directory $(BUILD)/apps/$$a.pex >/dev/null 2>$(BUILD)/apps/$$a.log; then ok="$$ok $$a"; \
 	  else bad="$$bad $$a"; echo "  SKIP $$a (see $(BUILD)/apps/$$a.log)"; fi; done; \
 	  echo "  apps built:$$ok"; [ -z "$$bad" ] || echo "  apps skipped:$$bad"
-strict-apps: sdklibs $(APPPEX)
+	@if [ -n "$(_PYTHON3)" ]; then \
+	  hits=$$(find $(BUILD) -name '*.hit' 2>/dev/null | wc -l | tr -d ' '); \
+	  objs=$$(find $(BUILD) -name '*.o'   2>/dev/null | wc -l | tr -d ' '); \
+	  echo "  cache: $$hits/$$objs objects reused (hash unchanged)"; \
+	fi
+strict-apps: prescan sdklibs $(APPPEX)
 
 # ---- header-dependency tracking: changing any .h rebuilds what includes it ---
 DEPFLAGS = -MMD -MP
 -include $(shell find $(BUILD) -name '*.d' 2>/dev/null)
 
 # ---- kernel: compiled from modular subfolders (core, cpu, proc, drivers, services) -
-$(BUILD)/kernel/%.c.o: kernel/%.c
+$(BUILD)/kernel/%.c.o: kernel/%.c $(MACHINE_STAMP)
 	@mkdir -p $(dir $@)
-	@echo "  CC   $<"; $(CC) $(KERNEL_CPPFLAGS) $(PLUSOS_CFLAGS) $(DEPFLAGS) -c $< -o $@
-$(BUILD)/kernel/%.S.o: kernel/%.S
+	@echo "  CC   $<"; $(SMARTCC) $(CC) $(KERNEL_CPPFLAGS) $(PLUSOS_CFLAGS) $(DEPFLAGS) -c $< -o $@
+$(BUILD)/kernel/%.S.o: kernel/%.S $(MACHINE_STAMP)
 	@mkdir -p $(dir $@)
-	@echo "  AS   $<"; $(CC) $(KERNEL_CPPFLAGS) $(PLUSOS_ASFLAGS) -c $< -o $@
+	@echo "  AS   $<"; $(SMARTCC) $(CC) $(KERNEL_CPPFLAGS) $(PLUSOS_ASFLAGS) -c $< -o $@
 
 $(KERNEL): $(KOBJ) $(PLUSOS_LIBS_DEPS) $(PLUSOS_EXTRA_LIBS) $(PLUSOS_SDK)/ld/plusos.ld
 	$(call plusos_link_kernel,$@,$(KOBJ),PLUSOS)
@@ -80,11 +127,11 @@ $(1)_OBJ := $$(patsubst %,$(BUILD)/%.o,$$($(1)_SRC))
 
 $$(BUILD)/$$($(1)_DIR)/%.c.o: $$($(1)_DIR)/%.c
 	@mkdir -p $$(dir $$@)
-	@echo "  CC   $$< ($$(notdir $$($(1)_SDK)))"; $$(CC) $$($(1)_CPP) $$(PLUSOS_CFLAGS) $$(DEPFLAGS) -c $$< -o $$@
+	@echo "  CC   $$< ($$(notdir $$($(1)_SDK)))"; $(SMARTCC) $$(CC) $$($(1)_CPP) $$(PLUSOS_CFLAGS) $$(DEPFLAGS) -c $$< -o $$@
 
 $$(BUILD)/$$($(1)_DIR)/%.cpp.o: $$($(1)_DIR)/%.cpp
 	@mkdir -p $$(dir $$@)
-	@echo "  CXX  $$< ($$(notdir $$($(1)_SDK)))"; $$(CXX) $$($(1)_CPP) $$(PLUSOS_CXXFLAGS) $$(DEPFLAGS) -c $$< -o $$@
+	@echo "  CXX  $$< ($$(notdir $$($(1)_SDK)))"; $(SMARTCC) $$(CXX) $$($(1)_CPP) $$(PLUSOS_CXXFLAGS) $$(DEPFLAGS) -c $$< -o $$@
 
 $$(BUILD)/apps/$(1).pex: $$($(1)_OBJ) sdklibs
 	@mkdir -p $$(dir $$@)
@@ -96,10 +143,11 @@ endef
 $(foreach a,$(APPS),$(eval $(call APP_RULES,$(a))))
 
 # ---- boot block: raw binary, at most 1024 bytes -----------------------------
-$(LOADER): boot/loader.S config.mk
+$(LOADER): boot/loader.S config.mk $(MACHINE_STAMP)
 	@mkdir -p $(dir $@)
-	$(CC) -m68000 -DKERNEL_OFFSET="($(KERNEL_BLOCK)*512)" -DKERNEL_BYTES="($(KERNEL_BLOCKS)*512)" \
+	$(CC) -m68000 $(PLUSOS_MACHINE_CPPFLAGS) -DKERNEL_OFFSET="($(KERNEL_BLOCK)*512)" -DKERNEL_BYTES="($(KERNEL_BLOCKS)*512)" \
 	    -c $< -o $(BUILD)/boot/loader.o
+	@echo "  loader: MACHINE=$(MACHINE)$(if $(filter -DPLUSOS_MACHINE_LC3,$(PLUSOS_MACHINE_CPPFLAGS)), (LC III QuickDraw dialog), (compact-Mac minimal path))"
 	$(OBJCOPY) -O binary $(BUILD)/boot/loader.o $@
 	@sz=$$(stat -c %s $@); echo "loader: $$sz bytes (limit 1024)"; test $$sz -le 1024
 
@@ -142,3 +190,15 @@ clean:
 	rm -rf $(BUILD)
 	-@$(MAKE) --no-print-directory -C $(SDK_PLUS) clean
 	-@$(MAKE) --no-print-directory -C $(SDK_SE) clean
+
+# Remove hash-cache sidecars and central ledger (forces full recompile next build)
+clean-cache:
+	@find $(BUILD) \( -name '*.hashcc' -o -name '*.hit' \) -delete 2>/dev/null || true
+	@rm -f $(BUILD)/.build_ledger.json 2>/dev/null || true
+	@echo "  build cache cleared (next build will recompile all objects)"
+
+# Print the full build ledger as a human-readable document
+dump-cache:
+	@if [ -n "$(_PYTHON3)" ]; then \
+	  python3 $(HASHCC_PY) --dump --machine $(MACHINE); \
+	else echo "dump-cache requires Python3"; fi

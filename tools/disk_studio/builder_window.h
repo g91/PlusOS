@@ -17,6 +17,15 @@
 #define WM_BUILD_LOG_LINE    (WM_USER + 101)
 #define WM_BUILD_COMPLETED   (WM_USER + 102)
 #define WM_FLOPPY_COMPLETED  (WM_USER + 103)
+#define WM_SETUP_COMPLETED   (WM_USER + 104)
+
+// Build backend: how the cross-compiler is invoked
+enum BuildBackend {
+    BB_NONE = 0,       // not yet detected / unavailable
+    BB_MSYS2_LOCAL,    // tools\winbuild\msys2\  (portable, set up by setup.ps1)
+    BB_MSYS2_SYSTEM,   // C:\msys64\ or C:\msys2\  (user-installed)
+    BB_WSL,            // WSL Ubuntu (legacy fallback)
+};
 
 class ExplorerWindow;
 
@@ -84,6 +93,7 @@ enum {
     IDB_SAVE_CFG_BTN,
     IDB_INJECT_BTN,
     IDB_SETUP_ENV_BTN,
+    IDB_BOOT_VM_BTN,
     IDB_BUILD_LOG_EDIT
 };
 
@@ -104,6 +114,7 @@ public:
     void action_build_image();
     void action_build_floppy();
     void action_open_explorer();
+    void remount_bluescsi();   /* refresh the WSL drvfs mount so install reaches the SD card */
 
 private:
     HINSTANCE m_hInstance;
@@ -155,6 +166,7 @@ private:
     HWND m_hBtnSaveConfig;
     HWND m_hBtnInjectApp;
     HWND m_hBtnSetupEnv;
+    HWND m_hBtnBootVM;
     HWND m_hGroupLog;
     HWND m_hEditBuildLog;
     HFONT m_hConsoleFont;
@@ -165,6 +177,11 @@ private:
     std::wstring m_repoRoot;
     std::wstring m_blueScsiDrive;
     std::vector<DiscoveredApp> m_discoveredApps;
+
+    // Windows-native build backend
+    BuildBackend m_backend        = BB_NONE;
+    std::wstring m_backendBash;      // path to bash.exe (MSYS2)
+    std::wstring m_localToolchain;   // path to tools\winbuild\toolchain\ (if built)
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     LRESULT handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -200,6 +217,11 @@ private:
 
     void action_browse_image();
     void action_setup_environment();
+    void action_boot_vm();
     void detect_and_init_environment();
+    void detect_build_backend();
+    BuildBackend prompt_build_backend(bool forSetup);
+    std::wstring build_make_command(const std::wstring& target, const std::wstring& extraFlags) const;
+    std::wstring find_boot_image() const;
     void action_inject_external();
 };

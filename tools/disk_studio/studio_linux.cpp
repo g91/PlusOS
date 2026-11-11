@@ -235,9 +235,15 @@ static void cmd_inject(const std::string& imagePath, int scsi_id) {
     }
 }
 
-static void cmd_build_image() {
-    std::cout << COLOR_CYAN << "Starting PlusOS hard drive compilation & install pipeline...\n" << COLOR_RESET;
-    int res = system("make install");
+static void cmd_build_image(const std::string& machine = "se") {
+    std::cout << COLOR_CYAN << "Starting PlusOS hard drive compilation & install pipeline for "
+              << (machine == "universal" ? "Universal (any Mac, CPU auto-detected)" :
+                  machine == "lc3" ? "Macintosh LC III (68030, 640x480)" :
+                  machine == "plus" ? "Macintosh Plus (68000)" :
+                  machine == "classic" ? "Macintosh Classic (68000)" : "Macintosh SE (68000)")
+              << "...\n" << COLOR_RESET;
+    std::string cmd = "make install MACHINE=" + machine;
+    int res = system(cmd.c_str());
     if (res == 0) {
         std::cout << COLOR_GREEN << "\n[SUCCESS] PlusOS hard drive image built and installed successfully!\n" << COLOR_RESET;
     } else {
@@ -245,9 +251,10 @@ static void cmd_build_image() {
     }
 }
 
-static void cmd_build_floppy() {
-    std::cout << COLOR_CYAN << "Starting minimal bootable floppy compilation pipeline...\n" << COLOR_RESET;
-    int res = system("make floppy");
+static void cmd_build_floppy(const std::string& machine = "se") {
+    std::cout << COLOR_CYAN << "Starting minimal bootable floppy compilation pipeline (kernel: MACHINE="
+              << machine << ")...\n" << COLOR_RESET;
+    int res = system(("make floppy MACHINE=" + machine).c_str());
     if (res == 0) {
         std::cout << COLOR_GREEN << "\n[SUCCESS] images/PlusOS_Floppy.dsk created successfully!\n" << COLOR_RESET;
     } else {
@@ -277,6 +284,7 @@ static void cmd_setup_env() {
 
 static void run_interactive() {
     std::string defaultImage = "images/PlusOS.hda";
+    std::string currentMachine = "se";   /* Target Machine, shared by image & floppy builds */
     if (access(defaultImage.c_str(), F_OK) != 0) {
         if (access("BOOTTEST.hda", F_OK) == 0) defaultImage = "BOOTTEST.hda";
     }
@@ -336,9 +344,23 @@ static void run_interactive() {
             std::getline(std::cin, newPath);
             if (!newPath.empty()) defaultImage = newPath;
         } else if (choice == "7") {
-            cmd_build_image();
+            std::cout << "Target Machine:\n"
+                      << "  1. Macintosh SE (8 MHz 68000, ADB) [Default]\n"
+                      << "  2. Macintosh Plus (8 MHz 68000, Serial Keyboard)\n"
+                      << "  3. Macintosh Classic (8 MHz 68000, ADB)\n"
+                      << "  4. Macintosh LC III (25 MHz 68030, 32-bit Bus, 640x480 RGB)\n"
+                      << "  5. Universal - ONE image, boots any Mac (auto-detects CPU)\n"
+                      << "Select machine [1-5, default=1]: ";
+            std::string mChoice;
+            std::getline(std::cin, mChoice);
+            currentMachine = "se";
+            if (mChoice == "2") currentMachine = "plus";
+            else if (mChoice == "3") currentMachine = "classic";
+            else if (mChoice == "4") currentMachine = "lc3";
+            else if (mChoice == "5") currentMachine = "universal";
+            cmd_build_image(currentMachine);
         } else if (choice == "8") {
-            cmd_build_floppy();
+            cmd_build_floppy(currentMachine);
         } else if (choice == "9") {
             cmd_setup_env();
         }
@@ -371,9 +393,11 @@ int main(int argc, char* argv[]) {
         int scsi_id = (argc >= 4) ? std::atoi(argv[3]) : 6;
         cmd_inject(argv[2], scsi_id);
     } else if (cmd == "build") {
-        cmd_build_image();
+        std::string mach = (argc >= 3) ? argv[2] : "se";
+        cmd_build_image(mach);
     } else if (cmd == "floppy") {
-        cmd_build_floppy();
+        std::string mach = (argc >= 3) ? argv[2] : "se";
+        cmd_build_floppy(mach);
     } else if (cmd == "setup") {
         cmd_setup_env();
     } else if (cmd == "--interactive" || cmd == "-i") {

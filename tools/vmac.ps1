@@ -13,10 +13,10 @@ param(
     [int]$X2 = -1,
     [int]$Y2 = -1,
     [int]$Steps = 20,
-    [string]$Image = 'F:\BOOTTEST.hda',
-    [string]$Exe = 'F:\Mini vMac (BlueSCSI patched).exe',
-    [string]$Out = "$env:TEMP\plusos_shot.png",
-    [string]$Text = '',
+    [string]$Image = "$PSScriptRoot\..\images\BOOTTEST.hda",
+    [string]$Exe   = "$PSScriptRoot\emulator\Mini vMac (BlueSCSI patched).exe",
+    [string]$Out   = "$env:TEMP\plusos_shot.png",
+    [string]$Text  = '',
     [int]$X = -1,
     [int]$Y = -1,
     [int]$Wait = 0
@@ -56,16 +56,30 @@ function Focus-VMac($p) {
     Start-Sleep -Milliseconds 250
 }
 
-# Auto-resolve image and executable paths for portable, self-contained execution
+# Auto-resolve disk image: prefer project-local images/, fall back to SD card
 if (-not (Test-Path $Image)) {
-    $localCandidates = @("$PSScriptRoot\..\images\BOOTTEST.hda", "$PSScriptRoot\..\images\PlusOS.hda", "$PSScriptRoot\..\images\HD60_512 PlusOS.hda", "F:\BOOTTEST.hda")
-    foreach ($cand in $localCandidates) {
+    $imageCandidates = @(
+        "$PSScriptRoot\..\images\BOOTTEST.hda",
+        "$PSScriptRoot\..\images\PlusOS.hda",
+        "$PSScriptRoot\..\images\HD60_512 PlusOS.hda",
+        "F:\BOOTTEST.hda"            # SD card last resort
+    )
+    foreach ($cand in $imageCandidates) {
         if (Test-Path $cand) { $Image = (Resolve-Path $cand).Path; break }
     }
 }
+
+# Auto-resolve emulator: prefer tools/emulator/, then repo root, then SD card
 if (-not (Test-Path $Exe)) {
-    $localExeCandidates = @("$PSScriptRoot\..\Mini vMac (BlueSCSI patched).exe", "$PSScriptRoot\..\Mini vMac.exe", "F:\Mini vMac (BlueSCSI patched).exe", "F:\Mini vMac.exe")
-    foreach ($cand in $localExeCandidates) {
+    $exeCandidates = @(
+        "$PSScriptRoot\emulator\Mini vMac (BlueSCSI patched).exe",
+        "$PSScriptRoot\emulator\Mini vMac.exe",
+        "$PSScriptRoot\..\Mini vMac (BlueSCSI patched).exe",
+        "$PSScriptRoot\..\Mini vMac.exe",
+        "F:\Mini vMac (BlueSCSI patched).exe",   # SD card last resort
+        "F:\Mini vMac.exe"
+    )
+    foreach ($cand in $exeCandidates) {
         if (Test-Path $cand) { $Exe = (Resolve-Path $cand).Path; break }
     }
 }

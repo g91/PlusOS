@@ -257,9 +257,9 @@ def install(image, a, apps):
                     print("  discovered new compiled application: %s (%s)" % (app_name, app_path))
 
     if included_set is not None:
-        included_set.add("SHELL")  # PlusOS Command Shell is always mandatory
+        included_set.update({"SHELL", "NETDBG", "DBGRUN"})  # shell, debug service, sandbox runner
         orig_count = len(apps)
-        apps = [item for item in apps if item[0].upper() in included_set or item[0].upper() in newly_discovered or item[0].upper() == "SHELL"]
+        apps = [item for item in apps if item[0].upper() in included_set or item[0].upper() in newly_discovered or item[0].upper() in ("SHELL", "NETDBG", "DBGRUN")]
         print("  package filter: including %d of %d configured apps" % (len(apps), orig_count))
 
     for cname, cpath in custom_apps:
