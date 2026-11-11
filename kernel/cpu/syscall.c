@@ -17,6 +17,8 @@
 #include "entropy.h"
 #include "profiler.h"
 #include "security.h"
+#include "users.h"
+#include "perms.h"
 
 extern void trap1_entry(void);
 
@@ -282,6 +284,129 @@ long syscall_dispatch(long num, void *arg)
         if (p->op == PLUSOS_PGID_GET) return proc_get_pgid(p->pid ? p->pid : proc_current->pid);
         return proc_set_pgid(p->pid ? p->pid : proc_current->pid, p->pgid);
     }
+#if CONFIG_USERS
+    case SYS_users: {
+        struct plusos_users_args *u = arg;
+        if (!u) return -1;
+        user_rec r;
+        switch (u->op) {
+        case PLUSOS_USERS_FIRSTRUN:
+            return users_firstrun_needed();
+        case PLUSOS_USERS_COUNT:
+            return users_count();
+        case PLUSOS_USERS_AT:
+            if (users_at(u->index, &r) != 0) return -1;
+            goto fill;
+        case PLUSOS_USERS_FIND:
+            if (users_find(u->name, &r) != 0) return -1;
+            goto fill;
+        case PLUSOS_USERS_FIND_UID:
+            if (users_find_uid(u->uid, &r) != 0) return -1;
+            goto fill;
+        case PLUSOS_USERS_AUTH: {
+            int ok = users_authenticate(u->name, u->pw);
+            memset(u->pw, 0, sizeof u->pw);
+            return ok;
+        }
+        case PLUSOS_USERS_SETPW: {
+            /* Non-root may only set its own password. */
+            if (proc_current && proc_current->uid != 0 &&
+                users_find_uid(proc_current->uid, &r) == 0 &&
+                strcmp(r.name, u->name) != 0) {
+                memset(u->pw, 0, sizeof u->pw);
+                return -1;
+            }
+            int rc = users_set_password(u->name, u->pw);
+            memset(u->pw, 0, sizeof u->pw);
+            return rc;
+        }
+        case PLUSOS_USERS_ADD: {
+            /* Only root may create accounts after first-run. */
+            if (users_count() > 0 && proc_current && proc_current->uid != 0) {
+                memset(u->pw, 0, sizeof u->pw);
+                return -1;
+            }
+            int rc = users_add(u->name, u->pw, u->flags & USER_F_SUDOER, u->is_root);
+            memset(u->pw, 0, sizeof u->pw);
+            return rc;
+        }
+        case PLUSOS_USERS_WHOAMI:
+            return users_get_current();
+        case PLUSOS_USERS_SETCURRENT:
+            /* Only root may change the current user without re-auth. Enforcement
+             * here mirrors the sense of /bin/su, which will also do its own
+             * password check for non-root switches. */
+            if (proc_current && proc_current->uid != 0 && u->uid != (int)proc_current->uid)
+                return -1;
+            users_set_current(u->uid);
+            if (proc_current && users_find_uid(u->uid, &r) == 0) {
+                proc_current->uid = r.uid; proc_current->gid = r.gid;
+            }
+            return 0;
+        case PLUSOS_USERS_IS_SUDOER:
+            return users_is_sudoer(u->name);
+        case PLUSOS_USERS_SUDO_ELEVATE: {
+            /* Promote the caller to root. The userland /bin/sudo must have
+             * already prompted for and verified the caller's own password with
+             * PLUSOS_USERS_AUTH; we trust that check because sudo is a
+             * privileged helper the user ran themselves. We still require the
+             * caller to actually be a sudoer. */
+            if (!proc_current) return -1;
+            user_rec me;
+            if (users_find_uid(proc_current->uid, &me) != 0) return -1;
+            if (!users_is_sudoer(me.name)) return -1;
+            proc_current->uid = 0;
+            proc_current->gid = 0;
+            return 0;
+        }
+        case PLUSOS_USERS_DELETE:
+            /* Only root. */
+            if (proc_current && proc_current->uid != 0) return -1;
+            return users_delete(u->name);
+        }
+        return -1;
+    fill:
+        u->uid = r.uid; u->gid = r.gid; u->flags = r.flags;
+        strncpy(u->name,  r.name,  sizeof u->name  - 1); u->name [sizeof u->name  - 1] = 0;
+        strncpy(u->home,  r.home,  sizeof u->home  - 1); u->home [sizeof u->home  - 1] = 0;
+        strncpy(u->shell, r.shell, sizeof u->shell - 1); u->shell[sizeof u->shell - 1] = 0;
+        return 0;
+    }
+#endif
+#if CONFIG_PERMS
+    case SYS_perms: {
+        struct plusos_perms_args *p = arg;
+        if (!p) return -1;
+        perms_rec pr;
+        int cuid = proc_current ? (int)proc_current->uid : 0;
+        int cgid = proc_current ? (int)proc_current->gid : 0;
+        switch (p->op) {
+        case PLUSOS_PERMS_GET:
+            if (perms_get(p->path, &pr) != 0) return -1;
+            p->mode = pr.mode; p->uid = pr.uid; p->gid = pr.gid;
+            return 0;
+        case PLUSOS_PERMS_SET:
+            /* Raw set is root-only. Everyone else uses chmod / chown. */
+            if (cuid != 0) return -1;
+            return perms_set(p->path, (uint16_t)(p->mode & 0777),
+                             (uint16_t)p->uid, (uint16_t)p->gid);
+        case PLUSOS_PERMS_CHMOD:
+            return perms_chmod(p->path, (uint16_t)(p->mode & 0777), cuid);
+        case PLUSOS_PERMS_CHOWN:
+            return perms_chown(p->path, (uint16_t)p->uid, (uint16_t)p->gid, cuid);
+        case PLUSOS_PERMS_CHECK:
+            return perms_check(p->path, cuid, cgid, p->want);
+        case PLUSOS_PERMS_COUNT:
+            return perms_count();
+        case PLUSOS_PERMS_AT:
+            if (perms_at(p->index, &pr) != 0) return -1;
+            p->mode = pr.mode; p->uid = pr.uid; p->gid = pr.gid;
+            strncpy(p->path, pr.path, sizeof p->path - 1); p->path[sizeof p->path - 1] = 0;
+            return 0;
+        }
+        return -1;
+    }
+#endif
     default:
         return -1;
     }

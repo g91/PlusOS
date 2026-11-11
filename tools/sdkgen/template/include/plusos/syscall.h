@@ -78,6 +78,55 @@ enum {
     SYS_priority,      /* 61: a0 = plusos_prio_args* -> old_prio or 0 */
     SYS_watchdog,      /* 62: a0 = plusos_watchdog_args* -> 0 */
     SYS_procpgid,      /* 63: a0 = plusos_pgid_args* -> pgid or 0 */
+    SYS_users,         /* 64: a0 = plusos_users_args* -> see op */
+    SYS_perms,         /* 65: a0 = plusos_perms_args* -> see op */
+};
+
+enum {
+    PLUSOS_USERS_FIRSTRUN = 1,
+    PLUSOS_USERS_COUNT,
+    PLUSOS_USERS_AT,
+    PLUSOS_USERS_FIND,
+    PLUSOS_USERS_FIND_UID,
+    PLUSOS_USERS_AUTH,
+    PLUSOS_USERS_SETPW,
+    PLUSOS_USERS_ADD,
+    PLUSOS_USERS_WHOAMI,
+    PLUSOS_USERS_SETCURRENT,
+    PLUSOS_USERS_IS_SUDOER,
+    PLUSOS_USERS_SUDO_ELEVATE,
+    PLUSOS_USERS_DELETE,
+};
+struct plusos_users_args {
+    int      op;
+    int      index;
+    int      uid;
+    int      gid;
+    int      flags;
+    int      is_root;
+    char     name [16];
+    char     home [40];
+    char     shell[16];
+    char     pw   [32];
+};
+
+enum {
+    PLUSOS_PERMS_GET = 1,
+    PLUSOS_PERMS_SET,
+    PLUSOS_PERMS_CHMOD,
+    PLUSOS_PERMS_CHOWN,
+    PLUSOS_PERMS_CHECK,
+    PLUSOS_PERMS_COUNT,
+    PLUSOS_PERMS_AT,
+};
+struct plusos_perms_args {
+    int      op;
+    int      index;
+    int      mode;
+    int      uid;
+    int      gid;
+    int      want;
+    char     path[48];
 };
 
 /* SYS_thread: run entry(fn, arg) as a new thread of the calling program (use

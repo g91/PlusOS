@@ -50,6 +50,7 @@ typedef struct Proc {
     uint32_t        sig_pending;    /* bitmask of pending signals */
     uint32_t        sig_mask;       /* bitmask of blocked signals */
     uint32_t        heap_bytes;     /* RAM allocated dynamically via kmem */
+    uint16_t        uid, gid;       /* Phase 2: user accounts (0 = root) */
     char            name[PROC_NAME];
 } Proc;
 

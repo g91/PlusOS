@@ -141,18 +141,130 @@ static int execute(char *line)
     if (streq(argv[0], "fg")) { cmd_fg(argc, argv); return 0; }
     if (streq(argv[0], "history")) { cmd_history(argc, argv); return 0; }
     if (streq(argv[0], "cls") || streq(argv[0], "clear")) { con_clear(); return 0; }
+    if (streq(argv[0], "cd")) {
+        /* The kernel has no CWD, so cd just tracks a $PWD env var that other
+         * programs (prompt, ls, etc.) consult.
+         *   cd            -> $HOME
+         *   cd ~          -> $HOME
+         *   cd ~/sub      -> $HOME/sub
+         *   cd /abs/path  -> /abs/path
+         *   cd ..         -> drop last segment of $PWD
+         *   cd foo        -> $PWD/foo                          (relative)
+         * No real validation: if the directory doesn't exist, you only
+         * notice when the next command complains. */
+        const char *dst = (argc >= 2) ? argv[1] : "~";
+        char expanded[128]; int o = 0;
+        if (dst[0] == '~' && (dst[1] == 0 || dst[1] == '/')) {
+            char home[64] = "";
+            struct plusos_env_args eg = { PLUSOS_ENV_GET, "HOME", home, sizeof home };
+            plusos_syscall(SYS_getenv, &eg);
+            for (int i = 0; home[i] && o < (int)sizeof expanded - 1; i++) expanded[o++] = home[i];
+            dst++;
+        } else if (dst[0] != '/') {
+            /* Relative: start from $PWD. */
+            char pwd[96] = "/";
+            struct plusos_env_args eg = { PLUSOS_ENV_GET, "PWD", pwd, sizeof pwd };
+            plusos_syscall(SYS_getenv, &eg);
+            for (int i = 0; pwd[i] && o < (int)sizeof expanded - 1; i++) expanded[o++] = pwd[i];
+            if (o == 0 || expanded[o - 1] != '/') if (o < (int)sizeof expanded - 1) expanded[o++] = '/';
+        }
+        while (*dst && o < (int)sizeof expanded - 1) expanded[o++] = *dst++;
+        expanded[o] = 0;
+
+        /* Resolve ".." and "." segments. In-place rewrite. */
+        char tidy[128]; int ti = 0;
+        int i = 0;
+        if (expanded[0] == '/') { tidy[ti++] = '/'; i = 1; }
+        while (expanded[i]) {
+            while (expanded[i] == '/') i++;
+            if (!expanded[i]) break;
+            char seg[32]; int s = 0;
+            while (expanded[i] && expanded[i] != '/' && s < 31) seg[s++] = expanded[i++];
+            seg[s] = 0;
+            if (streq(seg, ".")) continue;
+            if (streq(seg, "..")) {
+                /* strip last segment of tidy */
+                if (ti > 1) {
+                    ti--;                            /* drop trailing '/' */
+                    while (ti > 0 && tidy[ti - 1] != '/') ti--;
+                }
+                continue;
+            }
+            for (int k = 0; seg[k] && ti < (int)sizeof tidy - 2; k++) tidy[ti++] = seg[k];
+            if (expanded[i] == '/') tidy[ti++] = '/';
+        }
+        if (ti == 0) { tidy[0] = '/'; ti = 1; }
+        /* Strip a trailing '/' unless this is the root. */
+        if (ti > 1 && tidy[ti - 1] == '/') ti--;
+        tidy[ti] = 0;
+
+        struct plusos_env_args es = { PLUSOS_ENV_SET, "PWD", tidy, 0 };
+        plusos_syscall(SYS_setenv, &es);
+        return 0;
+    }
     run(argc, argv, background);
     return 0;
+}
+
+/* Short, Unix-style form of PWD for the prompt: $HOME -> "~", everything
+ * else as-is. Returns a pointer into pwd (or "~" or "/"). */
+static void make_prompt(char *out, int cap)
+{
+    char user[16] = "user", home[64] = "", pwd[96] = "/";
+    struct plusos_env_args e;
+    e.op = PLUSOS_ENV_GET; e.key = "USER"; e.value = user; e.val_size = sizeof user; plusos_syscall(SYS_getenv, &e);
+    e.op = PLUSOS_ENV_GET; e.key = "HOME"; e.value = home; e.val_size = sizeof home; plusos_syscall(SYS_getenv, &e);
+    e.op = PLUSOS_ENV_GET; e.key = "PWD";  e.value = pwd;  e.val_size = sizeof pwd;  plusos_syscall(SYS_getenv, &e);
+
+    /* Collapse $HOME prefix to ~ for a tidy prompt. */
+    const char *disp = pwd;
+    char tilde[96];
+    if (home[0]) {
+        int i = 0;
+        while (home[i] && home[i] == pwd[i]) i++;
+        if (home[i] == 0 && (pwd[i] == 0 || pwd[i] == '/')) {
+            tilde[0] = '~';
+            int o = 1;
+            while (pwd[i] && o < (int)sizeof tilde - 1) tilde[o++] = pwd[i++];
+            tilde[o] = 0;
+            disp = tilde;
+        }
+    }
+    /* Root gets a '#' sigil, everyone else '$', as Unix does. */
+    const char *sigil = streq(user, "root") ? "#" : "$";
+    int o = 0;
+    for (int i = 0; user[i] && o < cap - 1; i++) out[o++] = user[i];
+    if (o < cap - 1) out[o++] = ':';
+    for (int i = 0; disp[i] && o < cap - 1; i++) out[o++] = disp[i];
+    for (int i = 0; sigil[i] && o < cap - 1; i++) out[o++] = sigil[i];
+    if (o < cap - 1) out[o++] = ' ';
+    out[o] = 0;
 }
 
 int main(int argc, char **argv)
 {
     (void)argc; (void)argv;
-    char line[128];
+
+    /* First time the shell runs after login, seed $PWD from $HOME so the
+     * user starts "in" their home directory, as a Unix login shell does. */
+    char pwd_check[96] = "";
+    struct plusos_env_args eg = { PLUSOS_ENV_GET, "PWD", pwd_check, sizeof pwd_check };
+    plusos_syscall(SYS_getenv, &eg);
+    if (!pwd_check[0]) {
+        char home[64] = "/";
+        struct plusos_env_args eh = { PLUSOS_ENV_GET, "HOME", home, sizeof home };
+        plusos_syscall(SYS_getenv, &eh);
+        if (!home[0]) { home[0] = '/'; home[1] = 0; }
+        struct plusos_env_args es = { PLUSOS_ENV_SET, "PWD", home, 0 };
+        plusos_syscall(SYS_setenv, &es);
+    }
+
+    char line[128], prompt[128];
     printf("\nPlusOS shell by the1Domo. Programs live in bin - try 'help'.\n");
     for (;;) {
         reap_jobs();
-        printf("plus> ");
+        make_prompt(prompt, sizeof prompt);
+        printf("%s", prompt);
         plusos->key_line(line, sizeof line);
         if (execute(line)) break;
     }

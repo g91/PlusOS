@@ -43,6 +43,12 @@
 #ifndef CONFIG_MACLOADER
 #define CONFIG_MACLOADER  1     /* services/macloader: classic 'APPL' programs */
 #endif
+#ifndef CONFIG_USERS
+#define CONFIG_USERS      1     /* services/users: /etc/passwd, /etc/shadow, login */
+#endif
+#ifndef CONFIG_PERMS
+#define CONFIG_PERMS      1     /* services/perms: /etc/perms.db, chmod/chown */
+#endif
 
 /* ---- robustness features (small, but each can be turned off for speed) ---- */
 #ifndef CONFIG_STACKGUARD

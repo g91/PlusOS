@@ -255,6 +255,10 @@ int proc_create_kernel(const char *name, void (*fn)(void *), void *arg)
     p->arg = arg;
     p->parent = proc_current ? proc_current->pid : 0;
     p->mem_bytes = KSTACK_SIZE;
+    /* Inherit user identity from the caller (0/0 at boot). su / login change
+     * the identity on the running process; children pick it up from here. */
+    p->uid = proc_current ? proc_current->uid : 0;
+    p->gid = proc_current ? proc_current->gid : 0;
     strlcpy(p->name, name, PROC_NAME);
     prime_stack(p);
     rq_push(p);
@@ -280,6 +284,8 @@ int proc_create_user(const char *name, uint8_t *image, uint32_t entry_off,
     p->parent = proc_current ? proc_current->pid : 0;
     p->con_win = proc_current ? proc_current->con_win : 0;   /* children share the console */
     p->mem_bytes = KSTACK_SIZE + USTACK_SIZE;        /* + image size, added by exec.c */
+    p->uid = proc_current ? proc_current->uid : 0;
+    p->gid = proc_current ? proc_current->gid : 0;
     strlcpy(p->name, name, PROC_NAME);
 
     /* Build the user stack: argv strings, the argv array, then (api,argv,argc)
@@ -339,6 +345,7 @@ int proc_create_thread(uint32_t entry, uint32_t fn, uint32_t arg, uint32_t stack
     p->thread_of = me->thread_of ? me->thread_of : me->pid;
     p->con_win = me->con_win;
     p->mem_bytes = KSTACK_SIZE + stack_bytes;
+    p->uid = me->uid; p->gid = me->gid;
     strlcpy(p->name, me->name, PROC_NAME - 2);      /* "desktop+" = a thread of desktop */
     {   int n = (int)strlen(p->name); if (n < PROC_NAME - 2) { p->name[n] = '+'; p->name[n + 1] = 0; } }
     /* entered like a C call entry(fn, arg), return address never used */

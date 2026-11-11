@@ -21,6 +21,8 @@
 #include "entropy.h"
 #include "profiler.h"
 #include "security.h"
+#include "users.h"
+#include "login.h"
 
 uint32_t  __plusos_load_addr;
 uint32_t  __plusos_a5world[4];      /* (A5) -> QuickDraw globals (set by InitGraf) */
@@ -46,6 +48,14 @@ static int start_app(const char *name)
 static void init_task(void *arg)
 {
     (void)arg;
+    /* Before the first user program runs, make sure there is a user to run it
+     * as: if /etc/passwd is absent, walk the first-run wizard; then prompt for
+     * login. Both are skipped automatically once accounts exist and one has
+     * been chosen (login_prompt no-ops if users_count() is 0 after setup, so
+     * a disk with an empty /etc still boots to a shell). */
+    login_firstrun();
+    login_prompt();
+
     /* The boot setting picks the first program. Holding Option at boot forces
      * the shell, in case the desktop is broken. */
     int option_down = (LM_BYTE(0x174 + 7) & 0x04) != 0;        /* KeyMap: Option = key $3A */

@@ -35,6 +35,13 @@ struct DiscoveredApp {
     uint64_t size = 0;
 };
 
+// A source-tree app: apps/<category>/<name>/. Gathered by scan_source_directory.
+struct SourceApp {
+    std::string name;         // uppercase, as installed into bin/
+    std::string category;     // "System", "Tools", "Games", "Dev", "Network"
+    std::wstring source_dir;  // absolute path to apps/<cat>/<name>/
+};
+
 // Optional kernel modules (must match KMODS_ALL in the Makefile / kernel/core/kconfig.h)
 enum { KMOD_COUNT = 11 };
 
@@ -190,6 +197,7 @@ private:
     std::wstring m_repoRoot;
     std::wstring m_blueScsiDrive;
     std::vector<DiscoveredApp> m_discoveredApps;
+    std::vector<SourceApp>     m_sourceApps;      // every apps/<cat>/<name>/ found on disk
 
     // Windows-native build backend
     BuildBackend m_backend        = BB_NONE;
@@ -228,6 +236,7 @@ private:
     void on_apps_remove_selected();
     void sync_included_apps_from_list();
     void scan_compile_directory();
+    void scan_source_directory();      // walk apps/<category>/<name>/ in the repo
     uint64_t get_app_size_bytes(const std::string& name);
     uint64_t get_total_selected_size_bytes();
     uint64_t get_base_system_bytes() const;

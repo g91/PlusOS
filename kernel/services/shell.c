@@ -2,6 +2,9 @@
  * is run as a program from the disk. */
 #include "kernel.h"
 #include "proc.h"
+#include "kconfig.h"
+#include "users.h"
+#include "environ.h"
 
 #define MAX_ARGS 16
 
@@ -255,8 +258,15 @@ static void cmd_cat(int argc, char **argv)
 {
     if (argc < 2) { printf("usage: cat FILE\n"); return; }
     if (!need_fs()) return;
+    char hfs_path[128];
+#if CONFIG_USERS
+    /* Unix path -> HFS colon path; "~" expands to the current user's home. */
+    hfs_path_translate(argv[1], hfs_path, sizeof hfs_path);
+#else
+    strncpy(hfs_path, argv[1], sizeof hfs_path - 1); hfs_path[sizeof hfs_path - 1] = 0;
+#endif
     Str255 pname;
-    c2pstr_buf(pname, argv[1]);
+    c2pstr_buf(pname, hfs_path);
     INTEGER ref;
     if (FSOpen(pname, g_boot_vref, &ref)) { printf("cannot open %s\n", argv[1]); return; }
     char buf[256];
@@ -326,6 +336,11 @@ static void cmd_history(int argc, char **argv)
         if (h) printf("  %2d  %s\n", i + 1, h);
     }
 }
+
+/* NOTE: whoami, id, users, passwd, su are userland programs in /bin
+ * (apps/tools/<name>/). The kernel recovery shell below is only reached when
+ * the real userland shell cannot start, so those commands do not need to be
+ * duplicated here. */
 
 static const Command commands[] = {
     { "help",    cmd_help,    "this list" },

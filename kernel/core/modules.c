@@ -22,6 +22,8 @@
 #include "profiler.h"
 #include "security.h"
 #include "syscall.h"
+#include "users.h"
+#include "perms.h"
 
 /* ---- drivers' kdriver tables --------------------------------------------- */
 static long kbd_drv_read(void *buf, uint32_t off, uint32_t len)
@@ -97,6 +99,12 @@ static int m_entropy(void)  { entropy_init(); return 0; }
 #if CONFIG_PROFILER
 static int m_profiler(void) { profiler_init(); return 0; }
 #endif
+#if CONFIG_USERS
+static int m_users(void)    { users_init(); return 0; }
+#endif
+#if CONFIG_PERMS
+static int m_perms(void)    { perms_init(); return 0; }
+#endif
 
 static int m_kbd(void)
 {
@@ -168,6 +176,12 @@ static kmodule k_modules[] = {
 #endif
 #if CONFIG_SHM
     MOD("shm",      KMOD_SERVICE, KSTAGE_SERVICES, 0,   m_shm,      "kmem"),
+#endif
+#if CONFIG_USERS
+    MOD("users",    KMOD_SERVICE, KSTAGE_SERVICES, 0,   m_users,    "kmem"),
+#endif
+#if CONFIG_PERMS
+    MOD("perms",    KMOD_SERVICE, KSTAGE_SERVICES, 0,   m_perms,    "kmem"),
 #endif
     /* core: scheduler, IPC, syscall gate, tick */
     MOD("sched",    KMOD_CORE,    KSTAGE_CORE,     ESS, m_sched,    "kmem"),

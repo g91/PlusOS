@@ -72,11 +72,11 @@ ENABLE  ?=
 # module lists may be separated by spaces, commas or '+' (the last two survive build.bat)
 _comma := ,
 _mlist  = $(subst +, ,$(subst $(_comma), ,$(1)))
-KMODS_ALL      := sound profiler entropy power pram shm ramdisk scrap macloader stackguard watchdog
+KMODS_ALL      := sound profiler entropy power pram shm ramdisk scrap macloader users perms stackguard watchdog
 KMODS_OFF_full :=
 KMODS_OFF_lean := profiler entropy power
 KMODS_OFF_fast := profiler entropy power watchdog
-KMODS_OFF_tiny := sound profiler entropy power pram shm ramdisk scrap macloader watchdog
+KMODS_OFF_tiny := sound profiler entropy power pram shm ramdisk scrap macloader users perms watchdog
 ifeq ($(origin KMODS_OFF_$(PROFILE)),undefined)
 $(error Unknown PROFILE '$(PROFILE)' - use full, lean, fast or tiny)
 endif
@@ -95,6 +95,8 @@ KSRC_shm      := kernel/services/shm.c
 KSRC_ramdisk  := kernel/services/ramdisk.c
 KSRC_scrap    := kernel/services/scrap.c
 KSRC_macloader:= kernel/services/macloader.c
+KSRC_users    := kernel/services/users.c
+KSRC_perms    := kernel/services/perms.c
 KSRC_OFF      := $(foreach m,$(KMODS_OFF),$(KSRC_$(m)))
 
 # The build ledger (tools/hashcc.py) hashes sources, not compiler flags, so it

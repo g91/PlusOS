@@ -497,9 +497,12 @@ BuilderWindow::BuilderWindow()
     MultiBootEntry e4; e4.name = "PlusOS Desktop"; e4.scsi_id = -2; m_cfg.boot_entries.push_back(e4);
     MultiBootEntry e5; e5.name = "PlusOS Shell"; e5.scsi_id = -1; m_cfg.boot_entries.push_back(e5);
 
-    // Default included applications: all built-in apps
-    for (int i = 0; i < NUM_BUILTIN_APPS; i++) {
-        m_cfg.included_apps.insert(ALL_BUILTIN_APPS[i].name);
+    // Default included applications: every app folder under apps/<cat>/.
+    // scan_source_directory needs m_repoRoot, which detect_and_init_environment
+    // has already set above.
+    scan_source_directory();
+    for (const auto& sa : m_sourceApps) {
+        m_cfg.included_apps.insert(sa.name);
     }
 }
 
@@ -582,6 +585,12 @@ bool BuilderWindow::create(HINSTANCE hInstance, int nCmdShow, ExplorerWindow* ex
     default:
         append_log(L"Build Backend: NOT FOUND — click 'Auto-Setup Build Environment' to install.");
         break;
+    }
+    {
+        WCHAR line[96];
+        swprintf_s(line, L"Source scan: %u app folder%s found under apps/.",
+                   (unsigned)m_sourceApps.size(), m_sourceApps.size() == 1 ? L"" : L"s");
+        append_log(line);
     }
     append_log(L"Ready to configure dual-boot, visual themes, and build the hard drive image.\r\n");
 
@@ -1456,6 +1465,53 @@ uint64_t BuilderWindow::get_total_bootable_size_bytes()
     return get_base_system_bytes() + get_total_selected_size_bytes();
 }
 
+/* Walk the repo's apps/<category>/<name>/ tree and build the canonical list of
+ * what COULD ship on an image. This is the one place that decides "what apps
+ * exist" - adding a new folder under apps/<cat>/ is all it takes for the app
+ * to show up in Disk Studio's software list. The hardcoded ALL_BUILTIN_APPS
+ * table is now only a METADATA source (descriptions, categories for apps that
+ * want to be grouped differently); it is not a gate. */
+void BuilderWindow::scan_source_directory()
+{
+    m_sourceApps.clear();
+    static const struct { const wchar_t *dir; const char *label; } cats[] = {
+        { L"system",      "System"  },
+        { L"tools",       "Tools"   },
+        { L"games",       "Games"   },
+        { L"development", "Dev"     },
+        { L"network",     "Network" },
+    };
+    for (size_t c = 0; c < sizeof cats / sizeof cats[0]; c++) {
+        std::wstring pattern = m_repoRoot + L"\\apps\\" + cats[c].dir + L"\\*";
+        WIN32_FIND_DATAW fd;
+        HANDLE h = FindFirstFileW(pattern.c_str(), &fd);
+        if (h == INVALID_HANDLE_VALUE) continue;
+        do {
+            if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) continue;
+            if (fd.cFileName[0] == L'.') continue;              // skip . and ..
+            SourceApp sa;
+            std::wstring nameW = fd.cFileName;
+            sa.name = to_narrow(nameW);
+            for (auto& ch : sa.name) ch = (char)toupper(ch);
+            sa.category   = cats[c].label;
+            sa.source_dir = m_repoRoot + L"\\apps\\" + cats[c].dir + L"\\" + nameW + L"\\";
+            m_sourceApps.push_back(sa);
+        } while (FindNextFileW(h, &fd));
+        FindClose(h);
+    }
+    /* Metadata overlay: if ALL_BUILTIN_APPS has a richer category for an app
+     * (e.g. apps/system/off is a "System" app that we want listed under
+     * "System" rather than its source folder), honour the hardcoded value. */
+    for (auto& sa : m_sourceApps) {
+        for (int i = 0; i < NUM_BUILTIN_APPS; i++) {
+            if (_stricmp(ALL_BUILTIN_APPS[i].name, sa.name.c_str()) == 0) {
+                sa.category = ALL_BUILTIN_APPS[i].category;
+                break;
+            }
+        }
+    }
+}
+
 void BuilderWindow::scan_compile_directory()
 {
     std::wstring searchPattern = m_repoRoot + L"\\build\\apps\\*.pex";
@@ -1471,15 +1527,13 @@ void BuilderWindow::scan_compile_directory()
             std::string appName = to_narrow(fname);
             for (auto& c : appName) c = (char)toupper(c);
 
-            // Check if already in built-in list
-            bool isBuiltin = false;
-            for (int i = 0; i < NUM_BUILTIN_APPS; i++) {
-                if (_stricmp(ALL_BUILTIN_APPS[i].name, appName.c_str()) == 0) {
-                    isBuiltin = true;
-                    break;
-                }
+            // Already covered by the source-directory scan? Then it's a
+            // first-class app, not a stray "Discovered" extra.
+            bool isSource = false;
+            for (const auto& sa : m_sourceApps) {
+                if (_stricmp(sa.name.c_str(), appName.c_str()) == 0) { isSource = true; break; }
             }
-            if (isBuiltin) continue;
+            if (isSource) continue;
 
             // Check if in custom apps
             if (m_cfg.custom_apps.find(appName) != m_cfg.custom_apps.end()) continue;
@@ -1512,35 +1566,33 @@ void BuilderWindow::scan_compile_directory()
 void BuilderWindow::populate_apps_list()
 {
     if (!m_hListViewApps) return;
-    scan_compile_directory();
+    scan_source_directory();                 // authoritative: what apps exist in the repo
+    scan_compile_directory();                // overlay: freshly compiled artefacts
     m_populatingApps = true;
     ListView_DeleteAllItems(m_hListViewApps);
 
     int rowIndex = 0;
-    // Built-in applications
-    for (int i = 0; i < NUM_BUILTIN_APPS; i++) {
+    // Every app folder under apps/<category>/. New apps appear here automatically.
+    for (const auto& sa : m_sourceApps) {
         LVITEMW item = {};
         item.mask = LVIF_TEXT;
         item.iItem = rowIndex;
-        std::wstring nameW = to_wide(ALL_BUILTIN_APPS[i].name);
+        std::wstring nameW = to_wide(sa.name);
         item.pszText = (LPWSTR)nameW.c_str();
         ListView_InsertItem(m_hListViewApps, &item);
 
-        std::wstring catW = to_wide(ALL_BUILTIN_APPS[i].category);
+        std::wstring catW = to_wide(sa.category);
         ListView_SetItemText(m_hListViewApps, rowIndex, 1, (LPWSTR)catW.c_str());
 
-        uint64_t sz = get_app_size_bytes(ALL_BUILTIN_APPS[i].name);
+        uint64_t sz = get_app_size_bytes(sa.name);
         std::wstring szStr = format_size_human(sz);
         ListView_SetItemText(m_hListViewApps, rowIndex, 2, (LPWSTR)szStr.c_str());
 
-        bool isShell = (_stricmp(ALL_BUILTIN_APPS[i].name, "SHELL") == 0);
-        if (isShell) {
-            ListView_SetItemText(m_hListViewApps, rowIndex, 3, (LPWSTR)L"Built-in (Required)");
-        } else {
-            ListView_SetItemText(m_hListViewApps, rowIndex, 3, (LPWSTR)L"Built-in");
-        }
+        bool isShell = (_stricmp(sa.name.c_str(), "SHELL") == 0);
+        ListView_SetItemText(m_hListViewApps, rowIndex, 3,
+            (LPWSTR)(isShell ? L"Built-in (Required)" : L"Built-in"));
 
-        bool checked = isShell || (m_cfg.included_apps.find(ALL_BUILTIN_APPS[i].name) != m_cfg.included_apps.end());
+        bool checked = isShell || (m_cfg.included_apps.find(sa.name) != m_cfg.included_apps.end());
         ListView_SetCheckState(m_hListViewApps, rowIndex, checked ? TRUE : FALSE);
         rowIndex++;
     }

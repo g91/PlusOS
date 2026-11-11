@@ -78,6 +78,85 @@ enum {
     SYS_priority,      /* 61: a0 = plusos_prio_args* -> old_prio or 0 */
     SYS_watchdog,      /* 62: a0 = plusos_watchdog_args* -> 0 */
     SYS_procpgid,      /* 63: a0 = plusos_pgid_args* -> pgid or 0 */
+    SYS_users,         /* 64: a0 = plusos_users_args* -> see op */
+    SYS_perms,         /* 65: a0 = plusos_perms_args* -> see op */
+};
+
+/* SYS_users: user accounts backed by /etc/passwd and /etc/shadow. One call
+ * dispatches on an op field; reasonable ops and what they return:
+ *
+ *   PLUSOS_USERS_FIRSTRUN   -> 1 if no accounts exist, else 0
+ *   PLUSOS_USERS_COUNT      -> number of accounts
+ *   PLUSOS_USERS_AT         (index  -> name/uid/gid/home/flags in *a0) -> 0 or -1
+ *   PLUSOS_USERS_FIND       (name   -> uid/gid/home/flags in *a0)      -> 0 or -1
+ *   PLUSOS_USERS_FIND_UID   (uid    -> name/gid/home/flags in *a0)     -> 0 or -1
+ *   PLUSOS_USERS_AUTH       (name + pw)                                -> 1 ok, 0 bad
+ *   PLUSOS_USERS_SETPW      (name + pw)                                -> 0 or -1
+ *   PLUSOS_USERS_ADD        (name + pw + flags + is_root)              -> 0 or -1
+ *   PLUSOS_USERS_WHOAMI     ()                                         -> current uid
+ *   PLUSOS_USERS_SETCURRENT (uid; also stamps proc_current)            -> 0
+ */
+enum {
+    PLUSOS_USERS_FIRSTRUN = 1,
+    PLUSOS_USERS_COUNT,
+    PLUSOS_USERS_AT,
+    PLUSOS_USERS_FIND,
+    PLUSOS_USERS_FIND_UID,
+    PLUSOS_USERS_AUTH,
+    PLUSOS_USERS_SETPW,
+    PLUSOS_USERS_ADD,
+    PLUSOS_USERS_WHOAMI,
+    PLUSOS_USERS_SETCURRENT,
+    PLUSOS_USERS_IS_SUDOER,    /* (name) -> 1 if /etc/sudoers lists it */
+    PLUSOS_USERS_SUDO_ELEVATE, /* -> 0 if caller is a sudoer; sets proc_current->uid=0 */
+    PLUSOS_USERS_DELETE,       /* (name) -> 0 or -1; root only; wipes account */
+};
+
+/* Flat argument block for SYS_users. Fields are populated per op (see above).
+ * Buffers must be large enough for a user record: 16 chars name, 40 home,
+ * 16 shell. */
+struct plusos_users_args {
+    int      op;
+    int      index;       /* AT */
+    int      uid;         /* FIND_UID / SETCURRENT / ADD (is_root != 0 forces 0) */
+    int      gid;
+    int      flags;       /* ADD input / returned record flags */
+    int      is_root;     /* ADD: create root (uid 0, home /root) */
+    char     name [16];
+    char     home [40];
+    char     shell[16];
+    char     pw   [32];   /* AUTH / SETPW / ADD; cleared after return */
+};
+
+/* SYS_perms: file permissions sidecar at /etc/perms.db. Ops:
+ *
+ *   PLUSOS_PERMS_GET    (path -> mode/uid/gid in *a0)  -> 0 or -1
+ *   PLUSOS_PERMS_SET    (path + mode + uid + gid)      -> 0 or -1 (root only)
+ *   PLUSOS_PERMS_CHMOD  (path + mode)                  -> 0 or -1
+ *   PLUSOS_PERMS_CHOWN  (path + uid + gid)             -> 0 or -1 (root only)
+ *   PLUSOS_PERMS_CHECK  (path + want bits R/W/X)       -> 1 allowed, 0 denied
+ *   PLUSOS_PERMS_COUNT                                 -> number of entries
+ *   PLUSOS_PERMS_AT     (index -> record in *a0)       -> 0 or -1
+ *
+ * See the honest framing in kernel/services/perms.h: these are ADVISORY
+ * (consulted by well-behaved programs), not kernel-enforced. */
+enum {
+    PLUSOS_PERMS_GET = 1,
+    PLUSOS_PERMS_SET,
+    PLUSOS_PERMS_CHMOD,
+    PLUSOS_PERMS_CHOWN,
+    PLUSOS_PERMS_CHECK,
+    PLUSOS_PERMS_COUNT,
+    PLUSOS_PERMS_AT,
+};
+struct plusos_perms_args {
+    int      op;
+    int      index;       /* AT */
+    int      mode;        /* octal 0..0777 */
+    int      uid;
+    int      gid;
+    int      want;        /* CHECK: bitwise 4=R 2=W 1=X */
+    char     path[48];
 };
 
 /* SYS_thread: run entry(fn, arg) as a new thread of the calling program (use
