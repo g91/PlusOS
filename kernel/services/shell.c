@@ -96,6 +96,22 @@ static void cmd_uptime(int argc, char **argv)
            (unsigned long)t, (unsigned long)heartbeat, proc_count());
 }
 
+static void cmd_lsmod(int argc, char **argv)
+{
+    printf("MODULE    TYPE     STAGE     STATE    INIT\n");
+    for (int i = 0; i < kmod_count(); i++) {
+        kmodule *m = kmod_at(i);
+        printf("%-9s %-8s %-9s %-8s %ut%s\n", m->name, kmod_type_name(m->type),
+               kmod_stage_name(m->stage), kmod_state_name(m->state), (unsigned)m->init_ticks,
+               (m->flags & KMOD_F_ESSENTIAL) ? "  essential" : "");
+    }
+    printf("drivers:");
+    for (int i = 0; i < kdrv_count(); i++) printf(" %s", kdrv_at(i)->name);
+    printf("\nstack guard %s, watchdog %s (stalls %lu, worst %lu ticks)\n",
+           CONFIG_STACKGUARD ? "on" : "off", CONFIG_WATCHDOG ? "on" : "off",
+           (unsigned long)kwd_stalls(), (unsigned long)kwd_worst());
+}
+
 static void cmd_ps(int argc, char **argv)
 {
     static const char *st[] = { "unused", "ready", "run", "blocked", "zombie" };
@@ -321,6 +337,7 @@ static const Command commands[] = {
     { "run",    cmd_run,    "run a program (or just type its name)" },
     { "ps",     cmd_ps,     "list processes" },
     { "uptime", cmd_uptime, "time since boot and the heartbeat task" },
+    { "lsmod",  cmd_lsmod,  "kernel modules, drivers, watchdog and stack guard" },
     { "mem",    cmd_mem,    "memory map and free heap" },
     { "rom",    cmd_rom,    "ROM version and the managers in it" },
     { "trap",   cmd_trap,   "look up a ROM call: trap FrameRect / trap A8A1" },

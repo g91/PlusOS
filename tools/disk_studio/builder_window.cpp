@@ -601,6 +601,25 @@ void BuilderWindow::hide()
     if (m_hWnd) ShowWindow(m_hWnd, SW_HIDE);
 }
 
+// ---- Kernel build settings -------------------------------------------------
+// Optional kernel modules, in the order of KMODS_ALL in the Makefile.
+static const char* const kKmodName[KMOD_COUNT] = {
+    "sound", "profiler", "entropy", "power", "pram", "shm",
+    "ramdisk", "scrap", "macloader", "stackguard", "watchdog"
+};
+static const wchar_t* const kKmodLabel[KMOD_COUNT] = {
+    L"Sound", L"Profiler", L"Random (entropy)", L"Screen saver", L"PRAM / clock", L"Shared memory",
+    L"RAM disk", L"Clipboard", L"Mac app loader", L"Stack guard", L"Watchdog"
+};
+// Modules a preset leaves OUT (bit i = module i). Must match KMODS_OFF_* in the Makefile.
+static const unsigned kProfileOff[4] = {
+    0,                                                                      // full
+    (1u << 1) | (1u << 2) | (1u << 3),                                      // lean: profiler entropy power
+    (1u << 1) | (1u << 2) | (1u << 3) | (1u << 10),                         // fast: lean + watchdog
+    0x7FFu & ~(1u << 9),                                                    // tiny: all but stackguard
+};
+static const char* const kProfileName[4] = { "full", "lean", "fast", "tiny" };
+
 void BuilderWindow::create_controls()
 {
     HFONT hNormalFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
@@ -797,12 +816,12 @@ void BuilderWindow::create_controls()
 
     // Group 5: Software Applications & Floppy Capacity (Column 2)
     HWND grpApps = CreateWindowExW(0, L"BUTTON", L" 5. Software Packages & Floppy Capacity ",
-        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 470, 10, 395, 705, m_hWnd, nullptr, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 470, 10, 395, 525, m_hWnd, nullptr, m_hInstance, nullptr);
     SendMessageW(grpApps, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
     m_hListViewApps = CreateWindowExW(WS_EX_CLIENTEDGE, WC_LISTVIEWW, nullptr,
         WS_CHILD | WS_VISIBLE | WS_TABSTOP | LVS_REPORT | LVS_SHOWSELALWAYS,
-        480, 33, 375, 480, m_hWnd, (HMENU)IDB_APPS_LISTVIEW, m_hInstance, nullptr);
+        480, 33, 375, 300, m_hWnd, (HMENU)IDB_APPS_LISTVIEW, m_hInstance, nullptr);
     SendMessageW(m_hListViewApps, LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
     SendMessageW(m_hListViewApps, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
@@ -814,49 +833,81 @@ void BuilderWindow::create_controls()
     appCol.cx = 65;  appCol.pszText = (LPWSTR)L"Origin";      ListView_InsertColumn(m_hListViewApps, 3, &appCol);
 
     m_hBtnAppsSelectAll = CreateWindowExW(0, L"BUTTON", L"All", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        480, 520, 88, 26, m_hWnd, (HMENU)IDB_APPS_SELECT_ALL_BTN, m_hInstance, nullptr);
+        480, 340, 88, 26, m_hWnd, (HMENU)IDB_APPS_SELECT_ALL_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsSelectAll, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnAppsSelectNone = CreateWindowExW(0, L"BUTTON", L"None", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        575, 520, 88, 26, m_hWnd, (HMENU)IDB_APPS_SELECT_NONE_BTN, m_hInstance, nullptr);
+        575, 340, 88, 26, m_hWnd, (HMENU)IDB_APPS_SELECT_NONE_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsSelectNone, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnAppsSysOnly = CreateWindowExW(0, L"BUTTON", L"System", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        670, 520, 90, 26, m_hWnd, (HMENU)IDB_APPS_SYS_ONLY_BTN, m_hInstance, nullptr);
+        670, 340, 90, 26, m_hWnd, (HMENU)IDB_APPS_SYS_ONLY_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsSysOnly, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnAppsGamesOnly = CreateWindowExW(0, L"BUTTON", L"Games", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        765, 520, 90, 26, m_hWnd, (HMENU)IDB_APPS_GAMES_ONLY_BTN, m_hInstance, nullptr);
+        765, 340, 90, 26, m_hWnd, (HMENU)IDB_APPS_GAMES_ONLY_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsGamesOnly, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnAppsAdd = CreateWindowExW(0, L"BUTTON", L"Add Custom App...", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        480, 552, 183, 28, m_hWnd, (HMENU)IDB_APPS_ADD_BTN, m_hInstance, nullptr);
+        480, 372, 183, 28, m_hWnd, (HMENU)IDB_APPS_ADD_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsAdd, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnAppsRemove = CreateWindowExW(0, L"BUTTON", L"Remove Selected", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        672, 552, 183, 28, m_hWnd, (HMENU)IDB_APPS_REMOVE_BTN, m_hInstance, nullptr);
+        672, 372, 183, 28, m_hWnd, (HMENU)IDB_APPS_REMOVE_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnAppsRemove, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hStaticBaseSystem = CreateWindowExW(0, L"STATIC", L"Base OS Core: Calculating size...",
-        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 582, 375, 18, m_hWnd, (HMENU)IDB_BASE_SYSTEM_STATIC, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 404, 375, 18, m_hWnd, (HMENU)IDB_BASE_SYSTEM_STATIC, m_hInstance, nullptr);
     SendMessageW(m_hStaticBaseSystem, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hStaticAppCount = CreateWindowExW(0, L"STATIC", L"Selected Software: 66 of 66 packages (0 KB)",
-        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 601, 375, 18, m_hWnd, (HMENU)IDB_APPS_COUNT_STATIC, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 423, 375, 18, m_hWnd, (HMENU)IDB_APPS_COUNT_STATIC, m_hInstance, nullptr);
     SendMessageW(m_hStaticAppCount, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hStaticTotalDisk = CreateWindowExW(0, L"STATIC", L"Total Bootable Footprint: 0 KB (Base OS + Software)",
-        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 620, 375, 19, m_hWnd, (HMENU)IDB_TOTAL_DISK_STATIC, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 442, 375, 19, m_hWnd, (HMENU)IDB_TOTAL_DISK_STATIC, m_hInstance, nullptr);
     SendMessageW(m_hStaticTotalDisk, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
     m_hStaticFloppyStatus = CreateWindowExW(0, L"STATIC", L"Floppy: Calculating size...",
-        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 641, 375, 20, m_hWnd, (HMENU)IDB_APPS_FLOPPY_STATUS_STATIC, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_CENTERIMAGE, 480, 463, 375, 20, m_hWnd, (HMENU)IDB_APPS_FLOPPY_STATUS_STATIC, m_hInstance, nullptr);
     SendMessageW(m_hStaticFloppyStatus, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
     m_hStaticFloppyTip = CreateWindowExW(0, L"STATIC",
         L"Floppy Guide: Base OS (~191 KB) is essential and included on every disk. On 800K floppies, software must stay under ~609 KB (Total < 800 KB). 1.44M HD disks support up to 1.44 MB.",
-        WS_CHILD | WS_VISIBLE | SS_LEFT, 480, 663, 375, 46, m_hWnd, (HMENU)IDB_APPS_FLOPPY_TIP_STATIC, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | SS_LEFT, 480, 485, 375, 46, m_hWnd, (HMENU)IDB_APPS_FLOPPY_TIP_STATIC, m_hInstance, nullptr);
     SendMessageW(m_hStaticFloppyTip, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+
+    // Group 5b: Kernel build settings (column 2, below the software list)
+    HWND grpKernel = CreateWindowExW(0, L"BUTTON", L" Kernel Build Settings (modules) ",
+        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 470, 540, 395, 175, m_hWnd, nullptr, m_hInstance, nullptr);
+    SendMessageW(grpKernel, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
+
+    HWND lblKProf = CreateWindowExW(0, L"STATIC", L"Profile:", WS_CHILD | WS_VISIBLE, 480, 565, 55, 20, m_hWnd, nullptr, m_hInstance, nullptr);
+    SendMessageW(lblKProf, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+
+    m_hComboKProfile = CreateWindowExW(0, L"COMBOBOX", L"",
+        WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_TABSTOP, 540, 562, 315, 150, m_hWnd, (HMENU)IDB_KPROFILE_COMBO, m_hInstance, nullptr);
+    SendMessageW(m_hComboKProfile, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+    SendMessageW(m_hComboKProfile, CB_ADDSTRING, 0, (LPARAM)L"Full - every module (default)");
+    SendMessageW(m_hComboKProfile, CB_ADDSTRING, 0, (LPARAM)L"Lean - no profiler, entropy, screen saver");
+    SendMessageW(m_hComboKProfile, CB_ADDSTRING, 0, (LPARAM)L"Fast - lean + no watchdog (least overhead)");
+    SendMessageW(m_hComboKProfile, CB_ADDSTRING, 0, (LPARAM)L"Tiny - smallest kernel, quickest boot");
+    SendMessageW(m_hComboKProfile, CB_ADDSTRING, 0, (LPARAM)L"Custom - pick modules below");
+    SendMessageW(m_hComboKProfile, CB_SETCURSEL, 0, 0);
+
+    for (int i = 0; i < KMOD_COUNT; i++) {
+        int col = i / 4, row = i % 4;
+        m_hCheckKMod[i] = CreateWindowExW(0, L"BUTTON", kKmodLabel[i],
+            WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX,
+            480 + col * 127, 594 + row * 22, 125, 20, m_hWnd, (HMENU)(INT_PTR)(IDB_KMOD_FIRST + i), m_hInstance, nullptr);
+        SendMessageW(m_hCheckKMod[i], WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+        SendMessageW(m_hCheckKMod[i], BM_SETCHECK, BST_CHECKED, 0);
+    }
+
+    HWND lblKNote = CreateWindowExW(0, L"STATIC",
+        L"Checked = built in. Unchecked modules are left out of the kernel (smaller image, less work per tick/syscall; their syscalls return -1). Saved to kernel.cfg.",
+        WS_CHILD | WS_VISIBLE | SS_LEFT, 480, 684, 375, 30, m_hWnd, nullptr, m_hInstance, nullptr);
+    SendMessageW(lblKNote, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     // Group 6: Live Build Log & System Diagnostics (Column 3)
     m_hGroupLog = CreateWindowExW(0, L"BUTTON", L" Build Output & Compilation Log ",
@@ -926,6 +977,15 @@ void BuilderWindow::update_controls_from_cfg()
     SendMessageW(m_hComboWallpaper, CB_SETCURSEL, m_cfg.wallpaper, 0);
     SendMessageW(m_hComboReturnSCSI, CB_SETCURSEL, m_cfg.return_scsi_id, 0);
     SetWindowTextW(m_hEditGreeting, m_cfg.greeting.c_str());
+
+    // Kernel build settings
+    int prof = m_cfg.kernel_profile;
+    if (prof < 0 || prof > 4) prof = 0;
+    SendMessageW(m_hComboKProfile, CB_SETCURSEL, prof, 0);
+    for (int i = 0; i < KMOD_COUNT; i++) {
+        SendMessageW(m_hCheckKMod[i], BM_SETCHECK,
+            m_cfg.kmod_on[i] ? BST_CHECKED : BST_UNCHECKED, 0);
+    }
 
     populate_boot_list();
     populate_apps_list();
@@ -1042,6 +1102,9 @@ void BuilderWindow::load_config_from_file()
     if (!entries.empty()) {
         m_cfg.boot_entries = entries;
     }
+
+    // Kernel settings live in a separate file written in make syntax
+    load_kernel_cfg();
 }
 
 bool BuilderWindow::save_config_to_file()
@@ -1094,7 +1157,173 @@ bool BuilderWindow::save_config_to_file()
 
     out.close();
     append_log(L"Configuration saved to multiboot.cfg successfully.");
+    save_kernel_cfg();
     return true;
+}
+
+// ---- Kernel build settings -------------------------------------------------
+// Map a preset index (0..3) onto the m_cfg.kmod_on[] array; index 4 ("Custom")
+// leaves the checkboxes alone.
+void BuilderWindow::on_kprofile_changed()
+{
+    int sel = (int)SendMessageW(m_hComboKProfile, CB_GETCURSEL, 0, 0);
+    if (sel < 0 || sel > 3) return;                 // "Custom" or nothing selected
+    unsigned off = kProfileOff[sel];
+    for (int i = 0; i < KMOD_COUNT; i++) {
+        bool on = ((off >> i) & 1u) == 0;
+        m_cfg.kmod_on[i] = on;
+        SendMessageW(m_hCheckKMod[i], BM_SETCHECK, on ? BST_CHECKED : BST_UNCHECKED, 0);
+    }
+    m_cfg.kernel_profile = sel;
+    append_log(L"[kernel] profile: " + kernel_summary());
+}
+
+// A checkbox was clicked. Read every box back, decide whether the result still
+// matches one of the four presets; if it does keep its name, otherwise flip to
+// "Custom".
+void BuilderWindow::on_kmod_toggled()
+{
+    unsigned mask = 0;
+    for (int i = 0; i < KMOD_COUNT; i++) {
+        bool on = SendMessageW(m_hCheckKMod[i], BM_GETCHECK, 0, 0) == BST_CHECKED;
+        m_cfg.kmod_on[i] = on;
+        if (!on) mask |= (1u << i);
+    }
+    int match = 4;                                   // default: Custom
+    for (int p = 0; p < 4; p++) {
+        if (kProfileOff[p] == mask) { match = p; break; }
+    }
+    m_cfg.kernel_profile = match;
+    SendMessageW(m_hComboKProfile, CB_SETCURSEL, match, 0);
+}
+
+// Writes kernel.cfg in make syntax: a PROFILE= line plus DISABLE= / ENABLE=
+// lists that round-trip exactly what the user picked. The Makefile reads this
+// via -include kernel.cfg.
+bool BuilderWindow::save_kernel_cfg()
+{
+    for (int i = 0; i < KMOD_COUNT; i++) {
+        m_cfg.kmod_on[i] = SendMessageW(m_hCheckKMod[i], BM_GETCHECK, 0, 0) == BST_CHECKED;
+    }
+    int profile = (int)SendMessageW(m_hComboKProfile, CB_GETCURSEL, 0, 0);
+    if (profile < 0) profile = 0;
+    m_cfg.kernel_profile = profile;
+
+    unsigned preset_off = (profile >= 0 && profile <= 3) ? kProfileOff[profile] : 0;
+    unsigned want_off   = 0;
+    for (int i = 0; i < KMOD_COUNT; i++) if (!m_cfg.kmod_on[i]) want_off |= (1u << i);
+
+    // For Custom, express the whole thing as DISABLE= on top of PROFILE=full.
+    // For a preset, record which modules diverge from it as DISABLE= / ENABLE=.
+    int base_profile = (profile >= 0 && profile <= 3) ? profile : 0;
+    unsigned base_off = (profile >= 0 && profile <= 3) ? preset_off : 0u;
+    std::string disable_list, enable_list;
+    for (int i = 0; i < KMOD_COUNT; i++) {
+        bool base_on = ((base_off >> i) & 1u) == 0;
+        bool want_on = m_cfg.kmod_on[i];
+        if (base_on && !want_on) {
+            if (!disable_list.empty()) disable_list += " ";
+            disable_list += kKmodName[i];
+        } else if (!base_on && want_on) {
+            if (!enable_list.empty()) enable_list += " ";
+            enable_list += kKmodName[i];
+        }
+    }
+
+    std::string path = to_narrow(m_repoRoot) + "\\kernel.cfg";
+    std::ofstream out(path);
+    if (!out.is_open()) {
+        append_log(L"[WARN] Could not write kernel.cfg (check permissions).");
+        return false;
+    }
+    out << "# PlusOS kernel build settings (written by Disk Studio).\n";
+    out << "# Read by the top-level Makefile; command-line PROFILE=/DISABLE=/ENABLE= override.\n";
+    out << "PROFILE := " << kProfileName[base_profile] << "\n";
+    if (!disable_list.empty()) out << "DISABLE := " << disable_list << "\n";
+    if (!enable_list.empty())  out << "ENABLE  := " << enable_list  << "\n";
+    (void)want_off;
+    append_log(L"[kernel] kernel.cfg saved: " + kernel_summary());
+    return true;
+}
+
+// Load kernel.cfg back into m_cfg. Tolerant of either ':=' or '=' and of
+// comma / plus-separated module lists.
+void BuilderWindow::load_kernel_cfg()
+{
+    for (bool& b : m_cfg.kmod_on) b = true;
+    m_cfg.kernel_profile = 0;
+
+    std::string path = to_narrow(m_repoRoot) + "\\kernel.cfg";
+    std::ifstream in(path);
+    if (!in.is_open()) return;
+
+    auto split_names = [](std::string v) {
+        std::vector<std::string> out;
+        std::string cur;
+        for (char c : v) {
+            if (c == ' ' || c == '\t' || c == ',' || c == '+') {
+                if (!cur.empty()) { out.push_back(cur); cur.clear(); }
+            } else cur += c;
+        }
+        if (!cur.empty()) out.push_back(cur);
+        return out;
+    };
+    auto find_mod = [](const std::string& name) -> int {
+        for (int i = 0; i < KMOD_COUNT; i++) if (name == kKmodName[i]) return i;
+        return -1;
+    };
+
+    std::string profile = "full";
+    std::vector<std::string> disable_list, enable_list;
+    std::string line;
+    while (std::getline(in, line)) {
+        while (!line.empty() && (line.back() == '\r' || line.back() == ' ' || line.back() == '\t')) line.pop_back();
+        size_t s = line.find_first_not_of(" \t");
+        if (s == std::string::npos) continue;
+        line = line.substr(s);
+        if (line.empty() || line[0] == '#') continue;
+        size_t eq = line.find('=');
+        if (eq == std::string::npos) continue;
+        std::string k = line.substr(0, eq);
+        std::string v = line.substr(eq + 1);
+        while (!k.empty() && (k.back() == ' ' || k.back() == ':')) k.pop_back();
+        while (!v.empty() && (v.front() == ' ' || v.front() == '\t')) v.erase(v.begin());
+        if (k == "PROFILE") profile = v;
+        else if (k == "DISABLE") disable_list = split_names(v);
+        else if (k == "ENABLE")  enable_list  = split_names(v);
+    }
+
+    int pidx = 0;
+    for (int i = 0; i < 4; i++) if (profile == kProfileName[i]) { pidx = i; break; }
+    unsigned off = kProfileOff[pidx];
+    for (int i = 0; i < KMOD_COUNT; i++) m_cfg.kmod_on[i] = ((off >> i) & 1u) == 0;
+    for (const auto& n : disable_list) { int i = find_mod(n); if (i >= 0) m_cfg.kmod_on[i] = false; }
+    for (const auto& n : enable_list)  { int i = find_mod(n); if (i >= 0) m_cfg.kmod_on[i] = true;  }
+
+    // Collapse back to a preset if the resulting mask matches one exactly.
+    unsigned mask = 0;
+    for (int i = 0; i < KMOD_COUNT; i++) if (!m_cfg.kmod_on[i]) mask |= (1u << i);
+    int match = 4;
+    for (int p = 0; p < 4; p++) if (kProfileOff[p] == mask) { match = p; break; }
+    m_cfg.kernel_profile = match;
+}
+
+// One line for the build log: "profile (built-in: a b c; left out: x y)".
+std::wstring BuilderWindow::kernel_summary() const
+{
+    int pidx = m_cfg.kernel_profile;
+    if (pidx < 0 || pidx > 4) pidx = 0;
+    std::wstring on, off;
+    for (int i = 0; i < KMOD_COUNT; i++) {
+        std::wstring name = to_wide(kKmodName[i]);
+        if (m_cfg.kmod_on[i]) { if (!on.empty())  on  += L" "; on  += name; }
+        else                  { if (!off.empty()) off += L" "; off += name; }
+    }
+    std::wstring profName = to_wide(pidx == 4 ? "custom" : kProfileName[pidx]);
+    std::wstring s = profName;
+    if (off.empty()) s += L" (all modules built in)";
+    else             s += L" (left out: " + off + L")";
+    return s;
 }
 
 void BuilderWindow::on_boot_add()
@@ -1789,6 +2018,7 @@ void BuilderWindow::action_build_image()
     append_log(L"Total Bootable Footprint: " + format_size_human(totalBootable));
     append_log(L"Boot Preference: " + std::to_wstring(m_cfg.boot_pref));
     append_log(L"Default Theme: " + std::to_wstring(m_cfg.theme));
+    append_log(L"Kernel: " + kernel_summary());
     append_log(L"Running 'make install' asynchronously in worker thread...");
 
     std::wstring rootDir = m_repoRoot;
@@ -2400,6 +2630,15 @@ LRESULT BuilderWindow::handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
         case IDB_APPS_GAMES_ONLY_BTN: on_apps_games_only(); break;
         case IDB_APPS_ADD_BTN: on_apps_add_custom(); break;
         case IDB_APPS_REMOVE_BTN: on_apps_remove_selected(); break;
+        case IDB_KPROFILE_COMBO:
+            if (HIWORD(wParam) == CBN_SELCHANGE) on_kprofile_changed();
+            break;
+        default:
+            if (id >= IDB_KMOD_FIRST && id <= IDB_KMOD_LAST &&
+                HIWORD(wParam) == BN_CLICKED) {
+                on_kmod_toggled();
+            }
+            break;
         }
         return 0;
     }

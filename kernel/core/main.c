@@ -80,6 +80,10 @@ static void heartbeat_task(void *arg)
     (void)arg;
     for (;;) {
         heartbeat++;
+        uint32_t stall = kwd_pet();     /* watchdog: report if we were starved for seconds */
+        if (stall)
+            klog(4, "watchdog: heartbeat stalled for %lu ticks (%lu s)",
+                 (unsigned long)stall, (unsigned long)(stall / 60));
         proc_sleep_ticks(60);
     }
 }
@@ -92,32 +96,19 @@ __attribute__((noreturn)) void __plusos_kernel_start(void)
            cpu_name(), (unsigned long)(ram_bytes() >> 10));
     exc_install();
     printf("Starting the ROM:\n");
-    rom_init();
-    kmem_init();
-    gc_init();
-    klog_init();
-    env_init();
-    entropy_init();
-    profiler_init();
-    security_init();
-    kbd_init((g_flags & PLUSOS_HAVE_EVENTS) != 0);
-    sound_init();
-    power_init();
-    pram_init();
-    video_init();                   /* allocate the back buffer before api_init wires it */
-    api_init();
-    ramdisk_init();
-    shm_init();
+    rom_init();                     /* the module table needs the ROM's heap and managers */
+
+    modules_register();
+    int bad = 0;
+    bad += kmod_boot_stage(KSTAGE_MEMORY);
+    bad += kmod_boot_stage(KSTAGE_BASE);
+    bad += kmod_boot_stage(KSTAGE_DRIVERS);     /* video must be up before the api stage wires it */
+    bad += kmod_boot_stage(KSTAGE_SERVICES);
 
     printf("Starting the kernel: scheduler, timer, IPC, syscalls\n");
-    sched_init();
-    pipe_init();
-    sync_init();
-    signal_init();
-    timer_subsys_init();
-    syscall_init();
-    tick_init();
-    preempt_init();                 /* user programs can no longer hog the CPU */
+    bad += kmod_boot_stage(KSTAGE_CORE);
+    if (bad)
+        printf("  WARNING: %d module(s) did not start (see `lsmod`)\n", bad);
     if (proc_create_kernel("init", init_task, 0) < 0 ||
         proc_create_kernel("heartbeat", heartbeat_task, 0) < 0)
         printf("  WARNING: could not create the startup tasks\n");

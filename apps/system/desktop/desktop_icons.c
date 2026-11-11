@@ -358,16 +358,44 @@ static void select_icon_named(const char *name)
     focus_desktop = 1;
 }
 
+/* Background copy: real file I/O (copy_file) can take seconds for a large file.
+ * Running it on the Desktop's main thread freezes the UI for that whole time
+ * even though the kernel preempts us every 50 ms, because the main thread is
+ * the one that would otherwise be reading events and repainting. A worker
+ * thread does the copy; the final build_icons/redraw happens on it too, under
+ * the usual screen mutex so the main thread sees a consistent state. */
+struct copy_job { char src[80]; char dst[80]; char nm[32]; };
+
+static void copy_worker(void *arg)
+{
+    struct copy_job *j = arg;
+    int rc = copy_file(j->src, j->dst);
+    LOCK();
+    if (rc != 0) {
+        UNLOCK();
+        message("Could not copy the file.", "The disk may be full.");
+    } else {
+        build_icons();
+        select_icon_named(j->nm);
+        redraw();
+        UNLOCK();
+    }
+    free(j);
+}
+
 void copy_to_desktop(const char *src, const char *name)
 {
     if (!desk_dir) { message("There is no Desktop folder", "on this disk."); return; }
-    char nm[32], dst[80];
-    unique_desktop_name(name, nm, sizeof nm);
-    snprintf(dst, sizeof dst, ":Desktop:%s", nm);
-    if (copy_file(src, dst) != 0) { message("Could not copy the file.", "The disk may be full."); return; }
-    build_icons();
-    select_icon_named(nm);
-    redraw();
+    struct copy_job *j = malloc(sizeof *j);
+    if (!j) { message("Not enough memory", "to start the copy."); return; }
+    unique_desktop_name(name, j->nm, sizeof j->nm);
+    snprintf(j->src, sizeof j->src, "%s", src);
+    snprintf(j->dst, sizeof j->dst, ":Desktop:%s", j->nm);
+    if (gthread_create_ex(copy_worker, j, 4096, 1) < 0) {
+        /* No thread slot: fall back to a foreground copy so the user still gets
+         * their file. UI will freeze briefly, as it did before. */
+        copy_worker(j);
+    }
 }
 
 void cmd_copy(void)

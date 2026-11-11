@@ -11,6 +11,7 @@
 #include <plusrom/QuickDraw.h>
 #include <plusrom/OSUtil.h>
 #include <plusrom/FileMgr.h>
+#include <stdlib.h>
 
 #define SCREEN_W   512
 #define SCREEN_H   342

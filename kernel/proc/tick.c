@@ -8,13 +8,12 @@
  */
 #include "kernel.h"
 #include "proc.h"
+#include "profiler.h"
 #include <plusrom/VRetraceMgr.h>
 
 extern void tick_vbl(void);              /* tick.S */
 extern void sched_on_tick(void);         /* proc.c */
 extern void timer_vbl_tick(void);
-extern void power_vbl_tick(void);
-extern void profiler_vbl_tick(void);
 
 static volatile uint32_t ticks;
 
@@ -38,10 +37,11 @@ void tick_c(void)
      * sniffer to fire against our own stacks. tick_init() clears StkLowPt once
      * to keep the sniffer disabled (the same `clr.l StkLowPt` idiom the ROM
      * uses in SCSIMgr/BTreeMgr to suspend sniffing). */
-    sound_vbl_tick();
+    kwd_tick();                         /* watchdog: counts ticks since the heartbeat last ran */
+    sound_vbl_tick();                   /* (no-op unless CONFIG_SOUND) */
     sched_on_tick();
     timer_vbl_tick();
-    profiler_vbl_tick();
+    profiler_vbl_tick();                /* (no-op unless CONFIG_PROFILER) */
 }
 
 void tick_init(void)

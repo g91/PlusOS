@@ -3,6 +3,8 @@
 #define PLUSOS_KERNEL_H
 
 #define PLUSOS_IN_KERNEL 1
+#include "kconfig.h"
+#include "kmodule.h"
 /* The kernel runs on the Mac Plus and the Mac SE. It is built with the Mac
  * Plus SDK (every Plus trap is also in the SE ROM) and also reads the Mac SE
  * SDK's call catalog for the `trap` / `rom` shell commands. */
@@ -89,6 +91,9 @@ void     kbd_history_clear(void);
 int      kbd_tab_complete(const char *base_buf, int base_len, char *buf, int size,
                           int tab_idx, char *status_out, int status_sz);
 
+/* ---- modules.c: the module table (see kmodule.h) ---- */
+void modules_register(void);
+
 /* ---- rominit.c: bring up the ROM's subsystems ---- */
 void        rom_init(void);
 const char *cpu_name(void);
@@ -130,6 +135,8 @@ int  reg_set(const char *key, const char *value);       /* empty value deletes *
 int  reg_enum(int index, char *key, int ksize, char *value, int vsize);  /* 0 or -1 */
 
 /* ---- sound.c: Compact Mac hardware sound synthesizer & volume control ---- */
+struct plusos_sound_args;
+#if CONFIG_SOUND
 void sound_init(void);
 void sound_vbl_tick(void);
 void sound_beep(int duration_ticks);
@@ -137,15 +144,35 @@ void sound_tone(int freq_hz, int duration_ticks);
 void sound_play_notes(const uint16_t *notes, int count);
 int  sound_get_volume(void);
 void sound_set_volume(int vol);
-struct plusos_sound_args;
 long sound_syscall(struct plusos_sound_args *a);
+#else   /* CONFIG_SOUND=0: no sound driver; everything is a no-op */
+static inline void sound_init(void) {}
+static inline void sound_vbl_tick(void) {}
+static inline void sound_beep(int t) { (void)t; }
+static inline void sound_tone(int f, int t) { (void)f; (void)t; }
+static inline void sound_play_notes(const uint16_t *n, int c) { (void)n; (void)c; }
+static inline int  sound_get_volume(void) { return 0; }
+static inline void sound_set_volume(int v) { (void)v; }
+static inline long sound_syscall(struct plusos_sound_args *a) { (void)a; return -1; }
+#endif
 
 /* ---- scrap.c: system-wide clipboard ("Clipboard File") ---- */
 struct plusos_scrap_args;
+#if CONFIG_SCRAP
 long scrap_syscall(struct plusos_scrap_args *a);
+#else
+static inline long scrap_syscall(struct plusos_scrap_args *a) { (void)a; return -1; }
+#endif
 
 /* ---- macloader.c: Classic Macintosh 'APPL' ('CODE' resource) loader ---- */
+#if CONFIG_MACLOADER
 int  mac_try_run(const char *name, int argc, char **argv);
+#else
+static inline int mac_try_run(const char *n, int c, char **v) { (void)n; (void)c; (void)v; return -1001; /* E_NOTFOUND */ }
+#endif
+
+/* ---- crash.c: unrecoverable kernel faults ---- */
+__attribute__((noreturn)) void kernel_panic(const char *what, const char *who);
 
 /* ---- crash.c / exc.S: exceptions and system errors return to the shell ---- */
 void exc_install(void);

@@ -145,6 +145,7 @@ int exec_run(const char *name, int argc, char **argv)
     return result;
 }
 
+#if CONFIG_MACLOADER
 static void mac_proc_runner(void *arg)
 {
     char *name = (char *)arg;
@@ -152,6 +153,7 @@ static void mac_proc_runner(void *arg)
     mac_try_run(name, 1, argv);
     kfree(name);
 }
+#endif
 
 /* Load a program and run it as a ring-2 (user mode) process, or as a classic
  * Macintosh 'APPL' ('CODE' resource) process. Returns the new pid, or a
@@ -162,6 +164,7 @@ int exec_spawn(const char *name, int argc, char **argv)
     int rc = load_hfs(name, &mem);
     if (rc == E_NOTFOUND)
         rc = load_raw(name, &mem);
+#if CONFIG_MACLOADER
     if (rc == E_NOTFOUND || rc == E_FORMAT) {
         /* Check if `name` is a classic Macintosh 'APPL' ('CODE' resource) */
         INTEGER rf_ref;
@@ -187,6 +190,7 @@ int exec_spawn(const char *name, int argc, char **argv)
             return pid;
         }
     }
+#endif
     if (rc) return rc;
 
     cache_flush();                      /* kernel flushes (supervisor) so the app

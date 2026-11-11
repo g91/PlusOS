@@ -35,6 +35,9 @@ struct DiscoveredApp {
     uint64_t size = 0;
 };
 
+// Optional kernel modules (must match KMODS_ALL in the Makefile / kernel/core/kconfig.h)
+enum { KMOD_COUNT = 11 };
+
 struct BuilderConfig {
     std::wstring image_path;
     int target_hardware = 1;      // 0: Mac Plus (68000), 1: Mac SE (ADB/XPRAM), 2: Mac SE/30 (68030)
@@ -52,6 +55,11 @@ struct BuilderConfig {
     std::set<std::string> included_apps;
     std::map<std::string, std::wstring> custom_apps;
     std::vector<MultiBootEntry> boot_entries;
+
+    // Kernel build settings (saved to kernel.cfg, read by the Makefile)
+    int  kernel_profile = 0;      // 0: full, 1: lean, 2: fast, 3: tiny, 4: custom
+    bool kmod_on[KMOD_COUNT];     // which optional kernel modules are built in
+    BuilderConfig() { for (bool& b : kmod_on) b = true; }
 };
 
 // Builder control IDs
@@ -94,7 +102,10 @@ enum {
     IDB_INJECT_BTN,
     IDB_SETUP_ENV_BTN,
     IDB_BOOT_VM_BTN,
-    IDB_BUILD_LOG_EDIT
+    IDB_BUILD_LOG_EDIT,
+    IDB_KPROFILE_COMBO,
+    IDB_KMOD_FIRST,                       // 11 checkboxes, one per optional kernel module
+    IDB_KMOD_LAST = IDB_KMOD_FIRST + 10
 };
 
 class BuilderWindow {
@@ -172,6 +183,8 @@ private:
     HFONT m_hConsoleFont;
     HFONT m_hBoldFont;
     HFONT m_hHeaderFont;
+    HWND m_hComboKProfile = nullptr;
+    HWND m_hCheckKMod[KMOD_COUNT] = {};
     bool m_populatingApps = false;
     bool m_isBuilding = false;
     std::wstring m_repoRoot;
@@ -190,6 +203,13 @@ private:
     void layout_controls(int width, int height);
     void update_controls_from_cfg();
     void update_cfg_from_controls();
+
+    // Kernel build settings
+    void on_kprofile_changed();           // preset picked: tick the matching modules
+    void on_kmod_toggled();               // a module box clicked: preset becomes "Custom"
+    bool save_kernel_cfg();               // writes kernel.cfg (make syntax) in the repo root
+    void load_kernel_cfg();               // reads it back at startup
+    std::wstring kernel_summary() const;  // one-line description for the build log
 
     void populate_boot_list();
     void on_boot_add();

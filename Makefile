@@ -45,8 +45,64 @@ $(MACHINE_STAMP):
 	@rm -f $(BUILD)/.machine.* 2>/dev/null || true
 	@touch $@
 
+# ---- kernel module selection -------------------------------------------------
+# The kernel is built from modules (see kernel/core/kmodule.h, kconfig.h). Pick
+# which optional ones go in with a PROFILE preset and/or per-module switches:
+#
+#     make PROFILE=fast install            preset (see below)
+#     make DISABLE="sound shm" install     preset + drop these modules
+#     make PROFILE=tiny ENABLE=sound       preset, but keep sound
+#     make modules                         show what the current config builds
+#
+#   full  everything (default)
+#   lean  drop profiler, entropy, power           - slimmer, same features apps use
+#   fast  lean + no watchdog                       - least work in the tick/switch/syscall paths
+#   tiny  drop every optional module               - smallest kernel image, quickest boot
+#
+# Optional modules: sound profiler entropy power pram shm ramdisk scrap macloader
+#                   stackguard watchdog
+# A disabled module's source is not linked at all and its hooks compile away;
+# its syscall just returns -1.
+# Disk Studio's "Kernel Build Settings" writes kernel.cfg (make syntax: PROFILE=,
+# DISABLE=, ENABLE=). Command-line values still win over the file.
+-include kernel.cfg
+PROFILE ?= full
+DISABLE ?=
+ENABLE  ?=
+# module lists may be separated by spaces, commas or '+' (the last two survive build.bat)
+_comma := ,
+_mlist  = $(subst +, ,$(subst $(_comma), ,$(1)))
+KMODS_ALL      := sound profiler entropy power pram shm ramdisk scrap macloader stackguard watchdog
+KMODS_OFF_full :=
+KMODS_OFF_lean := profiler entropy power
+KMODS_OFF_fast := profiler entropy power watchdog
+KMODS_OFF_tiny := sound profiler entropy power pram shm ramdisk scrap macloader watchdog
+ifeq ($(origin KMODS_OFF_$(PROFILE)),undefined)
+$(error Unknown PROFILE '$(PROFILE)' - use full, lean, fast or tiny)
+endif
+KMODS_OFF := $(sort $(filter-out $(call _mlist,$(ENABLE)),$(KMODS_OFF_$(PROFILE)) $(call _mlist,$(DISABLE))))
+$(foreach m,$(KMODS_OFF) $(call _mlist,$(ENABLE)),$(if $(filter $(m),$(KMODS_ALL)),,$(error Unknown kernel module '$(m)'. Known: $(KMODS_ALL))))
+KCONFIG_FLAGS := $(foreach m,$(KMODS_OFF),-DCONFIG_$(call UPPER,$(m))=0)
+KMODS_ON := $(filter-out $(KMODS_OFF),$(KMODS_ALL))
+
+# Source file of each optional module (stackguard / watchdog live in shared files)
+KSRC_sound    := kernel/drivers/sound/sound.c
+KSRC_profiler := kernel/services/profiler.c
+KSRC_entropy  := kernel/services/entropy.c
+KSRC_power    := kernel/services/power.c
+KSRC_pram     := kernel/services/pram.c
+KSRC_shm      := kernel/services/shm.c
+KSRC_ramdisk  := kernel/services/ramdisk.c
+KSRC_scrap    := kernel/services/scrap.c
+KSRC_macloader:= kernel/services/macloader.c
+KSRC_OFF      := $(foreach m,$(KMODS_OFF),$(KSRC_$(m)))
+
+# The build ledger (tools/hashcc.py) hashes sources, not compiler flags, so it
+# is told the kernel's configuration: changing it forces the kernel to rebuild.
+export PLUSOS_CFG_SIG = $(KCONFIG_FLAGS) $(EXTRA_CPPFLAGS)
+
 # Kernel sources across all subdirectories (core, cpu, proc, drivers, services)
-KSRC   := $(wildcard kernel/*.c kernel/*.S kernel/*/*.c kernel/*/*.S kernel/*/*/*.c kernel/*/*/*.S)
+KSRC   := $(filter-out $(KSRC_OFF),$(wildcard kernel/*.c kernel/*.S kernel/*/*.c kernel/*/*.S kernel/*/*/*.c kernel/*/*/*.S))
 KOBJ   := $(patsubst %,$(BUILD)/%.o,$(KSRC))
 KERNEL := $(BUILD)/kernel/kernel.pex
 LOADER := $(BUILD)/boot/loader.bin
@@ -65,16 +121,28 @@ EXTRA_CPPFLAGS += -DPLUSOS_ENABLE_NETDBG
 endif
 
 # The kernel includes all kernel subdirectories and SE SDK catalog
-KERNEL_CPPFLAGS := $(PLUSOS_CPPFLAGS) $(PLUSOS_MACHINE_CPPFLAGS) $(EXTRA_CPPFLAGS) -Ikernel -Ikernel/core -Ikernel/cpu -Ikernel/proc \
+KERNEL_CPPFLAGS := $(PLUSOS_CPPFLAGS) $(PLUSOS_MACHINE_CPPFLAGS) $(EXTRA_CPPFLAGS) $(KCONFIG_FLAGS) -Ikernel -Ikernel/core -Ikernel/cpu -Ikernel/proc \
                    -Ikernel/drivers -Ikernel/drivers/video -Ikernel/drivers/input -Ikernel/drivers/sound \
                    -Ikernel/services -idirafter $(SDK_SE)/include
 
-.PHONY: all sdks sdklibs sdktest install clean kernel loader apps floppy studio prescan dump-cache clean-cache
+.PHONY: all sdks sdklibs sdktest install clean kernel loader apps floppy studio prescan dump-cache clean-cache modules test-kmodule
+# test-kmodule: host-side unit test of the module registry, driver table and watchdog
+test-kmodule:
+	@mkdir -p $(BUILD)
+	@gcc -Wall -Wextra -DKMOD_HOST -D'KMOD_NOW()=(fake_now++)' -Ikernel/core \
+	    tools/tests/test_kmodule.c kernel/core/kmodule.c -o $(BUILD)/test_kmodule && $(BUILD)/test_kmodule
+# modules: show which optional kernel modules the current PROFILE/DISABLE/ENABLE builds
+modules:
+	@echo "kernel profile : $(PROFILE)"
+	@echo "built in       : $(KMODS_ON)"
+	@echo "left out       : $(if $(KMODS_OFF),$(KMODS_OFF),(none))"
+	@echo "kernel sources : $(words $(KSRC)) files"
 # prescan: phase 1 — scan ledger and pre-touch cached .o files before make runs
 prescan:
 	@if [ -n "$(_PYTHON3)" ]; then $(_PRESCAN); fi
 
 all: prescan sdklibs $(LOADER) $(KERNEL) apps
+	@echo "  kernel profile: $(PROFILE)$(if $(KMODS_OFF), (without: $(KMODS_OFF)),)"
 	@$(SIZE) $(BUILD)/kernel/kernel.elf | tail -1 | awk '{print "kernel: text " $$1 "  data " $$2 "  bss " $$3}'
 
 sdklibs:

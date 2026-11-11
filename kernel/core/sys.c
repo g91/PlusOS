@@ -13,6 +13,7 @@ static void flush_volume(void)
 
 void sys_reboot(void)
 {
+    kmod_shutdown();                    /* modules' fini() hooks, last started first */
     flush_volume();
     /* restart through the ROM: initial SP and PC are the first two longs of ROM */
     __asm__ volatile(
@@ -26,6 +27,7 @@ void sys_reboot(void)
 
 void sys_shutdown(void)
 {
+    kmod_shutdown();
     flush_volume();
     if (g_flags & PLUSOS_HAVE_QD) HideCursor();
     con_clear();

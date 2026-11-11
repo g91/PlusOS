@@ -1,6 +1,7 @@
 /* crash.c - report CPU exceptions / system errors and return to the shell. */
 #include "kernel.h"
 #include "proc.h"
+#include "klog.h"
 
 extern uint16_t exc_vector, exc_sr, exc_syserr;
 extern uint32_t exc_pc, exc_addr;
@@ -82,7 +83,28 @@ __attribute__((noreturn)) void kernel_crash(void)
         printf("\n  stack:");
         for (int i = 0; i < 12; i++) printf(" %08lx", (unsigned long)sp[i]);
     }
+    if (kmod_init_cur)
+        printf("\n  while initialising module '%s'", kmod_init_cur);
+    else
+        printf("\n  last syscall %d", kmod_last_syscall);
     printf("\n  back to the shell.\n");
+    shell_main();
+}
+
+/* An unrecoverable kernel-side fault found by a software check (stack guard,
+ * ...), as opposed to a CPU exception. Reports and drops to the shell. */
+__attribute__((noreturn)) void kernel_panic(const char *what, const char *who)
+{
+    int_disable();
+    con_set_invert(0);
+    con_set_cursor(0);
+    printf("\n");
+    con_set_invert(1);
+    printf(" KERNEL PANIC ");
+    con_set_invert(0);
+    printf("\n  %s %s\n", what, who ? who : "?");
+    klog(3, "panic: %s %s", what, who ? who : "?");
+    printf("  back to the shell.\n");
     shell_main();
 }
 

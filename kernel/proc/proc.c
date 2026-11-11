@@ -14,6 +14,7 @@
 #include "signal.h"
 #include "timer.h"
 #include "profiler.h"
+#include "klog.h"
 
 extern void ctx_switch(uint32_t *old_ksp, uint32_t new_ksp);
 extern void ctx_start_user(uint32_t usp, uint32_t entry);
@@ -62,6 +63,29 @@ static inline void usp_set(uint32_t v)
     __asm__ volatile("move.l %0, %%usp" : : "a"(v));
 }
 
+/* ---- stack guard ---------------------------------------------------------- 
+ * Stacks grow down, so an overflow tramples the *lowest* words of the block
+ * first. We plant four magic words there; resched() checks them for the
+ * process that is leaving the CPU (two loads, only on a real switch). A
+ * smashed kernel stack means kernel memory is already damaged, so that
+ * panics; a smashed user stack just kills the offending program. */
+#define STACK_MAGIC  0x5AFEC0DEu
+#if CONFIG_STACKGUARD
+static void guard_arm(uint8_t *base)
+{
+    uint32_t *g = (uint32_t *)base;
+    g[0] = g[1] = g[2] = g[3] = STACK_MAGIC;
+}
+static inline int guard_ok(const uint8_t *base)
+{
+    const uint32_t *g = (const uint32_t *)base;
+    return g[0] == STACK_MAGIC && g[3] == STACK_MAGIC && g[1] == STACK_MAGIC && g[2] == STACK_MAGIC;
+}
+#else
+static inline void guard_arm(uint8_t *base) { (void)base; }
+static inline int  guard_ok(const uint8_t *base) { (void)base; return 1; }
+#endif
+
 static void resched(void)
 {
     want_resched = 0;
@@ -69,6 +93,14 @@ static void resched(void)
     Proc *next = rq_pop();
     if (!next) next = &idle_proc;
     Proc *prev = proc_current;
+#if CONFIG_STACKGUARD
+    if (prev && prev->kstack && !guard_ok(prev->kstack))
+        kernel_panic("kernel stack overflow in", prev->name);
+    if (prev && prev->ustack && !prev->killed && !guard_ok(prev->ustack)) {
+        prev->killed = 1;                       /* proc_check_killed() ends it at the next safe point */
+        klog(4, "stack overflow: %s (pid %d) killed", prev->name, prev->pid);
+    }
+#endif
     proc_current = next;
     next->state = PROC_RUNNING;
     slice = 0;                                  /* a fresh time slice */
@@ -207,6 +239,8 @@ static void prime_stack(Proc *p)
      * globals for every process - the ROM Toolbox finds its globals via A5. */
     sp[9] = LM_LONG(0x904);             /* CurrentA5 */
     p->ksp = (uint32_t)sp;
+    guard_arm(p->kstack);               /* canaries at the low end of both stacks */
+    if (p->ustack) guard_arm(p->ustack);
 }
 
 int proc_create_kernel(const char *name, void (*fn)(void *), void *arg)

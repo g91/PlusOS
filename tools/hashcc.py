@@ -119,6 +119,14 @@ def _compute_input_hash(src: str, dep_path: str) -> "str | None":
         return None
     h.update(f"src:{src}:{src_hash}\n".encode())
 
+    # Kernel objects also depend on the kernel configuration (PROFILE/DISABLE/
+    # NETDBG...), which only shows up as -D flags, not in any file. The Makefile
+    # exports it as PLUSOS_CFG_SIG; fold it in for kernel sources.
+    cfg_sig = os.environ.get("PLUSOS_CFG_SIG", "").strip()
+    norm = src.replace("\\", "/")
+    if cfg_sig and "/kernel/" in norm:
+        h.update(f"cfg:{cfg_sig}\n".encode())
+
     for dep in sorted(_read_dep_file(dep_path)):
         dh = _md5_path(dep)
         if dh:

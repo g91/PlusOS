@@ -73,3 +73,41 @@ BlueSCSI's WiFi) — the last testable only on real hardware.
 2. **Desktop:** window server on QuickDraw; windows, menu bar, mouse; Terminal
    in a window.
 3. **Networking:** DaynaPORT driver + TCP/IP; reachable from apps.
+
+## Modules and build profiles
+
+Everything above the bare scheduler/trap core is a *module*, registered in
+`kernel/core/modules.c` and brought up by `kernel/core/kmodule.c` in five
+stages (memory, base, drivers, services, core). A module has a name, type,
+stage, optional dependencies (`"video kbd"`) and `init`/`fini` hooks. A module
+whose init fails, or whose dependency is not running, is recorded and skipped;
+the rest of the system still boots. `lsmod` in the shell shows each module's
+state and init time. If the kernel faults, the crash screen names the module
+being initialised, or the last syscall.
+
+Drivers also register a `kdriver` table (init/read/write/control/irq) under a
+name (`kbd`, `video`, `snd`, `blk`, `tick`) so other code can find a device
+without hard-wiring its functions: `kdrv_find("snd")`. Hot paths keep their
+direct calls.
+
+Optional modules are chosen at build time (`kernel/core/kconfig.h`):
+
+    make PROFILE=fast install           full | lean | fast | tiny
+    make DISABLE="sound shm" install    drop individual modules
+    make PROFILE=tiny ENABLE=sound      preset, but keep one
+    make modules                        show what a config builds
+
+`sound profiler entropy power pram shm ramdisk scrap macloader stackguard
+watchdog` can be left out. A disabled module's source is not linked and its
+hooks compile away; its syscall returns -1. The default profile is `full`.
+
+Software safety nets (no MMU, so these detect rather than prevent):
+
+- **Stack guard:** four canary words at the low end of every kernel and user
+  stack, checked on each context switch. A smashed user stack kills that
+  program; a smashed kernel stack is a kernel panic back to the shell.
+- **Watchdog:** the tick counts time since the heartbeat task last ran. A stall
+  of 8 s or more is logged (`dmesg`) when the heartbeat next gets the CPU.
+
+`make test-kmodule` runs the host-side unit test of the registry, driver table
+and watchdog (`tools/tests/test_kmodule.c`).

@@ -22,6 +22,7 @@ extern void trap1_entry(void);
 
 long syscall_dispatch(long num, void *arg)
 {
+    kmod_last_syscall = (int)num;                    /* for the crash report */
     profiler_record_syscall();
     if (num != SYS_exit) proc_check_killed();        /* a killed process dies here */
     switch (num) {
