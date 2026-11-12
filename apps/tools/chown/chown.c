@@ -1,67 +1,81 @@
-/* chown - change the owner (and optional group) of a file.
- *
- * Usage: chown USER PATH         (group stays what it was)
- *        chown USER:GROUP PATH
- *        chown UID PATH          (numeric uid)
- *        chown UID:GID PATH
- *
- * Root only. */
-#include <plusos/plusos.h>
+/* chown - change file owner and group. */
 #include <plusos/syscall.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
-static int is_num(const char *s) {
-    if (!*s) return 0;
-    for (const char *p = s; *p; p++) if (*p < '0' || *p > '9') return 0;
-    return 1;
-}
-static int atoi_safe(const char *s) { int v = 0; while (*s >= '0' && *s <= '9') { v = v*10 + (*s-'0'); s++; } return v; }
-
-/* Resolve a user spec ("name" or "123") to a uid, or -1. */
-static int resolve_uid(const char *spec)
+static int name_to_uid(const char *spec, uid_t *out)
 {
-    if (is_num(spec)) return atoi_safe(spec);
+    if (!spec || !*spec) return -1;
+    int all_dig = 1;
+    for (const char *p = spec; *p; p++) if (*p < '0' || *p > '9') { all_dig = 0; break; }
+    if (all_dig) { *out = (uid_t)strtoul(spec, NULL, 10); return 0; }
     struct plusos_users_args u = { 0 };
-    u.op = PLUSOS_USERS_FIND;
-    for (int i = 0; i < 15 && spec[i]; i++) u.name[i] = spec[i];
+    u.op = PLUSOS_USERS_FIND; strlcpy(u.name, spec, sizeof u.name);
     if (plusos_syscall(SYS_users, &u) != 0) return -1;
-    return u.uid;
+    *out = (uid_t)u.uid;
+    return 0;
+}
+
+static int apply_chown(const char *path, uid_t uid, gid_t gid, int rec, int verbose)
+{
+    if (chown(path, uid, gid) != 0) {
+        fprintf(stderr, "chown: changing ownership of '%s': %s\n", path, strerror(errno));
+        return 1;
+    }
+    if (verbose) printf("ownership of '%s' changed\n", path);
+    int rc = 0;
+    if (rec) {
+        struct stat st;
+        if (lstat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+            DIR *d = opendir(path);
+            if (d) {
+                struct dirent *de;
+                while ((de = readdir(d)) != NULL) {
+                    if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, "..")) continue;
+                    char *sub = malloc(192);
+                    if (!sub) { rc = 1; break; }
+                    size_t pl = strlen(path);
+                    snprintf(sub, 192, "%s%s%s", path, (pl && path[pl - 1] != '/') ? "/" : "", de->d_name);
+                    rc |= apply_chown(sub, uid, gid, 1, verbose);
+                    free(sub);
+                }
+                closedir(d);
+            }
+        }
+    }
+    return rc;
 }
 
 int main(int argc, char **argv)
 {
-    if (argc < 3) { printf("usage: chown USER[:GROUP] PATH\n"); return 1; }
-    char user_part[24] = "", group_part[24] = "";
-    int split = -1;
-    for (int i = 0; argv[1][i]; i++) if (argv[1][i] == ':') { split = i; break; }
-    if (split < 0) {
-        for (int i = 0; argv[1][i] && i < 23; i++) user_part[i] = argv[1][i];
-    } else {
-        for (int i = 0; i < split && i < 23; i++) user_part[i] = argv[1][i];
-        for (int i = split + 1, j = 0; argv[1][i] && j < 23; i++, j++) group_part[j] = argv[1][i];
+    int rec = 0, verbose = 0, i = 1;
+    for (; i < argc && argv[i][0] == '-' && argv[i][1]; i++) {
+        if (strcmp(argv[i], "--") == 0) { i++; break; }
+        for (const char *p = argv[i] + 1; *p; p++) {
+            if (*p == 'R') rec = 1; else if (*p == 'v' || *p == 'c') verbose = 1;
+        }
     }
-
-    int uid = resolve_uid(user_part);
-    if (uid < 0) { printf("chown: unknown user '%s'\n", user_part); return 1; }
-
-    /* If no group given, keep whatever the file currently has. */
-    int gid = -1;
-    if (group_part[0]) gid = is_num(group_part) ? atoi_safe(group_part) : resolve_uid(group_part);
-    if (gid < 0) {
-        struct plusos_perms_args g = { 0 };
-        g.op = PLUSOS_PERMS_GET;
-        for (int i = 0; i < 47 && argv[2][i]; i++) g.path[i] = argv[2][i];
-        if (plusos_syscall(SYS_perms, &g) == 0) gid = g.gid;
-        else                                     gid = uid;   /* new entry: gid = uid */
+    if (argc - i < 2) { fprintf(stderr, "chown: missing operand\n"); return 1; }
+    const char *spec = argv[i++];
+    char us[32] = "", gs[32] = "";
+    const char *colon = strchr(spec, ':');
+    if (!colon) colon = strchr(spec, '.');
+    if (!colon) strlcpy(us, spec, sizeof us);
+    else {
+        size_t ul = (size_t)(colon - spec);
+        if (ul >= sizeof us) ul = sizeof us - 1;
+        memcpy(us, spec, ul); us[ul] = '\0';
+        strlcpy(gs, colon + 1, sizeof gs);
     }
-
-    struct plusos_perms_args p = { 0 };
-    p.op  = PLUSOS_PERMS_CHOWN;
-    p.uid = uid; p.gid = gid;
-    for (int i = 0; i < 47 && argv[2][i]; i++) p.path[i] = argv[2][i];
-    if (plusos_syscall(SYS_perms, &p) != 0) {
-        printf("chown: %s: permission denied (root only) or write failed\n", argv[2]);
-        return 1;
-    }
-    printf("chown: %d:%d %s\n", uid, gid, argv[2]);
-    return 0;
+    uid_t uid = (uid_t)-1; gid_t gid = (gid_t)-1;
+    if (us[0] && name_to_uid(us, &uid) != 0) { fprintf(stderr, "chown: invalid user: '%s'\n", us); return 1; }
+    if (gs[0] && name_to_uid(gs, &gid) != 0) { fprintf(stderr, "chown: invalid group: '%s'\n", gs); return 1; }
+    int rc = 0;
+    for (; i < argc; i++) rc |= apply_chown(argv[i], uid, gid, rec, verbose);
+    return rc;
 }

@@ -51,10 +51,14 @@ static void touch(KWin *k) { k->seq++; ws_seq++; }
 
 static KWin *win_create(int w, int h, const char *title, int x, int y, int owner, int term)
 {
+    int maxw = video_width() - 16;
+    int maxh = video_rows() - 42;
+    if (maxw < 496) maxw = 496;
+    if (maxh < 300) maxh = 300;
     if (w < 16) w = 16;
     if (h < 8) h = 8;
-    if (w > 496) w = 496;
-    if (h > 300) h = 300;
+    if (w > maxw) w = maxw;
+    if (h > maxh) h = maxh;
     KWin *k = 0;
     for (int i = 0; i < MAX_KWIN; i++) if (!kw[i].used) { k = &kw[i]; break; }
     if (!k) return 0;

@@ -28,8 +28,11 @@ ctx_start_user:
         move.l  4(%sp), %a0                 /* a0 = user stack pointer */
         move.l  8(%sp), %a1                 /* a1 = entry point */
         move.l  %a0, %usp                   /* load USP */
-        /* 68000 RTE frame: SR (word) at (sp), PC (long) at (sp+2). Push PC
-         * first so it lands above the SR word. */
-        move.l  %a1, -(%sp)                 /* PC = entry */
+        /* 68000 RTE frame: SR (word) at (sp), PC (long) at (sp+2).
+         * 68010/020/030/040 RTE frame appends a 2-byte format/vector word at (sp+6). */
+        tst.b   0x12F                       /* CPUFlag: 0=68000 */
+        beq.s   1f
+        clr.w   -(%sp)                      /* Format 0 ($0000) for 68010+ */
+1:      move.l  %a1, -(%sp)                 /* PC = entry */
         clr.w   -(%sp)                      /* SR = 0 (user mode, interrupts on) */
         rte                                 /* drop to user mode at entry */

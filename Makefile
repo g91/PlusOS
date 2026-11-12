@@ -162,6 +162,8 @@ apps: prescan sdklibs
 	@ok=; bad=; for a in $(APPS); do \
 	  if $(MAKE) --no-print-directory $(BUILD)/apps/$$a.pex >/dev/null 2>$(BUILD)/apps/$$a.log; then ok="$$ok $$a"; \
 	  else bad="$$bad $$a"; echo "  SKIP $$a (see $(BUILD)/apps/$$a.log)"; fi; done; \
+	  if [ -f $(BUILD)/apps/test.pex ]; then cp -f $(BUILD)/apps/test.pex "$(BUILD)/apps/[.pex"; ok="$$ok ["; fi; \
+	  if [ -f $(BUILD)/apps/test.pex ]; then cp -f $(BUILD)/apps/test.pex "$(BUILD)/apps/[.pex"; ok="$$ok ["; fi; \
 	  echo "  apps built:$$ok"; [ -z "$$bad" ] || echo "  apps skipped:$$bad"
 	@if [ -n "$(_PYTHON3)" ]; then \
 	  hits=$$(find $(BUILD) -name '*.hit' 2>/dev/null | wc -l | tr -d ' '); \
@@ -169,6 +171,8 @@ apps: prescan sdklibs
 	  echo "  cache: $$hits/$$objs objects reused (hash unchanged)"; \
 	fi
 strict-apps: prescan sdklibs $(APPPEX)
+	@if [ -f $(BUILD)/apps/test.pex ]; then cp -f $(BUILD)/apps/test.pex "$(BUILD)/apps/[.pex"; fi
+	@if [ -f $(BUILD)/apps/test.pex ]; then cp -f $(BUILD)/apps/test.pex "$(BUILD)/apps/[.pex"; fi
 
 # ---- header-dependency tracking: changing any .h rebuilds what includes it ---
 DEPFLAGS = -MMD -MP

@@ -6,7 +6,7 @@
 #include "gc.h"
 #include "pipe.h"
 #include "sync.h"
-#include "signal.h"
+#include "../proc/signal.h"
 #include "timer.h"
 #include "klog.h"
 #include "environ.h"
@@ -19,6 +19,9 @@
 #include "security.h"
 #include "users.h"
 #include "perms.h"
+#include "sys7.h"
+#include "vfs.h"
+#include "posix.h"
 
 extern void trap1_entry(void);
 
@@ -45,18 +48,37 @@ long syscall_dispatch(long num, void *arg)
     }
     case SYS_wait:
         return proc_wait((int)(intptr_t)arg);
-    case SYS_getkey: {                              /* a terminal window, or the keyboard */
+    case SYS_getkey: {                              /* piped stdin, terminal window, or keyboard */
+        if (!vfs_fd_is_console(0)) {
+            uint8_t ch = 0;
+            int r = vfs_fd_read(0, &ch, 1);
+            return (r == 1) ? (long)ch : -1;
+        }
         int k;
         if (term_getkey(1, &k)) return k;
         return kbd_get();
     }
     case SYS_pollkey: {
+        if (!vfs_fd_is_console(0)) return 0;
         int k;
         if (term_getkey(0, &k)) return k;
         return kbd_poll();
     }
     case SYS_readline: {
         struct plusos_readline_args *r = arg;
+        if (!vfs_fd_is_console(0)) {
+            int n = 0;
+            while (n < r->size - 1) {
+                uint8_t ch = 0;
+                int got = vfs_fd_read(0, &ch, 1);
+                if (got <= 0) break;
+                if (ch == '\r') continue;
+                if (ch == '\n') break;
+                r->buf[n++] = (char)ch;
+            }
+            if (r->size > 0) r->buf[n] = 0;
+            return n;
+        }
         int n;
         if (term_readline(r->buf, r->size, &n)) return n;
         return kbd_line(r->buf, r->size);
@@ -92,7 +114,7 @@ long syscall_dispatch(long num, void *arg)
         return b->write ? blk_write(b->block, b->count, b->buf) : blk_read(b->block, b->count, b->buf);
     }
     case SYS_chainboot:
-        if (!machine_is_se()) return PLUSOS_EBOOT_NOTSE;
+        if (!g_hw.has_xpram) return PLUSOS_EBOOT_NOTSE;
         return chainboot((int)(intptr_t)arg);       /* restarts on success */
     case SYS_getcfg:
         return cfg_get((int)(intptr_t)arg);
@@ -103,13 +125,13 @@ long syscall_dispatch(long num, void *arg)
     case SYS_sysinfo: {
         struct plusos_sysinfo *s = arg;
         memset(s, 0, sizeof *s);
-        strlcpy(s->machine, plusrom_machine_name(), sizeof s->machine);
-        strlcpy(s->cpu, cpu_name(), sizeof s->cpu);
+        strlcpy(s->machine, hw_machine_name(), sizeof s->machine);
+        strlcpy(s->cpu, hw_cpu_name(), sizeof s->cpu);
         s->ram_bytes = ram_bytes();
         s->free_bytes = (unsigned long)FreeMem();
         s->ticks = tick_count();
         s->nprocs = proc_count();
-        s->is_se = machine_is_se();
+        s->is_se = g_hw.has_xpram;
         s->startup_id = s->is_se ? chainboot_get_default() : -1;
         strlcpy(s->volume, g_volname, sizeof s->volume);
         return 0;
@@ -407,6 +429,84 @@ long syscall_dispatch(long num, void *arg)
         return -1;
     }
 #endif
+    case SYS_gestalt: {
+        struct plusos_gestalt_args *g = arg;
+        if (!g) return -1;
+        return sys7_gestalt(g->selector, &g->response);
+    }
+    case SYS_videoinfo: {
+        struct plusos_video_args *v = arg;
+        if (!v) return -1;
+        switch (v->op) {
+        case PLUSOS_VID_RESCAN:
+            video_scan_displays();
+            /* fall through */
+        case PLUSOS_VID_INFO:
+            v->width      = (uint16_t)video_width();
+            v->height     = (uint16_t)video_rows();
+            v->rowbytes   = (uint16_t)video_rowbytes();
+            v->depth      = (uint16_t)video_depth();
+            v->card_count = video_card_count();
+            return 0;
+        case PLUSOS_VID_GET_CARD: {
+            const VideoCardInfo *c = video_card_at(v->index);
+            if (!c) return -1;
+            v->card_count = video_card_count();
+            v->card.slot      = c->slot;
+            v->card.sp_id     = c->sp_id;
+            v->card.mode_id   = c->mode_id;
+            v->card.is_main   = c->is_main;
+            v->card.width     = c->width;
+            v->card.height    = c->height;
+            v->card.rowbytes  = c->rowbytes;
+            v->card.depth     = c->depth;
+            v->card.refnum    = c->refnum;
+            v->card.drvr_hw   = c->drvr_hw;
+            v->card.conn_type = c->conn_type;
+            v->card.base_addr = c->base_addr;
+            strlcpy(v->card.card_name,   c->card_name,   sizeof v->card.card_name);
+            strlcpy(v->card.driver_name, c->driver_name, sizeof v->card.driver_name);
+            return 0;
+        }
+        case PLUSOS_VID_SET_MODE:
+            return video_set_mode(v->slot, v->mode_id);
+        }
+        return -1;
+    }
+    case SYS_sys7: {
+        struct plusos_sys7_args *s7 = arg;
+        if (!s7) return -1;
+        switch (s7->op) {
+        case PLUSOS_S7_HWINFO:
+            s7->box_flag          = g_hw.box_flag;
+            s7->cpu_flag          = g_hw.cpu_flag;
+            s7->fpu_type          = g_hw.fpu_type;
+            s7->mmu_type          = g_hw.mmu_type;
+            s7->has_adb           = g_hw.has_adb;
+            s7->has_xpram         = g_hw.has_xpram;
+            s7->has_slot_mgr      = g_hw.has_slot_mgr;
+            s7->has_color_qd      = g_hw.has_color_qd;
+            s7->has_asc           = g_hw.has_asc;
+            s7->has_soft_poweroff = g_hw.has_soft_poweroff;
+            s7->is_32bit_mode     = g_hw.is_32bit_mode;
+            s7->nubus_slots       = g_hw.nubus_slots;
+            s7->rom_version       = g_hw.rom_version;
+            s7->rom_size          = g_hw.rom_size;
+            strlcpy(s7->machine, hw_machine_name(), sizeof s7->machine);
+            return 0;
+        case PLUSOS_S7_NOTIFY_POST:
+            return sys7_nm_post(s7->msg, s7->beep);
+        case PLUSOS_S7_NOTIFY_POLL:
+            return sys7_nm_poll(s7->msg, sizeof s7->msg);
+        case PLUSOS_S7_NOTIFY_COUNT:
+            return sys7_nm_count();
+        }
+        return -1;
+    }
+    case SYS_vfs:
+        return vfs_syscall((struct plusos_vfs_args *)arg);
+    case SYS_posix:
+        return posix_syscall((struct plusos_posix_args *)arg);
     default:
         return -1;
     }
@@ -414,13 +514,14 @@ long syscall_dispatch(long num, void *arg)
 
 void syscall_init(void)
 {
-    *(void **)0x84 = (void *)trap1_entry;           /* TRAP #1 = exception vector 33 */
+    void **vbr = (void **)(uintptr_t)hw_get_vbr();
+    vbr[33] = (void *)trap1_entry;                 /* TRAP #1 = exception vector 33 ($84) */
     /* A-line gate: ROM traps from ring 2 run on the caller's stack (aline.S) */
     extern void aline_entry(void);
     extern void *aline_orig;
-    if (*(void **)0x28 != (void *)aline_entry) {
-        aline_orig = *(void **)0x28;
-        *(void **)0x28 = (void *)aline_entry;
+    if (vbr[10] != (void *)aline_entry) {
+        aline_orig = vbr[10];                      /* vector 10 ($28) */
+        vbr[10] = (void *)aline_entry;
     }
 }
 
@@ -452,10 +553,20 @@ static int ktrap_blkio(int w, uint32_t blk, uint32_t n, void *buf)
 long console_op(void *arg)
 {
     struct plusos_con_args *c = arg;
+    /* If fd 1 (stdout) is redirected to a file or pipe, route stdout there */
+    if ((c->op == PLUSOS_CON_PUTC || c->op == PLUSOS_CON_WRITE) && !vfs_fd_is_console(1)) {
+        if (c->op == PLUSOS_CON_PUTC) {
+            uint8_t ch = (uint8_t)c->a;
+            vfs_fd_write(1, &ch, 1);
+            return 0;
+        }
+        vfs_fd_write(1, c->s, (int32_t)c->n);
+        return 0;
+    }
     long r;
     if (term_console_op(c, &r)) return r;           /* the process's console is a window */
     switch (c->op) {
-    case PLUSOS_CON_GETSIZE: if (c->pa) *c->pa = CON_COLS; if (c->pb) *c->pb = CON_ROWS - 1; return 0;
+    case PLUSOS_CON_GETSIZE: if (c->pa) *c->pa = con_cols(); if (c->pb) *c->pb = con_rows() - 1; return 0;
     case PLUSOS_CON_PUTC:   con_putc(c->a); return 0;
     case PLUSOS_CON_WRITE:  con_write(c->s, (size_t)c->n); return 0;
     case PLUSOS_CON_CLEAR:  con_clear(); return 0;

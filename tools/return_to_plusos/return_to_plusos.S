@@ -1,6 +1,6 @@
 /* return_to_plusos.S - Classic Macintosh application to return to PlusOS.
  *
- * Runs under System 6, System 7, System 8 on 68000/68020/68030/68040.
+ * Runs under classic Mac OS (6.x/7.x/8.x) on 68000/68020/68030/68040.
  * Sets the default startup device in XPRAM to SCSI ID 6 (PlusOS)
  * and restarts the Mac into PlusOS.
  */

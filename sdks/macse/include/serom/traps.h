@@ -1358,24 +1358,57 @@ static inline int serom_trap_in_rom(uint16_t trap)
     return (serom_trap_bitmap[i >> 3] >> (7 - (i & 7))) & 1;
 }
 
-/* Which machine are we on? ROM version word at ROMBase+8: $0075 Plus, $0276 SE. */
-#define SEROM_MACHINE_PLUS 1
-#define SEROM_MACHINE_SE   2
+/* Which machine are we on? Follows Apple's findMachType order
+ * (ROMBase+8 era byte, then BoxFlag $0CB3); see the full explanation in the
+ * corresponding comment in macplus/include/plusrom/traps.h. BoxFlag is
+ * advisory - nothing load-bearing depends on it, the video path reads the
+ * real geometry globals. */
+#define SEROM_MACHINE_PLUS    1
+#define SEROM_MACHINE_SE      2
+#define SEROM_MACHINE_LC3     3
+#define SEROM_MACHINE_CLASSIC 4
+#define SEROM_MACHINE_UNKNOWN 5
 static inline int serom_machine(void)
 {
     const uint8_t *rom = *(const uint8_t * const *)0x2AE;      /* ROMBase */
-    return rom[9] == 0x76 ? SEROM_MACHINE_SE : SEROM_MACHINE_PLUS;
+    uint8_t idbyte = rom ? rom[8] : 0;                         /* machine-ID byte */
+    uint8_t cpu    = *(const uint8_t *)0x12F;                  /* CPUFlag */
+
+    if (idbyte == 0 && cpu < 2)
+        return SEROM_MACHINE_PLUS;
+
+    uint8_t box = *(const uint8_t *)0xCB3;                     /* BoxFlag */
+    switch (box) {
+    case 0xFE: return SEROM_MACHINE_PLUS;
+    case 0xFF: return SEROM_MACHINE_SE;
+    case 0x03: return SEROM_MACHINE_SE;          /* SE/30 */
+    case 0x11: return SEROM_MACHINE_CLASSIC;     /* Classic II */
+    case 0x0D: return SEROM_MACHINE_LC3;         /* LC family */
+    default: break;
+    }
+
+    if (rom && rom[9] == 0x7C) return SEROM_MACHINE_CLASSIC;
+    if (rom && rom[9] == 0x76) return SEROM_MACHINE_SE;
+    if (cpu >= 2)              return SEROM_MACHINE_LC3;
+    if (idbyte == 0)          return SEROM_MACHINE_PLUS;
+    return SEROM_MACHINE_UNKNOWN;
 }
 static inline const char *serom_machine_name(void)
 {
-    return serom_machine() == SEROM_MACHINE_SE ? "Macintosh SE" : "Macintosh Plus";
+    switch (serom_machine()) {
+    case SEROM_MACHINE_LC3:     return "Macintosh LC III";
+    case SEROM_MACHINE_CLASSIC: return "Macintosh Classic";
+    case SEROM_MACHINE_SE:      return "Macintosh SE";
+    case SEROM_MACHINE_PLUS:    return "Macintosh Plus";
+    default:                    return "Macintosh (68k)";
+    }
 }
 
-/* The Toolbox trap table is at $0C00 on the Plus and $0E00 on the SE (where
- * $0C00 holds the SCSI globals). OS traps are at $0400 on both. */
+/* The Toolbox trap table is at $0C00 on the Plus and $0E00 on every later
+ * machine. OS traps are at $0400 on all. */
 static inline void **serom_tool_table(void)
 {
-    return (void **)(uintptr_t)(serom_machine() == SEROM_MACHINE_SE ? 0x0E00 : 0x0C00);
+    return (void **)(uintptr_t)(serom_machine() == SEROM_MACHINE_PLUS ? 0x0C00 : 0x0E00);
 }
 static inline void **serom_trap_slot(uint16_t trap)
 {

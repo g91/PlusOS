@@ -13,9 +13,9 @@
 #include <plusrom/FileMgr.h>
 #include <stdlib.h>
 
-#define SCREEN_W   512
-#define SCREEN_H   342
-#define ROWB       64
+#define SCREEN_W   ((int)(plusos->screen_width  ? plusos->screen_width  : 512))
+#define SCREEN_H   ((int)(plusos->screen_height ? plusos->screen_height : 342))
+#define ROWB       ((int)(plusos->screen_rowbytes ? plusos->screen_rowbytes : 64))
 #define FB_BYTES   (ROWB * SCREEN_H)
 #define MENUBAR_H  20
 #define TASKBAR_H  22
@@ -26,7 +26,7 @@
 #define MAX_ICONS  40
 
 #define DL         96
-#define DR         416
+#define DR         (SCREEN_W - 96)
 #define ROOT_DIR   2L
 
 #define APP_PADX   8
@@ -221,6 +221,7 @@ void    start_system(int id, const char *name);
 /* desktop_icons.c (Desktop & System Icons, Files, File Actions) */
 void c2p(unsigned char *p, const char *c);
 long dir_id(const char *name);
+long dir_id_under(long parent, const char *name);
 int  list_files(long dir, char names[][32], int max);
 int  file_exists(const char *path);
 int  is_program(const char *path);

@@ -9,6 +9,9 @@
  */
 #include "kernel.h"
 #include "proc.h"
+#include "posix.h"
+#include "vfs.h"
+#include "environ.h"
 
 /* loader errors live outside the range of normal program exit codes */
 enum { E_NOTFOUND = -1001, E_FORMAT = -1002, E_NOMEM = -1003, E_READ = -1004 };
@@ -24,14 +27,18 @@ const char *exec_error(int code)
     }
 }
 
-/* 68020/030 accelerators: freshly loaded code must not run from stale cache lines. */
+/* 68020/030/040+: freshly loaded code must not run from stale cache lines. */
 void cache_flush(void)
 {
-    if (LM_BYTE(0x12F) >= 2)
-        __asm__ volatile(".short 0x4E7A,0x0002\n\t"       /* movec cacr,d0 */
+    uint8_t cpu = LM_BYTE(0x12F);
+    if (cpu >= 4) {
+        __asm__ volatile(".short 0x4E71,0xF4F8" ::: "memory");  /* nop; cpusha %bc */
+    } else if (cpu >= 2) {
+        __asm__ volatile(".short 0x4E7A,0x0002\n\t"             /* movec cacr,d0 */
                          "ori.w #0x0808,%%d0\n\t"
-                         ".short 0x4E7B,0x0002"           /* movec d0,cacr */
+                         ".short 0x4E7B,0x0002"                 /* movec d0,cacr */
                          ::: "d0", "memory");
+    }
 }
 
 static int check_header(const PexHeader *h)
@@ -41,24 +48,56 @@ static int check_header(const PexHeader *h)
 }
 
 static int has_colon(const char *s) { for (; *s; s++) if (*s == ':') return 1; return 0; }
+static int has_slash(const char *s) { for (; *s; s++) if (*s == '/') return 1; return 0; }
+
+static void posix_to_hfs_name(const char *posix, char *hfs, int cap)
+{
+    int j = 0;
+    if (posix[0] == '/') {
+        if (j < cap - 1) hfs[j++] = ':';
+        for (int i = 1; posix[i] && j < cap - 1; i++)
+            hfs[j++] = (posix[i] == '/') ? ':' : posix[i];
+    } else {
+        for (int i = 0; posix[i] && j < cap - 1; i++)
+            hfs[j++] = (posix[i] == '/') ? ':' : posix[i];
+    }
+    hfs[j] = 0;
+}
+
+static int try_open_posix_path(const char *ppath, INTEGER *ref)
+{
+    char resolved[128], hpath[128];
+    Str255 pname;
+    vfs_normalize_path(ppath, resolved, sizeof resolved, 1);
+    posix_to_hfs_name(resolved, hpath, sizeof hpath);
+    c2pstr_buf(pname, hpath);
+    return FSOpen(pname, g_boot_vref, ref) == 0 ? 0 : -1;
+}
 
 static int open_prog(const char *name, INTEGER *ref)
 {
     Str255 pname;
-    /* Programs live in the "bin" folder; look there first, then at the volume
-     * root (so shell/desktop and loose files still work). The leading colon
-     * matters: "bin:x" would mean a *volume* named bin, ":bin:x" is the folder
-     * bin on the boot volume. Names that already contain a colon (e.g. a file
-     * on the desktop, ":Desktop:hello") are opened as given. */
     if (!has_colon(name)) {
-        char path[64];
-        int n = 0;
-        const char *pre = ":bin:";
-        while (pre[n]) { path[n] = pre[n]; n++; }
-        for (int i = 0; name[i] && n < (int)sizeof path - 1; i++) path[n++] = name[i];
-        path[n] = 0;
-        c2pstr_buf(pname, path);
-        if (FSOpen(pname, g_boot_vref, ref) == 0) return 0;
+        if (has_slash(name)) {
+            if (try_open_posix_path(name, ref) == 0) return 0;
+        } else {
+            char cand[128], path_env[96];
+            if (env_get("PATH", path_env, sizeof path_env) > 0 && path_env[0]) {
+                const char *p = path_env;
+                while (*p) {
+                    const char *sep = strchr(p, ':');
+                    int dlen = sep ? (int)(sep - p) : (int)strlen(p);
+                    if (dlen > 0 && dlen < 90) {
+                        snprintf(cand, sizeof cand, "%.*s/%s", dlen, p, name);
+                        if (try_open_posix_path(cand, ref) == 0) return 0;
+                    }
+                    if (!sep) break;
+                    p = sep + 1;
+                }
+            }
+            snprintf(cand, sizeof cand, "/bin/%s", name);
+            if (try_open_posix_path(cand, ref) == 0) return 0;
+        }
     }
     c2pstr_buf(pname, name);
     return FSOpen(pname, g_boot_vref, ref) == 0 ? 0 : -1;
@@ -160,6 +199,11 @@ static void mac_proc_runner(void *arg)
  * negative E_* loader error. */
 int exec_spawn(const char *name, int argc, char **argv)
 {
+    return exec_spawn_fds(name, argc, argv, 0);
+}
+
+int exec_spawn_fds(const char *name, int argc, char **argv, const int fds_override[3])
+{
     uint8_t *mem = 0;
     int rc = load_hfs(name, &mem);
     if (rc == E_NOTFOUND)
@@ -197,7 +241,7 @@ int exec_spawn(const char *name, int argc, char **argv)
                                            need not run a privileged movec */
     const char *leaf = name;                      /* ":Desktop:hello" -> "hello" */
     for (const char *s = name; *s; s++) if (*s == ':') leaf = s + 1;
-    int pid = proc_create_user(leaf, mem, 0, argc, argv);
+    int pid = proc_create_user_fds(leaf, mem, 0, argc, argv, fds_override);
     if (pid < 0) { kfree(mem); return E_NOMEM; }
     for (int i = 0; i < 16; i++) {                /* record image size for the task manager */
         Proc *p = proc_table_entry(i);

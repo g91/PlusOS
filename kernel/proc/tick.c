@@ -9,6 +9,7 @@
 #include "kernel.h"
 #include "proc.h"
 #include "profiler.h"
+#include "sys7.h"
 #include <plusrom/VRetraceMgr.h>
 
 extern void tick_vbl(void);              /* tick.S */
@@ -27,7 +28,7 @@ void tick_c(void)
 {
     ticks++;
     /* NOTE: we do NOT touch StkLowPt ($0110) here. The ROM's own VBL stack
-     * sniffer (VerticalRetraceMgr.a) raises SysError 28 ("stack ran into heap")
+     * sniffer raises SysError 28 ("stack ran into heap")
      * whenever the stack pointer is below the application zone's BkLim. In
      * PlusOS every process runs on a kernel/user stack that we kmalloc from the
      * application heap, so the SP is *always* below BkLim by design - the
@@ -39,6 +40,7 @@ void tick_c(void)
      * uses in SCSIMgr/BTreeMgr to suspend sniffing). */
     kwd_tick();                         /* watchdog: counts ticks since the heartbeat last ran */
     sound_vbl_tick();                   /* (no-op unless CONFIG_SOUND) */
+    sys7_vbl_tick();                    /* Extended TimeMgr / DeferredTasks */
     sched_on_tick();
     timer_vbl_tick();
     profiler_vbl_tick();                /* (no-op unless CONFIG_PROFILER) */

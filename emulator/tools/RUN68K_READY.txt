@@ -1,0 +1,45 @@
+run68k.mjs is ready - bare 680x0 CPU harness for flat test binaries.
+
+Node (portable, not installed system-wide):
+  C:\Users\Evil\AppData\Local\Temp\claude\3451b76c6ae4a8e5\fbab00df-308f-4f26-84ec-6a5d8685326c\scratchpad\node\node-v22.11.0-win-x64\node.exe
+  (Node 22.11.0 win-x64 from https://nodejs.org/dist/v22.11.0/node-v22.11.0-win-x64.zip - any Node >= 18 works)
+
+Usage
+  node emulator/tools/run68k.mjs [--cpu MODEL] [--base 0x10000] [--ram 4M] [--max-insns N] [--trace] [--quiet] prog.bin
+
+  --cpu        68000 (default) | 68010 | 68EC020 | 68020 | 68030 | 68EC030 | 68040 | 68LC040 | 68EC040
+               (68020/030/040 include the FPU; 68000/010/EC020 address bus is 24 bit)
+  --base       load address of the flat binary = initial PC          (default 0x10000)
+  --ram        RAM size, RAM starts at 0; initial SSP = top of RAM     (default 4M; accepts 0x.., k, M)
+  --max-insns  stop after N instructions (exit status 3)
+  --trace      print PC, opcode, SR, D0-D7, A0-A7 before every instruction (stderr)
+  --quiet      do not print the --max-insns notice
+
+Machine
+  $00000000..RAM top  RAM, zero filled; program loaded at --base
+  Reset state: supervisor mode, IPL mask 7, SSP = RAM top, PC = base
+  Vectors 2..255 point at stubs. An exception that reaches a stub prints
+      *** unhandled exception: vector N (name) PC=$... SR=$... [fault address=$...] + register dump
+  to stderr and the process exits with status 2. A program may install its own
+  handlers by writing the vector table (vector n at address 4*n).
+  Accesses outside RAM / the I/O page raise a bus error (vector 2).
+
+Host services (memory-mapped I/O)
+  $00FF0000  byte write   putchar -> stdout
+  $00FF0004  long write   exit(code)
+  $00FF0008  long read    number of instructions executed so far
+
+Exit status
+  program's exit code (low 8 bits), 2 = unhandled exception, 3 = --max-insns reached,
+  4 = CPU halted (double fault), 1 = usage error. A STOP instruction ends the run with status 0.
+
+Example
+  move.b #'A',0xFF0000 ; move.l #0,0xFF0004
+  m68k-linux-gnu-as -m68000 t.s -o t.o && m68k-linux-gnu-objcopy -O binary t.o t.bin
+  node emulator/tools/run68k.mjs t.bin
+
+CPU core status when this note was written
+  68000: 815111/815114 of the non-address-error SingleStepTests/680x0 vectors pass
+         (see emulator/tests/cpu/harte.mjs; 6859 vectors skipped as documented deviations).
+  68020/030/040 + FPU: emulator/tests/cpu/test020.s passes (indexing modes, bit fields, 64-bit
+         mul/div, CAS, CMP2, PACK/UNPK, RTD, MOVEC, basic FPU arithmetic/conversions).

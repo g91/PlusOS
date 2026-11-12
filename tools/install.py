@@ -126,32 +126,17 @@ def hfs_copy(image, partno, files):
         return False
     try:
         run("hmkdir", ":bin")                          # the shell's program folder
-        run("hmkdir", ":Desktop")                      # files shown on the desktop
+        # The PlusOS Desktop app reads /home/<user>/Desktop (created by the
+        # firstrun wizard when the account is made), not a root-level folder.
+        # The only thing still seeded at the Mac OS desktop (:Desktop:) is the
+        # "Return to PlusOS" application, which Classic Mac OS Finder needs to
+        # find in order to hop back to PlusOS from a Mac boot.
         have = run("hls", "-1", ":Desktop").stdout.split()
-        seed = dict(files)
-        if "HELLO" not in have and "HELLO" in seed:     # starter items, first install only
-            run("hcopy", "-r", seed["HELLO"], ":Desktop:HELLO")
-            run("hattrib", "-t", "PLOS", "-c", "PLOS", ":Desktop:HELLO")
-            print("  hfs: seeded Desktop/HELLO")
-        if "Read Me" not in " ".join(have):
-            import tempfile
-            note = ("Welcome to PlusOS.\r\r"
-                    "Drag icons to move them; PlusOS remembers where you put them.\r"
-                    "Select an icon and use the Edit menu to Copy, Paste, Duplicate,\r"
-                    "Rename or Delete it, or drag it onto the Trash.\r"
-                    "Open this file with File > Open in Hex Editor.\r")
-            with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False, newline="") as t:
-                t.write(note)
-            run("hcopy", "-r", t.name, ":Desktop:Read Me")
-            run("hattrib", "-t", "TEXT", "-c", "PLOS", ":Desktop:Read Me")
-            os.unlink(t.name)
-            print("  hfs: seeded Desktop/Read Me")
-
-        # Seed Return to PlusOS Mac application on Desktop
         bin_app = os.path.join(os.path.dirname(__file__), "return_to_plusos", "Return to PlusOS.bin")
         if os.path.exists(bin_app) and "Return to PlusOS" not in " ".join(have):
+            run("hmkdir", ":Desktop")                   # Mac OS's own desktop, not PlusOS's
             run("hcopy", "-m", bin_app, ":Desktop:Return to PlusOS")
-            print("  hfs: seeded Desktop/Return to PlusOS")
+            print("  hfs: seeded Mac OS Desktop/Return to PlusOS")
 
         # Seed or update multiboot.cfg on volume root
         repo_cfg = os.path.join(os.path.dirname(os.path.dirname(__file__)), "multiboot.cfg")

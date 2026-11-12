@@ -47,13 +47,17 @@ crt0_entry:
         bpl.s   1b
 
 #ifdef PLUSOS_KERNEL
-        /* 68020/030 accelerators: we just patched code, flush the caches. Only
+        /* 68020/030/040+: we just patched code, flush the caches. Only
          * the kernel does this - it runs in supervisor. Apps run in user mode,
-         * where movec would fault; the kernel flushes the cache for them in
-         * exec_spawn before the process starts. */
-        cmpi.b  #2, 0x12F                   /* CPUFlag: 0=68000 1=68010 2+=68020/030 */
+         * where privileged cache ops would fault; the kernel flushes caches
+         * for them in exec_spawn before the process starts. */
+        cmpi.b  #2, 0x12F                   /* CPUFlag: 0=000 1=010 2=020 3=030 4=040 */
         bcs.s   3f
-        .short  0x4E7A, 0x0002              /* movec cacr,d0 */
+        cmpi.b  #4, 0x12F
+        bcs.s   2f
+        .short  0x4E71, 0xF4F8              /* nop; cpusha %bc (68040+) */
+        bra.s   3f
+2:      .short  0x4E7A, 0x0002              /* movec cacr,d0 */
         ori.w   #0x0808, %d0                /* clear instruction + data cache */
         .short  0x4E7B, 0x0002              /* movec d0,cacr */
 3:

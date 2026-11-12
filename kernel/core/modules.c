@@ -10,7 +10,7 @@
 #include "gc.h"
 #include "pipe.h"
 #include "sync.h"
-#include "signal.h"
+#include "../proc/signal.h"
 #include "timer.h"
 #include "klog.h"
 #include "environ.h"
@@ -24,6 +24,9 @@
 #include "syscall.h"
 #include "users.h"
 #include "perms.h"
+#include "sys7.h"
+#include "vfs.h"
+#include "posix.h"
 
 /* ---- drivers' kdriver tables --------------------------------------------- */
 static long kbd_drv_read(void *buf, uint32_t off, uint32_t len)
@@ -123,6 +126,9 @@ static int m_pram(void)     { pram_init(); return 0; }
 static int m_video(void)    { video_init(); return kdrv_register(&video_drv); }
 
 static int m_api(void)      { api_init(); return kdrv_register(&blk_drv); }
+static int m_sys7(void)     { sys7_init(); return 0; }
+static int m_vfs(void)      { vfs_init(); return 0; }
+static int m_posix(void)    { posix_init(); return 0; }
 #if CONFIG_RAMDISK
 static int m_ramdisk(void)  { ramdisk_init(); return 0; }
 #endif
@@ -183,6 +189,9 @@ static kmodule k_modules[] = {
 #if CONFIG_PERMS
     MOD("perms",    KMOD_SERVICE, KSTAGE_SERVICES, 0,   m_perms,    "kmem"),
 #endif
+    MOD("sys7",     KMOD_SERVICE, KSTAGE_SERVICES, 0,   m_sys7,     "video"),
+    MOD("vfs",      KMOD_SERVICE, KSTAGE_SERVICES, ESS, m_vfs,      "kmem"),
+    MOD("posix",    KMOD_SERVICE, KSTAGE_SERVICES, ESS, m_posix,    "vfs"),
     /* core: scheduler, IPC, syscall gate, tick */
     MOD("sched",    KMOD_CORE,    KSTAGE_CORE,     ESS, m_sched,    "kmem"),
     MOD("pipe",     KMOD_CORE,    KSTAGE_CORE,     0,   m_pipe,     "sched"),

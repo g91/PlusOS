@@ -29,6 +29,9 @@ char  *strstr(const char *hay, const char *needle);
 char  *strtok_r(char *s, const char *delim, char **save);
 size_t strspn(const char *s, const char *accept);
 size_t strcspn(const char *s, const char *reject);
+char  *strdup(const char *s);
+char  *strndup(const char *s, size_t n);
+const char *strerror(int errnum);
 
 /* Pascal (length-prefixed) string helpers - the Mac ROM uses these everywhere. */
 unsigned char *c2pstr_buf(unsigned char *dst, const char *src);   /* C -> Str255 */

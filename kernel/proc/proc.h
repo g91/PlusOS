@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #define MAX_PROC      16
+#define MAX_PROC_FDS  16
 #define PROC_NAME     16
 #define KSTACK_SIZE   16384         /* per-process supervisor (kernel) stack */
 
@@ -51,6 +52,10 @@ typedef struct Proc {
     uint32_t        sig_mask;       /* bitmask of blocked signals */
     uint32_t        heap_bytes;     /* RAM allocated dynamically via kmem */
     uint16_t        uid, gid;       /* Phase 2: user accounts (0 = root) */
+    uint16_t        umask;          /* file creation mask (default 0022) */
+    int             fds[MAX_PROC_FDS]; /* VFS open-file handle table (-1 = closed) */
+    char            cwd[96];        /* current working directory */
+    char            root_dir[64];   /* chroot prefix ("" = /) */
     char            name[PROC_NAME];
 } Proc;
 
@@ -63,6 +68,8 @@ int   proc_create_kernel(const char *name, void (*fn)(void *), void *arg);
  * process, freed on exit), entry at image+entry_off, with argc/argv copied in. */
 int   proc_create_user(const char *name, uint8_t *image, uint32_t entry_off,
                        int argc, char **argv);
+int   proc_create_user_fds(const char *name, uint8_t *image, uint32_t entry_off,
+                           int argc, char **argv, const int fds_override[3]);
 
 int   proc_get_priority(int pid);
 int   proc_set_priority(int pid, int prio);

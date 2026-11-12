@@ -1,7 +1,6 @@
 /* sound.c - PlusOS Compact Mac Hardware Sound Synthesizer & Volume Driver
  *
- * Based on F:\sys71src\IoPrimitives\SndPrimitives.a and
- * F:\sys71src\Patches\SysBeepPatch.a:
+ * Hardware PWM sound & VIA volume control specifications:
  *
  *   - Compact Macs (Plus / SE) scan 370 words per video frame (370 * 60.15 Hz
  *     = 22,255 Hz) from the main sound buffer at SoundBase ($0266, located at
@@ -12,7 +11,7 @@
  *       vBufA (+$1E00) bits 0..2: speaker volume attenuation (0..7)
  *   - Low-memory SdVolume ($0260) stores the system volume (0..7). When volume
  *     is 0, sound_beep() silently flashes the menu bar (top 20 scanlines),
- *     matching System 7.1's SysBeepPatch.a behavior.
+ *     matching standard Mac OS alert behavior.
  */
 #include "kernel.h"
 #include "proc.h"
@@ -57,10 +56,11 @@ void sound_init(void)
         vol = 5;
         LM_BYTE(0x260) = vol;
     }
-    *VIA_BUFA = (*VIA_BUFA & ~0x07) | vol;
-    *VIA_BUFB |= 0x80;                              /* mute PWM until a tone plays */
     snd_ticks_left = 0;
     snd_step = 0;
+    if (!g_hw.has_classic_sound) return;            /* ASC/SoundMgr Macs do not use VIA1 PWM buffer */
+    *VIA_BUFA = (*VIA_BUFA & ~0x07) | vol;
+    *VIA_BUFB |= 0x80;                              /* mute PWM until a tone plays */
     fill_sound_buffer(0);
 }
 
@@ -74,13 +74,14 @@ void sound_set_volume(int vol)
     if (vol < 0) vol = 0;
     if (vol > 7) vol = 7;
     LM_BYTE(0x260) = (uint8_t)vol;
-    if (vol > 0)
+    if (vol > 0 && g_hw.has_classic_sound)
         *VIA_BUFA = (uint8_t)((*VIA_BUFA & ~0x07) | (vol & 7));
 }
 
 /* Called at 60 Hz from tick_c() in tick.c */
 void sound_vbl_tick(void)
 {
+    if (!g_hw.has_classic_sound) return;
     if (snd_ticks_left > 0) {
         fill_sound_buffer(snd_step);
         if (--snd_ticks_left == 0) {
@@ -93,14 +94,16 @@ void sound_vbl_tick(void)
 
 static void flash_menubar(void)
 {
-    uint32_t *scr = (uint32_t *)LM_LONG(0x824);     /* ScrnBase */
+    uint32_t *scr = (uint32_t *)video_front();
+    if (!scr) scr = (uint32_t *)LM_LONG(0x824);
     if (!scr) return;
-    /* Invert top 20 scanlines (20 * 64 bytes = 320 longwords) */
-    for (int i = 0; i < 320; i++) scr[i] ^= 0xFFFFFFFFUL;
+    int longs = (20 * video_rowbytes()) / 4;
+    if (longs <= 0) longs = 320;
+    for (int i = 0; i < longs; i++) scr[i] ^= 0xFFFFFFFFUL;
     extern volatile int sched_active;
     if (sched_active) proc_sleep_ticks(4);
     else { for (volatile int d = 0; d < 25000; d++) {} }
-    for (int i = 0; i < 320; i++) scr[i] ^= 0xFFFFFFFFUL;
+    for (int i = 0; i < longs; i++) scr[i] ^= 0xFFFFFFFFUL;
 }
 
 void sound_tone(int freq_hz, int duration_ticks)
@@ -108,6 +111,12 @@ void sound_tone(int freq_hz, int duration_ticks)
     if (duration_ticks <= 0) return;
     if (sound_get_volume() == 0) {
         flash_menubar();
+        return;
+    }
+    if (!g_hw.has_classic_sound) {
+        if (freq_hz > 20) SysBeep((INTEGER)duration_ticks);
+        extern volatile int sched_active;
+        if (sched_active) proc_sleep_ticks(duration_ticks);
         return;
     }
     if (freq_hz <= 20) {

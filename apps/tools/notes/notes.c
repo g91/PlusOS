@@ -1,4 +1,4 @@
-/* notes.c - Classic System 7.1 Note Pad Desk Accessory (8 Persistent Pages)
+/* notes.c - Classic Macintosh Note Pad Desk Accessory (8 Persistent Pages)
  *
  * Saves 8 pages of notes to "Note Pad File" on the boot HFS volume.
  * Works as a GUI window on the Desktop or from the command line.

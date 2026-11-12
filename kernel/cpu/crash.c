@@ -37,16 +37,17 @@ static const char *syserr_name(int e)
 
 void exc_install(void)
 {
-    LM_PTR(0x08) = (void *)exc_vec_2;
-    LM_PTR(0x0C) = (void *)exc_vec_3;
-    LM_PTR(0x10) = (void *)exc_vec_4;
-    LM_PTR(0x14) = (void *)exc_vec_5;
-    LM_PTR(0x18) = (void *)exc_vec_6;
-    LM_PTR(0x1C) = (void *)exc_vec_7;
-    LM_PTR(0x20) = (void *)exc_vec_8;
-    LM_PTR(0x2C) = (void *)exc_vec_11;
+    void **vbr = (void **)(uintptr_t)hw_get_vbr();
+    vbr[2]  = (void *)exc_vec_2;
+    vbr[3]  = (void *)exc_vec_3;
+    vbr[4]  = (void *)exc_vec_4;
+    vbr[5]  = (void *)exc_vec_5;
+    vbr[6]  = (void *)exc_vec_6;
+    vbr[7]  = (void *)exc_vec_7;
+    vbr[8]  = (void *)exc_vec_8;
+    vbr[11] = (void *)exc_vec_11;
     /* _SysError is Toolbox trap $A9C9. The Toolbox table is at $0C00 on the
-     * Plus but $0E00 on the SE ($0C00 holds the SCSI globals there). */
+     * Plus but $0E00 on the SE and later ($0C00 holds the SCSI globals there). */
     *plusrom_trap_slot(0xA9C9) = (void *)syserr_handler;
 }
 

@@ -1290,24 +1290,77 @@ static inline int plusrom_trap_in_rom(uint16_t trap)
     return (plusrom_trap_bitmap[i >> 3] >> (7 - (i & 7))) & 1;
 }
 
-/* Which machine are we on? ROM version word at ROMBase+8: $0075 Plus, $0276 SE. */
-#define PLUSROM_MACHINE_PLUS 1
-#define PLUSROM_MACHINE_SE   2
+/* Which machine are we on?
+ *
+ * This follows the standard Macintosh model detection order: the machine-ID
+ * byte at ROMBase+8 decides
+ * the ERA first, then a RAM-based identifier refines the model.
+ *
+ *   ROMBase+8 == 0  -> original-ROM box (Plus / 512Ke). The ROM carries no
+ *                      model code; split on the SCSI bit of HwCfgFlags. PlusOS
+ *                      only cares about the Plus, and 512Ke has the same
+ *                      512x342x1 geometry, so both map to PLUS.
+ *   ROMBase+8 != 0  -> later box. Apple reads BoxFlag ($0CB3), a byte StartInit
+ *                      writes from the Universal ROM's product record:
+ *                        $FE Plus  $FF SE  $00 II  $03 SE/30  $11 ClassicII
+ *                        $0D LC    ...     (standard BoxFlag model codes)
+ *
+ * PlusOS runs before a full Universal StartInit, so BoxFlag may not be
+ * populated on every ROM/emulator. We therefore treat BoxFlag as advisory:
+ * we use it when it holds a value we recognise, and otherwise fall back to
+ * the ROM version byte (rom[9]: $7C Classic, $76 SE) plus CPUFlag. Nothing
+ * load-bearing depends on this being exactly right - the video path reads the
+ * real geometry globals - so a mis-ID only mislabels the cosmetic name or a
+ * driver-class choice, never the screen size. */
+#define PLUSROM_MACHINE_PLUS    1
+#define PLUSROM_MACHINE_SE      2
+#define PLUSROM_MACHINE_LC3     3
+#define PLUSROM_MACHINE_CLASSIC 4
+#define PLUSROM_MACHINE_UNKNOWN 5
 static inline int plusrom_machine(void)
 {
     const uint8_t *rom = *(const uint8_t * const *)0x2AE;      /* ROMBase */
-    return rom[9] == 0x76 ? PLUSROM_MACHINE_SE : PLUSROM_MACHINE_PLUS;
+    uint8_t idbyte = rom ? rom[8] : 0;                         /* machine-ID byte */
+    uint8_t cpu    = *(const uint8_t *)0x12F;                  /* CPUFlag */
+
+    /* (A) Original-ROM boxes: Plus / 512Ke. Same geometry; report PLUS. */
+    if (idbyte == 0 && cpu < 2)
+        return PLUSROM_MACHINE_PLUS;
+
+    /* (B) Later boxes: prefer BoxFlag ($0CB3) when it names a model we know. */
+    uint8_t box = *(const uint8_t *)0xCB3;                     /* BoxFlag */
+    switch (box) {
+    case 0xFE: return PLUSROM_MACHINE_PLUS;
+    case 0xFF: return PLUSROM_MACHINE_SE;
+    case 0x03: return PLUSROM_MACHINE_SE;        /* SE/30: compact 512x342 */
+    case 0x11: return PLUSROM_MACHINE_CLASSIC;   /* Classic II */
+    case 0x0D: return PLUSROM_MACHINE_LC3;       /* LC (LC II/III share the family) */
+    default: break;                              /* unset or unrecognised -> fall through */
+    }
+
+    /* (C) BoxFlag unavailable: fall back to the ROM version byte and CPU. */
+    if (rom && rom[9] == 0x7C) return PLUSROM_MACHINE_CLASSIC;
+    if (rom && rom[9] == 0x76) return PLUSROM_MACHINE_SE;
+    if (cpu >= 2)              return PLUSROM_MACHINE_LC3;      /* 68020+ with a RAM fb */
+    if (idbyte == 0)          return PLUSROM_MACHINE_PLUS;
+    return PLUSROM_MACHINE_UNKNOWN;
 }
 static inline const char *plusrom_machine_name(void)
 {
-    return plusrom_machine() == PLUSROM_MACHINE_SE ? "Macintosh SE" : "Macintosh Plus";
+    switch (plusrom_machine()) {
+    case PLUSROM_MACHINE_LC3:     return "Macintosh LC III";
+    case PLUSROM_MACHINE_CLASSIC: return "Macintosh Classic";
+    case PLUSROM_MACHINE_SE:      return "Macintosh SE";
+    case PLUSROM_MACHINE_PLUS:    return "Macintosh Plus";
+    default:                      return "Macintosh (68k)";
+    }
 }
 
-/* The Toolbox trap table is at $0C00 on the Plus and $0E00 on the SE (where
- * $0C00 holds the SCSI globals). OS traps are at $0400 on both. */
+/* The Toolbox trap table is at $0C00 on the Plus and $0E00 on every later
+ * machine (where $0C00 holds the SCSI globals). OS traps are at $0400 on all. */
 static inline void **plusrom_tool_table(void)
 {
-    return (void **)(uintptr_t)(plusrom_machine() == PLUSROM_MACHINE_SE ? 0x0E00 : 0x0C00);
+    return (void **)(uintptr_t)(plusrom_machine() == PLUSROM_MACHINE_PLUS ? 0x0C00 : 0x0E00);
 }
 static inline void **plusrom_trap_slot(uint16_t trap)
 {

@@ -62,11 +62,11 @@ static int find_scsi(int id, uint16_t *refnum_out, uint16_t *drive_out)
     return 0;
 }
 
-/* Set the SE default startup device to this SCSI ID (no reboot).
- * Returns 0 on success, -1 if not an SE, -2 if no such drive is attached. */
+/* Set the XPRAM default startup device to this SCSI ID (no reboot).
+ * Returns 0 on success, -1 if no XPRAM (Plus), -2 if no such drive is attached. */
 int chainboot_set_default(int scsi_id)
 {
-    if (!machine_is_se()) return -1;
+    if (!g_hw.has_xpram) return -1;
     if (scsi_id < 0 || scsi_id > 7) return -1;
     uint16_t refnum, drive;
     if (!find_scsi(scsi_id, &refnum, &drive)) return -2;
@@ -77,10 +77,10 @@ int chainboot_set_default(int scsi_id)
     return 0;
 }
 
-/* The SCSI ID the SE would boot by default, or -1 if none/not SE. */
+/* The SCSI ID this Mac would boot by default, or -1 if none/no XPRAM. */
 int chainboot_get_default(void)
 {
-    if (!machine_is_se()) return -1;
+    if (!g_hw.has_xpram) return -1;
     uint8_t rec[4];
     xpram_read(XPRAM_STARTUP_CTL, rec);
     uint16_t refnum = (uint16_t)((rec[2] << 8) | rec[3]);

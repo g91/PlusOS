@@ -20,7 +20,7 @@ static void cmd_help(int, char **);
 static void cmd_cls(int argc, char **argv)  { con_clear(); }
 static void cmd_ver(int argc, char **argv)
 {
-    printf("PlusOS %s by the1Domo on the %s - %s, %luK RAM\n", PLUSOS_VERSION, plusrom_machine_name(), cpu_name(),
+    printf("PlusOS %s by the1Domo on the %s - %s, %luK RAM\n", PLUSOS_VERSION, hw_machine_name(), cpu_name(),
            (unsigned long)(ram_bytes() >> 10));
 }
 static void cmd_echo(int argc, char **argv)
@@ -41,7 +41,7 @@ static void cmd_drives(int argc, char **argv)
 {
     printf("Drive queue:\n");
     chainboot_each_drive(drives_cb);
-    if (machine_is_se()) {
+    if (g_hw.has_xpram) {
         int d = chainboot_get_default();
         if (d >= 0) printf("default startup: SCSI ID %d\n", d);
         else printf("default startup: none (boots highest ID)\n");
@@ -50,8 +50,8 @@ static void cmd_drives(int argc, char **argv)
 
 static void cmd_boot(int argc, char **argv)
 {
-    if (!machine_is_se()) {
-        printf("boot: switching Systems needs a Mac SE; the Plus boots the highest SCSI ID.\n");
+    if (!g_hw.has_xpram) {
+        printf("boot: switching Systems needs XPRAM (SE or newer); the Plus boots the highest SCSI ID.\n");
         return;
     }
     if (argc < 2) {

@@ -1,4 +1,4 @@
-/* puzzle.c - Classic System 7.1 15-Tile Sliding Puzzle Desk Accessory */
+/* puzzle.c - Classic 15-Tile Sliding Puzzle Desk Accessory */
 #include <plusos/plusos.h>
 #include <plusos/gfx.h>
 #include <plusos/syscall.h>

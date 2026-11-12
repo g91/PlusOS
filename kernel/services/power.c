@@ -27,15 +27,18 @@ void power_blank(int on)
     uint8_t *bk = video_back();
     if (!scr) return;
 
+    uint32_t fb_sz = video_bytes();
+    if (!fb_sz) fb_sz = 512 * 342 / 8;
+
     if (on && !is_blanked) {
         if (bk && bk != scr) {
-            memcpy(bk, scr, 512 * 342 / 8);
+            memcpy(bk, scr, fb_sz);
         }
-        memset(scr, 0, 512 * 342 / 8);
+        memset(scr, 0, fb_sz);
         is_blanked = 1;
     } else if (!on && is_blanked) {
         if (bk && bk != scr) {
-            memcpy(scr, bk, 512 * 342 / 8);
+            memcpy(scr, bk, fb_sz);
         }
         is_blanked = 0;
     }

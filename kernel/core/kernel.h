@@ -5,13 +5,13 @@
 #define PLUSOS_IN_KERNEL 1
 #include "kconfig.h"
 #include "kmodule.h"
-/* The kernel runs on the Mac Plus and the Mac SE. It is built with the Mac
- * Plus SDK (every Plus trap is also in the SE ROM) and also reads the Mac SE
- * SDK's call catalog for the `trap` / `rom` shell commands. */
+/* The kernel runs across 68000-68040 Macintosh systems. It builds against the
+ * core Mac headers plus universal hardware detection (hwdetect.h). */
 #include <plusrom/plusrom.h>
 #include <serom/traps.h>
 #include <serom/catalog.h>
 #include <plusos/plusos.h>
+#include "hwdetect.h"
 
 #define PLUSOS_VERSION   "2.0"
 #define CON_COLS         64
@@ -50,9 +50,16 @@ extern int16_t    g_boot_vref;          /* mounted volume, 0 if no file system *
 extern char       g_volname[32];
 
 /* ---- machine ---- */
-static inline int machine_is_se(void) { return plusrom_machine() == PLUSROM_MACHINE_SE; }
+static inline int machine_is_plus(void)    { return plusrom_machine() == PLUSROM_MACHINE_PLUS; }
+static inline int machine_is_se(void)      { return plusrom_machine() == PLUSROM_MACHINE_SE; }
+static inline int machine_is_classic(void) { return plusrom_machine() == PLUSROM_MACHINE_CLASSIC; }
+static inline int machine_is_lc3(void)     { return plusrom_machine() == PLUSROM_MACHINE_LC3; }
+/* 68020+ with a RAM-based framebuffer: the "LC-III-style" code paths. Gate
+ * on this rather than machine_is_lc3() so Classic II / II / IIsi / etc. also
+ * take the dynamic-video route. */
+static inline int machine_has_var_fb(void) { return *(const uint8_t *)0x12F >= 2; }
 
-/* ---- console.c: 64x42 text on the 512x342 frame buffer ---- */
+/* ---- console.c: dynamic text console (64x42 default on 512x342) ---- */
 void con_init(void);
 void con_putc(int c);
 void con_write(const char *s, size_t n);
@@ -64,13 +71,45 @@ void con_set_cursor(int on);
 void con_blink(void);                   /* call while idle: blinks the cursor */
 void con_status(const char *s);         /* bottom-row status line */
 uint8_t *con_screen(void);
+int  con_cols(void);
+int  con_rows(void);
 
-/* ---- video.c: off-screen back buffer + page-flip present (anti-flicker) ---- */
+/* ---- video.c: slot/driver discovery + multi-depth video ---- */
+typedef struct VideoCardInfo {
+    uint8_t  slot;              /* 0 = built-in / PDS, 9..14 = NuBus */
+    uint8_t  sp_id;             /* functional sResource ID */
+    uint8_t  mode_id;           /* current/default video mode sResource ID (128+) */
+    uint8_t  is_main;           /* 1 if MainDevice / active console display */
+    uint16_t width;
+    uint16_t height;
+    uint16_t rowbytes;
+    uint16_t depth;             /* 1, 2, 4, 8, 16, 32 */
+    int16_t  refnum;            /* driver refnum (<0) or 0 */
+    uint16_t drvr_hw;           /* spDrvrHW hardware ID */
+    uint16_t conn_type;         /* VDDisplayConnectInfo display type / sense */
+    uint32_t base_addr;         /* framebuffer base address */
+    char     card_name[48];
+    char     driver_name[48];
+} VideoCardInfo;
+
 void      video_init(void);
 uint8_t  *video_front(void);     /* the live screen (ScrnBase) */
 uint8_t  *video_back(void);      /* off-screen drawing buffer */
 void      video_present(void);                     /* flip the whole frame */
 void      video_present_rect(int top, int bottom); /* flip rows [top, bottom) */
+int       video_rowbytes(void);                    /* bytes per scanline (ScreenRow) */
+int       video_rows(void);                        /* height in pixels */
+int       video_width(void);                       /* width in pixels */
+int       video_depth(void);                       /* bits per pixel (1/2/4/8/16/32) */
+uint32_t  video_bytes(void);                       /* total framebuffer byte size */
+int       video_card_count(void);
+const VideoCardInfo *video_card_at(int index);
+void      video_scan_displays(void);
+int       video_set_mode(uint8_t slot, uint8_t mode_id);
+/* Read live screen geometry from MainDevice/GDevice and low-memory globals
+ * ($0824 base, $0106 rowBytes, $0C20 width, $0C22 height; depth derived). */
+void      video_probe_geometry(uint8_t **base, int *rowbytes, int *width,
+                               int *height, int *depth);
 
 /* ---- kbd.c ---- */
 void     kbd_init(int use_events);

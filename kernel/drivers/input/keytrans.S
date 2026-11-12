@@ -1,6 +1,6 @@
 /* keytrans.S - key translation procedure for the ROM keyboard driver.
  *
- * The Plus ROM's keyboard driver (os/keyboard.s) asks Key1Trans (main
+ * The Plus ROM's keyboard driver asks Key1Trans (main
  * keyboard) / Key2Trans (keypad) to turn a key code into a character, then
  * posts the keyDown/autoKey event. The ROM clears both pointers at start-up
  * and normally the System file installs them; PlusOS installs this instead.

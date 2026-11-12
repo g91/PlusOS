@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 #define PLUSOS_API_MAGIC    0x504F5341UL   /* 'POSA' */
-#define PLUSOS_API_VERSION  1
+#define PLUSOS_API_VERSION  2
 
 /* flags: which ROM subsystems the kernel brought up at boot */
 #define PLUSOS_HAVE_HEAP    0x0001   /* ROM application heap (NewPtr/NewHandle) */
@@ -104,6 +104,9 @@ typedef struct PlusOSAPI {
 
     /* New members are APPENDED here so existing app binaries keep their layout. */
     void     (*sleep_ticks)(int ticks);  /* yield the CPU for ~ticks/60 s */
+    int16_t  screen_depth;               /* bits per pixel (1/2/4/8/16/32) */
+    int16_t  con_cols;                   /* live console columns */
+    int16_t  con_rows;                   /* live console rows */
 } PlusOSAPI;
 
 /* In apps: the table passed by the kernel. In the kernel: its own table. */

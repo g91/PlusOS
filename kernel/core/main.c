@@ -10,7 +10,7 @@
 #include "gc.h"
 #include "pipe.h"
 #include "sync.h"
-#include "signal.h"
+#include "../proc/signal.h"
 #include "timer.h"
 #include "klog.h"
 #include "environ.h"
@@ -101,9 +101,10 @@ static void heartbeat_task(void *arg)
 __attribute__((noreturn)) void __plusos_kernel_start(void)
 {
     __plusos_run_ctors();
+    hwdetect_init();
     con_init();
-    printf("PlusOS %s by the1Domo on the %s - %s, %luK RAM\n", PLUSOS_VERSION, plusrom_machine_name(),
-           cpu_name(), (unsigned long)(ram_bytes() >> 10));
+    printf("PlusOS %s by the1Domo on the %s - %s, %luK RAM\n", PLUSOS_VERSION, hw_machine_name(),
+           hw_cpu_name(), (unsigned long)(ram_bytes() >> 10));
     exc_install();
     printf("Starting the ROM:\n");
     rom_init();                     /* the module table needs the ROM's heap and managers */

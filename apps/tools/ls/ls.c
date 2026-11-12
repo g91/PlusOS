@@ -1,161 +1,212 @@
-/* ls - list files on the boot volume.
- *
- * Usage: ls [-l] [PATH]
- *
- * With no PATH, lists /bin (the commands folder). "ls /" lists the volume
- * root. Any /unix/style/path walks the tree in the usual way. -l shows the
- * advisory mode/owner/size from /etc/perms.db alongside each entry. */
-#include <plusos/plusos.h>
+/* ls - list directory contents. */
 #include <plusos/syscall.h>
-#include <plusrom/FileMgr.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <time.h>
 
-#define ROOT_DIR 2L                 /* fsRtDirID */
+typedef struct { char name[64]; struct stat st; int has_st; } LsEntry;
+typedef struct {
+    int long_fmt, all, almost_all, one_col, human, si, rec, classify, slash_dir, inode, num_id, dir_self, show_size;
+} LsOpts;
 
-static void p2c(const unsigned char *p, char *c)
+static int g_sort_mode = 0, g_rev = 0;
+
+static void fmt_perm(mode_t m, char out[11])
 {
-    int n = p[0];
-    for (int i = 0; i < n; i++) c[i] = p[i + 1];
-    c[n] = 0;
+    out[0] = S_ISDIR(m) ? 'd' : S_ISLNK(m) ? 'l' : S_ISFIFO(m) ? 'p' : S_ISCHR(m) ? 'c' : S_ISBLK(m) ? 'b' : '-';
+    out[1] = (m & S_IRUSR) ? 'r' : '-'; out[2] = (m & S_IWUSR) ? 'w' : '-'; out[3] = (m & S_IXUSR) ? 'x' : '-';
+    out[4] = (m & S_IRGRP) ? 'r' : '-'; out[5] = (m & S_IWGRP) ? 'w' : '-'; out[6] = (m & S_IXGRP) ? 'x' : '-';
+    out[7] = (m & S_IROTH) ? 'r' : '-'; out[8] = (m & S_IWOTH) ? 'w' : '-'; out[9] = (m & S_IXOTH) ? 'x' : '-';
+    out[10] = '\0';
 }
 
-/* find the dirID of a folder named `name` under parent; 0 if not found */
-static long find_dir_under(INTEGER vref, long parent, const char *name)
+static void fmt_human(unsigned long long bytes, char *out, size_t cap, int si)
 {
-    for (int idx = 1; idx < 256; idx++) {
-        CInfoPBRec pb;
-        unsigned char nm[64];
-        memset(&pb, 0, sizeof pb);
-        pb.dirInfo.ioNamePtr = nm;
-        pb.dirInfo.ioVRefNum = vref;
-        pb.dirInfo.ioDrDirID = parent;
-        pb.dirInfo.ioFDirIndex = idx;
-        if (PBGetCatInfoSync(&pb) != 0) break;
-        char c[64];
-        p2c(nm, c);
-        if ((pb.dirInfo.ioFlAttrib & 0x10) && !strcasecmp(c, name))
-            return pb.dirInfo.ioDrDirID;
-    }
-    return 0;
+    static const char *const u[] = { "", "K", "M", "G", "T" };
+    unsigned long base = si ? 1000UL : 1024UL;
+    if (bytes < base) { snprintf(out, cap, "%llu", bytes); return; }
+    int idx = 0; unsigned long long w = bytes; unsigned long rem = 0;
+    while (w >= base && idx < 4) { rem = (unsigned long)(w % base); w /= base; idx++; }
+    if (w < 10) snprintf(out, cap, "%llu.%lu%s", w, (rem * 10UL) / base, u[idx]);
+    else snprintf(out, cap, "%llu%s", w, u[idx]);
 }
 
-/* Walk a /unix/style/path from root; returns the final dir id, or 0. */
-static long walk_path(INTEGER vref, const char *path)
-{
-    long dir = ROOT_DIR;
-    const char *p = path;
-    if (*p == '/') p++;
-    while (*p) {
-        char seg[32]; int n = 0;
-        while (*p && *p != '/' && n < 31) seg[n++] = *p++;
-        seg[n] = 0;
-        if (*p == '/') p++;
-        if (!seg[0]) continue;
-        dir = find_dir_under(vref, dir, seg);
-        if (!dir) return 0;
-    }
-    return dir;
-}
-
-/* Build an absolute Unix path for a direntry under `parent_path`. */
-static void make_subpath(const char *parent, const char *leaf, char *out, int cap)
-{
-    int o = 0;
-    for (int i = 0; parent[i] && o < cap - 1; i++) out[o++] = parent[i];
-    if (o == 0 || out[o - 1] != '/') if (o < cap - 1) out[o++] = '/';
-    for (int i = 0; leaf[i] && o < cap - 1; i++) out[o++] = leaf[i];
-    out[o] = 0;
-}
-
-static void mode_str(int mode, char *out)
-{
-    static const char rwx[] = "rwx";
-    for (int i = 0; i < 9; i++) out[i] = (mode & (1 << (8 - i))) ? rwx[i % 3] : '-';
-    out[9] = 0;
-}
-
-static int perms_lookup(const char *path, int *mode, int *uid, int *gid)
-{
-    struct plusos_perms_args p = { 0 };
-    p.op = PLUSOS_PERMS_GET;
-    for (int i = 0; i < 47 && path[i]; i++) p.path[i] = path[i];
-    if (plusos_syscall(SYS_perms, &p) != 0) return -1;
-    if (mode) *mode = p.mode;
-    if (uid)  *uid  = p.uid;
-    if (gid)  *gid  = p.gid;
-    return 0;
-}
-
-static void uid_name(int uid, char *out, int cap)
+static void uid_name(uid_t uid, char *out, size_t cap)
 {
     struct plusos_users_args u = { 0 };
-    u.op = PLUSOS_USERS_FIND_UID; u.uid = uid;
-    if (plusos_syscall(SYS_users, &u) == 0) {
-        for (int i = 0; i < cap - 1 && u.name[i]; i++) out[i] = u.name[i];
-        out[cap - 1] = 0;
-        int k = 0; while (out[k] && k < cap - 1) k++; out[k] = 0;
-        return;
-    }
-    snprintf(out, cap, "%d", uid);
+    u.op = PLUSOS_USERS_FIND_UID; u.uid = (int)uid;
+    if (plusos_syscall(SYS_users, &u) == 0 && u.name[0]) strlcpy(out, u.name, cap);
+    else snprintf(out, cap, "%u", (unsigned)uid);
 }
 
-static void list(INTEGER vref, long dir, const char *abs_path, int long_form)
+static void join_p(char *out, size_t cap, const char *dir, const char *name)
 {
-    printf("%s:\n", abs_path[0] ? abs_path : "/");
-    int count = 0;
-    for (int idx = 1; idx < 256; idx++) {
-        CInfoPBRec pb;
-        unsigned char nm[64];
-        memset(&pb, 0, sizeof pb);
-        pb.hFileInfo.ioNamePtr = nm;
-        pb.hFileInfo.ioVRefNum = vref;
-        pb.hFileInfo.ioDirID = dir;
-        pb.hFileInfo.ioFDirIndex = idx;
-        if (PBGetCatInfoSync(&pb) != 0) break;
-        char c[64];
-        p2c(nm, c);
-        int isdir = (pb.hFileInfo.ioFlAttrib & 0x10) != 0;
-        if (long_form) {
-            char child_path[96];
-            make_subpath(abs_path[0] ? abs_path : "/", c, child_path, sizeof child_path);
-            int mode = isdir ? 0755 : 0644, uid = 0, gid = 0;
-            perms_lookup(child_path, &mode, &uid, &gid);
-            char ms[10]; mode_str(mode, ms);
-            char owner[16]; uid_name(uid, owner, sizeof owner);
-            unsigned long size = isdir ? 0 : (unsigned long)pb.hFileInfo.ioFlLgLen;
-            printf("  %c%s %-10s %6lu  %s\n", isdir ? 'd' : '-', ms, owner, size, c);
-        } else {
-            if (isdir) printf("  %-24s <dir>\n", c);
-            else       printf("  %-24s %6lu\n", c, (unsigned long)pb.hFileInfo.ioFlLgLen);
+    size_t d = strlen(dir);
+    snprintf(out, cap, "%s%s%s", dir, (d && dir[d - 1] != '/' && dir[d - 1] != ':') ? "/" : "", name);
+}
+
+static int ls_cmp(const void *a, const void *b)
+{
+    const LsEntry *ea = a, *eb = b;
+    int r = 0;
+    if (g_sort_mode == 1) r = (ea->st.st_size < eb->st.st_size) ? 1 : (ea->st.st_size > eb->st.st_size) ? -1 : 0;
+    else if (g_sort_mode == 2) r = (ea->st.st_mtime < eb->st.st_mtime) ? 1 : (ea->st.st_mtime > eb->st.st_mtime) ? -1 : 0;
+    if (r == 0) r = strcasecmp(ea->name, eb->name);
+    if (r == 0) r = strcmp(ea->name, eb->name);
+    return g_rev ? -r : r;
+}
+
+static void print_entry(const char *fullpath, const LsEntry *e, const LsOpts *o)
+{
+    char suf = 0;
+    if (o->classify) {
+        if (S_ISDIR(e->st.st_mode)) suf = '/';
+        else if (S_ISLNK(e->st.st_mode)) suf = '@';
+        else if (S_ISFIFO(e->st.st_mode)) suf = '|';
+        else if (e->st.st_mode & 0111) suf = '*';
+    } else if (o->slash_dir && S_ISDIR(e->st.st_mode)) suf = '/';
+
+    if (o->long_fmt) {
+        char pstr[11], uname[20], gname[20], sbuf[16], tbuf[20];
+        fmt_perm(e->st.st_mode, pstr);
+        if (o->num_id) { snprintf(uname, sizeof uname, "%u", (unsigned)e->st.st_uid); snprintf(gname, sizeof gname, "%u", (unsigned)e->st.st_gid); }
+        else { uid_name(e->st.st_uid, uname, sizeof uname); uid_name(e->st.st_gid, gname, sizeof gname); }
+        if (o->human) fmt_human((unsigned long long)e->st.st_size, sbuf, sizeof sbuf, o->si);
+        else snprintf(sbuf, sizeof sbuf, "%lld", (long long)e->st.st_size);
+        time_t mt = e->st.st_mtime;
+        struct tm *tm = localtime(&mt);
+        if (tm) strftime(tbuf, sizeof tbuf, "%b %d %H:%M", tm); else strlcpy(tbuf, "Jan 01 00:00", sizeof tbuf);
+        if (o->inode) printf("%6lu ", (unsigned long)e->st.st_ino);
+        if (o->show_size) printf("%4ld ", (long)((e->st.st_size + 1023) / 1024));
+        printf("%s %2u %-8s %-8s %7s %s %s", pstr, (unsigned)(e->st.st_nlink ? e->st.st_nlink : 1),
+               uname, gname, sbuf, tbuf, e->name);
+        if (suf) putchar(suf);
+        if (S_ISLNK(e->st.st_mode) && fullpath) {
+            char lt[128]; ssize_t ln = readlink(fullpath, lt, sizeof lt - 1);
+            if (ln >= 0) { lt[ln] = '\0'; printf(" -> %s", lt); }
         }
-        count++;
+        putchar('\n');
+    } else {
+        if (o->inode) printf("%lu ", (unsigned long)e->st.st_ino);
+        if (o->show_size) printf("%ld ", (long)((e->st.st_size + 1023) / 1024));
+        printf("%s", e->name);
+        if (suf) putchar(suf);
     }
-    if (!count) printf("  (empty)\n");
+}
+
+static int ls_dir(const char *path, const LsOpts *o, int print_header)
+{
+    DIR *d = opendir(path);
+    if (!d) { fprintf(stderr, "ls: cannot access '%s': %s\n", path, strerror(errno)); return 1; }
+    int cap = 32, n = 0;
+    LsEntry *ents = malloc((size_t)cap * sizeof *ents);
+    if (!ents) { closedir(d); return 1; }
+    struct dirent *de;
+    while ((de = readdir(d)) != NULL) {
+        if (!o->all && !o->almost_all && de->d_name[0] == '.') continue;
+        if (!o->all && o->almost_all && (!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))) continue;
+        if (n >= cap) {
+            cap *= 2; LsEntry *ne = realloc(ents, (size_t)cap * sizeof *ents);
+            if (!ne) break;
+            ents = ne;
+        }
+        memset(&ents[n], 0, sizeof ents[n]);
+        strlcpy(ents[n].name, de->d_name, sizeof ents[n].name);
+        char *fp = malloc(192);
+        if (fp) {
+            join_p(fp, 192, path, de->d_name);
+            if (lstat(fp, &ents[n].st) == 0) ents[n].has_st = 1; else ents[n].st.st_ino = de->d_ino;
+            free(fp);
+        }
+        n++;
+    }
+    closedir(d);
+    if (g_sort_mode != 3 && n > 1) qsort(ents, (size_t)n, sizeof *ents, ls_cmp);
+    if (print_header) printf("%s:\n", path);
+    if (o->long_fmt) {
+        unsigned long total_kb = 0;
+        for (int i = 0; i < n; i++) total_kb += (unsigned long)((ents[i].st.st_size + 1023) / 1024);
+        printf("total %lu\n", total_kb);
+        for (int i = 0; i < n; i++) {
+            char *fp = malloc(192);
+            if (fp) { join_p(fp, 192, path, ents[i].name); print_entry(fp, &ents[i], o); free(fp); }
+        }
+    } else if (o->one_col || !isatty(1)) {
+        for (int i = 0; i < n; i++) { print_entry(NULL, &ents[i], o); putchar('\n'); }
+    } else {
+        int maxw = 0;
+        for (int i = 0; i < n; i++) { int l = (int)strlen(ents[i].name) + 2; if (l > maxw) maxw = l; }
+        if (maxw < 8) maxw = 8;
+        int cols = 80 / maxw; if (cols < 1) cols = 1;
+        for (int i = 0; i < n; i++) {
+            print_entry(NULL, &ents[i], o);
+            if ((i + 1) % cols == 0 || i + 1 == n) putchar('\n');
+            else {
+                int l = (int)strlen(ents[i].name) + (o->classify || o->slash_dir ? 1 : 0);
+                for (int sp = l; sp < maxw; sp++) putchar(' ');
+            }
+        }
+    }
+    int rc = 0;
+    if (o->rec) {
+        for (int i = 0; i < n; i++) {
+            if (!S_ISDIR(ents[i].st.st_mode) || !strcmp(ents[i].name, ".") || !strcmp(ents[i].name, "..")) continue;
+            char *sub = malloc(192);
+            if (!sub) break;
+            join_p(sub, 192, path, ents[i].name);
+            putchar('\n');
+            rc |= ls_dir(sub, o, 1);
+            free(sub);
+        }
+    }
+    free(ents);
+    return rc;
 }
 
 int main(int argc, char **argv)
 {
-    int long_form = 0;
-    const char *path = 0;
-    for (int i = 1; i < argc; i++) {
-        if (argv[i][0] == '-' && argv[i][1] == 'l' && argv[i][2] == 0) long_form = 1;
-        else if (!path) path = argv[i];
+    LsOpts o = { 0 };
+    int i = 1;
+    for (; i < argc && argv[i][0] == '-' && argv[i][1]; i++) {
+        if (strcmp(argv[i], "--") == 0) { i++; break; }
+        if (strncmp(argv[i], "--color", 7) == 0) continue;
+        for (const char *p = argv[i] + 1; *p; p++) {
+            switch (*p) {
+            case 'l': o.long_fmt = 1; o.one_col = 0; break;
+            case '1': o.one_col = 1; o.long_fmt = 0; break;
+            case 'C': case 'x': o.one_col = 0; o.long_fmt = 0; break;
+            case 'a': o.all = 1; break;
+            case 'A': o.almost_all = 1; break;
+            case 'h': o.human = 1; break;
+            case 'H': o.human = 1; o.si = 1; break;
+            case 'R': o.rec = 1; break;
+            case 'r': g_rev = 1; break;
+            case 'S': g_sort_mode = 1; break;
+            case 't': g_sort_mode = 2; break;
+            case 'U': case 'f': g_sort_mode = 3; if (*p == 'f') o.all = 1; break;
+            case 'F': o.classify = 1; break;
+            case 'p': o.slash_dir = 1; break;
+            case 'i': o.inode = 1; break;
+            case 'n': o.num_id = 1; o.long_fmt = 1; break;
+            case 'd': o.dir_self = 1; break;
+            case 's': o.show_size = 1; break;
+            default: break;
+            }
+        }
     }
-
-    struct plusos_sysinfo si;
-    plusos_syscall(SYS_sysinfo, &si);
-    INTEGER vref = (INTEGER)plusos->boot_vrefnum;
-
-    /* No arg -> list $PWD (Unix-style "list the current directory"), or /
-     * if nothing is set. Previously we listed /bin, which was surprising. */
-    char pwd[96] = "";
-    if (!path) {
-        struct plusos_env_args e = { PLUSOS_ENV_GET, "PWD", pwd, sizeof pwd };
-        plusos_syscall(SYS_getenv, &e);
-        if (!pwd[0]) { pwd[0] = '/'; pwd[1] = 0; }
-        path = pwd;
+    int narg = argc - i;
+    if (narg <= 0) return ls_dir(".", &o, o.rec);
+    int rc = 0;
+    for (int k = i; k < argc; k++) {
+        struct stat st;
+        if (lstat(argv[k], &st) != 0) { fprintf(stderr, "ls: cannot access '%s': %s\n", argv[k], strerror(errno)); rc = 1; continue; }
+        if (S_ISDIR(st.st_mode) && !o.dir_self) { if (k > i) putchar('\n'); rc |= ls_dir(argv[k], &o, narg > 1 || o.rec); }
+        else { LsEntry e = { 0 }; strlcpy(e.name, argv[k], sizeof e.name); e.st = st; e.has_st = 1; print_entry(argv[k], &e, &o); if (!o.long_fmt) putchar('\n'); }
     }
-    long dir = (path[0] == '/' && path[1] == 0) ? ROOT_DIR : walk_path(vref, path);
-    if (!dir) { printf("ls: %s: not a directory\n", path); return 1; }
-    list(vref, dir, path, long_form);
-    return 0;
+    return rc;
 }

@@ -85,7 +85,7 @@ void render_window(Window *w, int active)
             for (int y = 3; y < tb - 2; y += 2) gfx_hline(2, w->w - 2, y, 1);
             gfx_fill(7, 4, 18, 14, 0);
             gfx_frame(7, 4, 18, 14);
-            /* System 7 right zoom box */
+            /* Classic right zoom box */
             gfx_fill(w->w - 18, 4, w->w - 7, 14, 0);
             gfx_frame(w->w - 18, 4, w->w - 7, 14);
             gfx_frame(w->w - 18, 4, w->w - 11, 10);

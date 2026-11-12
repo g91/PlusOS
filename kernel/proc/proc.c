@@ -15,6 +15,8 @@
 #include "timer.h"
 #include "profiler.h"
 #include "klog.h"
+#include "sys7.h"
+#include "vfs.h"
 
 extern void ctx_switch(uint32_t *old_ksp, uint32_t new_ksp);
 extern void ctx_start_user(uint32_t usp, uint32_t entry);
@@ -196,9 +198,10 @@ void preempt_init(void)
     extern void irq1_entry(void);
     extern void *irq1_orig;
     uint16_t sr = int_disable();
-    if (*(void **)0x64 != (void *)irq1_entry) {
-        irq1_orig = *(void **)0x64;             /* the ROM's level-1 handler */
-        *(void **)0x64 = (void *)irq1_entry;
+    void **vbr = (void **)(uintptr_t)hw_get_vbr();
+    if (vbr[25] != (void *)irq1_entry) {
+        irq1_orig = vbr[25];                    /* the ROM's level-1 handler (vector 25 = 0x64) */
+        vbr[25] = (void *)irq1_entry;
     }
     int_restore(sr);
 }
@@ -260,6 +263,7 @@ int proc_create_kernel(const char *name, void (*fn)(void *), void *arg)
     p->uid = proc_current ? proc_current->uid : 0;
     p->gid = proc_current ? proc_current->gid : 0;
     strlcpy(p->name, name, PROC_NAME);
+    vfs_proc_init(p, proc_current, 0);
     prime_stack(p);
     rq_push(p);
     int_restore(sr);
@@ -268,6 +272,12 @@ int proc_create_kernel(const char *name, void (*fn)(void *), void *arg)
 
 int proc_create_user(const char *name, uint8_t *image, uint32_t entry_off,
                      int argc, char **argv)
+{
+    return proc_create_user_fds(name, image, entry_off, argc, argv, 0);
+}
+
+int proc_create_user_fds(const char *name, uint8_t *image, uint32_t entry_off,
+                         int argc, char **argv, const int fds_override[3])
 {
     uint16_t sr = int_disable();
     Proc *p = proc_alloc();
@@ -287,6 +297,7 @@ int proc_create_user(const char *name, uint8_t *image, uint32_t entry_off,
     p->uid = proc_current ? proc_current->uid : 0;
     p->gid = proc_current ? proc_current->gid : 0;
     strlcpy(p->name, name, PROC_NAME);
+    vfs_proc_init(p, proc_current, fds_override);
 
     /* Build the user stack: argv strings, the argv array, then (api,argv,argc)
      * for the app crt0 (int entry(argc, argv, api)). */
@@ -380,6 +391,7 @@ __attribute__((noreturn)) void proc_exit(int code)
                     procs[i].state != PROC_UNUSED && procs[i].state != PROC_ZOMBIE)
                     proc_kill(procs[i].pid);
         winsrv_proc_exit(proc_current->pid);
+        vfs_proc_exit(proc_current);
         kmem_free_pid(proc_current->pid);
         pipe_proc_exit(proc_current->pid);
         sync_proc_exit(proc_current->pid);
@@ -494,6 +506,7 @@ static void idle_body(void)
         int_enable();
         if (zombies_pending) reap_orphans();
         gc_on_idle();
+        sys7_poll();
         if (run_head) {
             uint16_t sr = int_disable();
             resched();

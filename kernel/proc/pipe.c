@@ -129,6 +129,38 @@ int pipe_close(int pipe_id)
     return 0;
 }
 
+int pipe_addref(int pipe_id, int is_write)
+{
+    if (pipe_id < 0 || pipe_id >= MAX_PIPES) return -1;
+    uint16_t sr = int_disable();
+    Pipe *p = &pipes[pipe_id];
+    if (!p->active) { int_restore(sr); return -1; }
+    if (is_write) { if (p->writers < 255) p->writers++; }
+    else          { if (p->readers < 255) p->readers++; }
+    int_restore(sr);
+    return 0;
+}
+
+int pipe_release(int pipe_id, int is_write)
+{
+    if (pipe_id < 0 || pipe_id >= MAX_PIPES) return -1;
+    uint16_t sr = int_disable();
+    Pipe *p = &pipes[pipe_id];
+    if (!p->active) { int_restore(sr); return 0; }
+    if (is_write) {
+        if (p->writers > 0) p->writers--;
+    } else {
+        if (p->readers > 0) p->readers--;
+    }
+    if (p->readers == 0 && p->writers == 0) {
+        p->active = 0;
+        p->count = 0;
+    }
+    proc_wakeup(&p->count);
+    int_restore(sr);
+    return 0;
+}
+
 void pipe_proc_exit(int pid)
 {
     uint16_t sr = int_disable();

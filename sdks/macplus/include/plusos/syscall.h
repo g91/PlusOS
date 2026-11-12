@@ -80,6 +80,11 @@ enum {
     SYS_procpgid,      /* 63: a0 = plusos_pgid_args* -> pgid or 0 */
     SYS_users,         /* 64: a0 = plusos_users_args* -> see op */
     SYS_perms,         /* 65: a0 = plusos_perms_args* -> see op */
+    SYS_gestalt,       /* 66: a0 = plusos_gestalt_args* -> 0 or OSErr */
+    SYS_videoinfo,     /* 67: a0 = plusos_video_args* -> 0 or -1 */
+    SYS_sys7,          /* 68: a0 = plusos_sys7_args*  -> 0 or -1 */
+    SYS_vfs,           /* 69: a0 = plusos_vfs_args*   -> fd/count/0 or -errno */
+    SYS_posix,         /* 70: a0 = plusos_posix_args* -> 0/val or -errno */
 };
 
 /* SYS_users: user accounts backed by /etc/passwd and /etc/shadow. One call
@@ -446,6 +451,217 @@ struct plusos_pgid_args {
     int op;
     int pid;
     int pgid;
+};
+
+/* Gestalt args (SYS_gestalt) */
+struct plusos_gestalt_args {
+    uint32_t selector;
+    int32_t  response;
+};
+
+/* Display card & video driver info (SYS_videoinfo) */
+struct plusos_video_card {
+    uint8_t  slot;
+    uint8_t  sp_id;
+    uint8_t  mode_id;
+    uint8_t  is_main;
+    uint16_t width;
+    uint16_t height;
+    uint16_t rowbytes;
+    uint16_t depth;
+    int16_t  refnum;
+    uint16_t drvr_hw;
+    uint16_t conn_type;
+    uint32_t base_addr;
+    char     card_name[48];
+    char     driver_name[48];
+};
+
+enum { PLUSOS_VID_INFO, PLUSOS_VID_GET_CARD, PLUSOS_VID_SET_MODE, PLUSOS_VID_RESCAN };
+struct plusos_video_args {
+    int op;
+    int index;
+    uint8_t slot;
+    uint8_t mode_id;
+    uint16_t width;
+    uint16_t height;
+    uint16_t rowbytes;
+    uint16_t depth;
+    int card_count;
+    struct plusos_video_card card;
+};
+
+/* Hardware & OS manager status (SYS_sys7) */
+enum {
+    PLUSOS_S7_HWINFO,
+    PLUSOS_S7_NOTIFY_POST,
+    PLUSOS_S7_NOTIFY_POLL,
+    PLUSOS_S7_NOTIFY_COUNT
+};
+struct plusos_sys7_args {
+    int op;
+    int beep;
+    uint8_t box_flag;
+    uint8_t cpu_flag;
+    uint8_t fpu_type;
+    uint8_t mmu_type;
+    uint8_t has_adb;
+    uint8_t has_xpram;
+    uint8_t has_slot_mgr;
+    uint8_t has_color_qd;
+    uint8_t has_asc;
+    uint8_t has_soft_poweroff;
+    uint8_t is_32bit_mode;
+    uint8_t nubus_slots;
+    uint16_t rom_version;
+    uint32_t rom_size;
+    char machine[48];
+    char msg[64];
+};
+
+/* ---- POSIX Virtual File System (SYS_vfs) ---- */
+enum {
+    PLUSOS_VFS_OPEN = 1,
+    PLUSOS_VFS_CLOSE,
+    PLUSOS_VFS_READ,
+    PLUSOS_VFS_WRITE,
+    PLUSOS_VFS_LSEEK,
+    PLUSOS_VFS_DUP,
+    PLUSOS_VFS_DUP2,
+    PLUSOS_VFS_STAT,
+    PLUSOS_VFS_LSTAT,
+    PLUSOS_VFS_FSTAT,
+    PLUSOS_VFS_MKDIR,
+    PLUSOS_VFS_RMDIR,
+    PLUSOS_VFS_UNLINK,
+    PLUSOS_VFS_RENAME,
+    PLUSOS_VFS_TRUNCATE,
+    PLUSOS_VFS_FTRUNCATE,
+    PLUSOS_VFS_UTIME,
+    PLUSOS_VFS_CHDIR,
+    PLUSOS_VFS_GETCWD,
+    PLUSOS_VFS_READDIR,
+    PLUSOS_VFS_SYMLINK,
+    PLUSOS_VFS_READLINK,
+    PLUSOS_VFS_LINK,
+    PLUSOS_VFS_MKFIFO,
+    PLUSOS_VFS_STATFS,
+    PLUSOS_VFS_SYNC
+};
+
+#define PLUSOS_O_RDONLY  0x0000
+#define PLUSOS_O_WRONLY  0x0001
+#define PLUSOS_O_RDWR    0x0002
+#define PLUSOS_O_ACCMODE 0x0003
+#define PLUSOS_O_CREAT   0x0040
+#define PLUSOS_O_EXCL    0x0080
+#define PLUSOS_O_TRUNC   0x0200
+#define PLUSOS_O_APPEND  0x0400
+#define PLUSOS_O_NONBLOCK 0x0800
+
+struct plusos_stat {
+    uint32_t st_dev;
+    uint32_t st_ino;
+    uint32_t st_mode;
+    uint32_t st_nlink;
+    uint32_t st_uid;
+    uint32_t st_gid;
+    uint32_t st_rdev;
+    int32_t  st_size;
+    int32_t  st_blksize;
+    int32_t  st_blocks;
+    uint32_t st_atime;
+    uint32_t st_mtime;
+    uint32_t st_ctime;
+};
+
+struct plusos_dirent {
+    uint32_t d_ino;
+    uint8_t  d_type;            /* 4=dir, 8=reg, 10=lnk, 1=fifo, 2=chr */
+    char     d_name[64];
+};
+
+struct plusos_statfs {
+    uint32_t f_bsize;
+    uint32_t f_blocks;
+    uint32_t f_bfree;
+    uint32_t f_bavail;
+    uint32_t f_files;
+    uint32_t f_ffree;
+    uint32_t f_namelen;
+    char     f_volname[32];
+};
+
+struct plusos_vfs_args {
+    int         op;
+    int         fd;
+    int         fd2;
+    int         flags;
+    uint32_t    mode;
+    int32_t     offset;
+    int32_t     count;
+    const char *path;
+    const char *path2;
+    void       *buf;
+    uint32_t    t1;             /* atime or utime */
+    uint32_t    t2;             /* mtime */
+};
+
+/* ---- POSIX Process / System Metadata (SYS_posix) ---- */
+enum {
+    PLUSOS_POSIX_PIPE = 1,
+    PLUSOS_POSIX_SPAWN_REDIR,
+    PLUSOS_POSIX_ISATTY,
+    PLUSOS_POSIX_GETHOSTNAME,
+    PLUSOS_POSIX_SETHOSTNAME,
+    PLUSOS_POSIX_UNAME,
+    PLUSOS_POSIX_UMASK,
+    PLUSOS_POSIX_GETUMASK,
+    PLUSOS_POSIX_TIME,
+    PLUSOS_POSIX_SETTIME,
+    PLUSOS_POSIX_CHROOT,
+    PLUSOS_POSIX_STTY_GET,
+    PLUSOS_POSIX_STTY_SET,
+    PLUSOS_POSIX_HOSTID,
+    PLUSOS_POSIX_NPROC,
+    PLUSOS_POSIX_KILL_SIG,
+    PLUSOS_POSIX_GETPPID,
+    PLUSOS_POSIX_GETUID,
+    PLUSOS_POSIX_GETGID,
+    PLUSOS_POSIX_GETENV_ALL,
+    PLUSOS_POSIX_CLEARENV
+};
+
+struct plusos_utsname {
+    char sysname[24];
+    char nodename[32];
+    char release[24];
+    char version[48];
+    char machine[24];
+};
+
+struct plusos_termios {
+    uint32_t c_iflag;
+    uint32_t c_oflag;
+    uint32_t c_cflag;
+    uint32_t c_lflag;           /* bit 0 = ECHO, bit 1 = ICANON, bit 2 = ISIG */
+    uint16_t rows;
+    uint16_t cols;
+    uint32_t baud;
+};
+
+struct plusos_posix_args {
+    int         op;
+    int         a;
+    int         b;
+    int         c;
+    const char *name;
+    int         argc;
+    char      **argv;
+    int         fds[3];         /* stdin/stdout/stderr fd overrides (-1 = inherit) */
+    void       *ptr;
+    int32_t     size;
+    uint32_t    uval;
 };
 
 #ifdef __m68k__

@@ -166,7 +166,7 @@ static void draw(int sel)
     printf("1-%d, arrows + Return, or click an item", nitems);
 
     con_goto(4, 4 + nitems * 2 + 2);
-    if (machine_is_se()) {
+    if (g_hw.has_xpram) {
         int def = chainboot_get_default();
         if (def >= 0) printf("Default startup: SCSI ID %d", def);
         else          printf("Default startup: none set (boots highest ID)");
@@ -198,8 +198,8 @@ static void choose(int sel)
     }
 
     con_goto(4, 4 + nitems * 2 + 4);
-    if (!machine_is_se()) {
-        printf("Switching Systems from the menu needs a Mac SE.");
+    if (!g_hw.has_xpram) {
+        printf("Switching Systems from the menu needs XPRAM (SE or newer).");
         con_goto(4, 4 + nitems * 2 + 5);
         printf("On the Mac Plus, set this disk's SCSI ID highest. Any key...");
         kbd_get_click();
@@ -229,7 +229,7 @@ void menu_main(void)
     load_config();
 
     /* Direct Mac OS boot option configured */
-    if (cfg_direct_mac >= 0 && cfg_timeout <= 0 && machine_is_se()) {
+    if (cfg_direct_mac >= 0 && cfg_timeout <= 0 && g_hw.has_xpram) {
         chainboot(cfg_direct_mac);
     }
 

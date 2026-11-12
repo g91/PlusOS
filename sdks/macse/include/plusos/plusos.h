@@ -38,14 +38,16 @@ static inline void     sleep_ticks(uint32_t n)       { uint32_t end = plusos->ti
 #endif
 static inline int      plusos_has(uint32_t flag)     { return (plusos->flags & flag) != 0; }
 
-/* Direct pixel access to the 512x342 screen (1 = black). */
+/* Direct pixel access on 1bpp framebuffers using dynamic screen stride. */
 static inline void pixel_set(int x, int y)
 {
-    plusos->screen[y * 64 + (x >> 3)] |= (uint8_t)(0x80 >> (x & 7));
+    int rb = plusos->screen_rowbytes ? plusos->screen_rowbytes : 64;
+    plusos->screen[y * rb + (x >> 3)] |= (uint8_t)(0x80 >> (x & 7));
 }
 static inline void pixel_clear(int x, int y)
 {
-    plusos->screen[y * 64 + (x >> 3)] &= (uint8_t)~(0x80 >> (x & 7));
+    int rb = plusos->screen_rowbytes ? plusos->screen_rowbytes : 64;
+    plusos->screen[y * rb + (x >> 3)] &= (uint8_t)~(0x80 >> (x & 7));
 }
 
 #ifdef __cplusplus

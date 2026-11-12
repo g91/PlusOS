@@ -24,7 +24,7 @@
  *     A diagnostic dialog drawn with QuickDraw ROM traps (_EraseRect,
  *     _FrameRect, _MoveTo, _DrawString, _HideCursor), the kernel read in
  *     32 KB chunks, and a 68020+ cache flush before the jump. This path uses
- *     the System 7 ROM's boot-time QuickDraw/Toolbox environment, which the
+ *     the Color QuickDraw ROM's boot-time QuickDraw/Toolbox environment, which the
  *     128K/256K compact-Mac ROMs do NOT provide the same way - running it on a
  *     Plus or SE is what regressed booting, so it is gated to the LC III only.
  */
@@ -160,9 +160,14 @@ have_drive:
         move.w  %d7, 0x210
         move.w  %d6, 0xB34
 
-        /* 4. Compute load address: below BufPtr, 16-byte aligned */
+        /* 4. Compute load address: below BufPtr, with room for the kernel
+         * image AND the 64 KB supervisor stack crt0 plants just below it.
+         * Without the stack reservation (KERNEL_BYTES + ~1K was previous),
+         * the stack grows into the ROM File Manager's buffers that live
+         * just under BufPtr and corrupts the OS silently before our first
+         * printf. 16-byte aligned. */
         move.l  0x10C, %d0              /* BufPtr */
-        sub.l   #KERNEL_BYTES + 0x400, %d0
+        sub.l   #KERNEL_BYTES + 0x10000 + 0x400, %d0    /* image + 64K stack + 1K slack */
         andi.l  #0xFFFFFFF0, %d0
         movea.l %d0, %a4
 
@@ -368,61 +373,126 @@ pb:     .space  52
 
 #else
 /* =====================================================================
- * Compact 68000 Macs (Plus / SE / Classic) boot path - minimal, proven.
- * No Toolbox or QuickDraw: works regardless of the boot-time ROM state.
+ * Universal / Compact Mac boot path (68000-68040: Plus/SE/Classic/II/LC/Quadra).
+ * No Toolbox or QuickDraw: resolves drive from BootDrive/DrvQHdr or entry PB,
+ * reads kernel in 16 KB chunks (safe for 53C96 DMA & older drivers), reserves
+ * 64 KB kernel stack below image, and flushes 020/030/040 caches before jump.
  * ===================================================================== */
 start:
         movem.l %d2-%d7/%a2-%a6, -(%sp)
+        movea.l %a0, %a3                /* save ROM entry param block (if any) */
 
-        /* find the boot drive in the drive queue -> driver refNum */
-        move.w  0x210, %d7              /* BootDrive (drive number) */
+        /* 1. Find the boot drive -> (drive = %d7, driver refNum = %d6) */
+        moveq   #0, %d6
+        move.w  0x210, %d7              /* BootDrive */
+        ble.s   try_pb
         movea.l 0x30A, %a0              /* DrvQHdr.qHead */
 dq:     move.l  %a0, %d0
-        beq     fail_drive
+        beq.s   try_pb
         cmp.w   6(%a0), %d7             /* dQDrive */
-        beq.s   found
+        beq.s   got_dq
         movea.l (%a0), %a0
         bra.s   dq
-found:  move.w  8(%a0), %d6             /* dQRefNum */
+got_dq: move.w  8(%a0), %d6             /* dQRefNum */
+        bra.s   have_drv
 
-        /* load address: below BufPtr, 16-byte aligned */
+try_pb: move.l  %a3, %d0
+        btst    #0, %d0                 /* must be even */
+        bne.s   try_first
+        cmpi.l  #0x1000, %d0
+        bcs.s   try_first
+        cmp.l   0x108, %d0              /* < MemTop */
+        bcc.s   try_first
+        move.w  22(%a3), %d7            /* ioVRefNum */
+        move.w  24(%a3), %d6            /* ioRefNum */
+        blt.s   have_drv
+try_first:
+        movea.l 0x30A, %a0
+        move.l  %a0, %d0
+        beq     fail_drive
+        move.w  6(%a0), %d7
+        move.w  8(%a0), %d6
+have_drv:
+
+        /* 2. Load address: below BufPtr, reserving 64 KB kernel stack + guard */
         move.l  0x10C, %d0              /* BufPtr */
-        sub.l   #KERNEL_BYTES + 0x400, %d0
+        sub.l   #KERNEL_BYTES + 0x10400, %d0
         andi.w  #0xFFF0, %d0
         movea.l %d0, %a4
 
-        /* IOParamBlock on our own (PC-relative) storage */
+        /* 3. Chunked _Read (<= 16 KB per call) using PC-relative IOParamBlock */
         lea     pb(%pc), %a0
         moveq   #12, %d0
 pz:     clr.l   (%a0)+
         dbra    %d0, pz
-        lea     pb(%pc), %a0
-        move.w  %d7, 22(%a0)            /* ioVRefNum = drive number */
-        move.w  %d6, 24(%a0)            /* ioRefNum  = driver */
-        move.l  %a4, 32(%a0)            /* ioBuffer */
-        move.l  #KERNEL_BYTES, 36(%a0)  /* ioReqCount */
+        lea     pb(%pc), %a2
+        move.w  %d7, 22(%a2)            /* ioVRefNum = drive number */
+        move.w  %d6, 24(%a2)            /* ioRefNum  = driver */
+        move.l  %a4, 32(%a2)            /* ioBuffer */
+        move.l  #KERNEL_OFFSET, %d4
+        move.l  #KERNEL_BYTES, %d3
+
+rd_loop:
+        tst.l   %d3
+        ble.s   rd_done
+        move.l  #0x4000, %d2            /* 16 KB chunk */
+        cmp.l   %d2, %d3
+        bge.s   1f
+        move.l  %d3, %d2
+1:      movea.l %a2, %a0
+        move.l  %d2, 36(%a0)            /* ioReqCount */
         move.w  #1, 44(%a0)             /* ioPosMode = fsFromStart */
-        move.l  #KERNEL_OFFSET, 46(%a0) /* ioPosOffset */
+        move.l  %d4, 46(%a0)            /* ioPosOffset */
         .short  0xA002                  /* _Read */
         tst.w   %d0
         bne.s   fail_read
+        add.l   %d2, 32(%a2)
+        add.l   %d2, %d4
+        sub.l   %d2, %d3
+        bra.s   rd_loop
+rd_done:
 
         cmpi.l  #0x504C4F53, 4(%a4)     /* 'PLOS' signature? */
         bne.s   fail_magic
+
+        /* 4. Flush caches on 68020/030 or 68040+ before jumping to kernel */
+        cmpi.b  #2, 0x12F               /* CPUFlag */
+        bcs.s   go_kern
+        cmpi.b  #4, 0x12F
+        bcs.s   flush_020
+        .short  0x4E71, 0xF4F8          /* nop; cpusha %bc (68040+) */
+        bra.s   go_kern
+flush_020:
+        .short  0x4E7A, 0x0002          /* movec %cacr, %d0 */
+        ori.w   #0x0808, %d0
+        .short  0x4E7B, 0x0002          /* movec %d0, %cacr */
+go_kern:
         jmp     (%a4)                   /* -> kernel crt0; never returns */
 
-/* Failure: draw 1, 2 or 3 black bars so the cause is visible, then hang. */
+/* Failure: draw 1, 2 or 3 black bars using ScreenRow ($106), then hang. */
 fail_drive: moveq   #1, %d5
         bra.s   bars
 fail_read:  moveq   #2, %d5
         bra.s   bars
 fail_magic: moveq   #3, %d5
 bars:   movea.l 0x824, %a0              /* ScrnBase */
-        adda.l  #64 * 150, %a0
-b1:     move.w  #64 * 12 / 4 - 1, %d0
-b2:     move.l  #0xFFFFFFFF, (%a0)+
+        moveq   #0, %d1
+        move.w  0x106, %d1              /* ScreenRow */
+        bne.s   1f
+        moveq   #64, %d1
+1:      move.l  %d1, %d2
+        mulu.w  #150, %d2
+        adda.l  %d2, %a0
+b1:     moveq   #11, %d3
+b_row:  movea.l %a0, %a1
+        moveq   #15, %d0
+b2:     move.l  #0xFFFFFFFF, (%a1)+
         dbra    %d0, b2
-        adda.l  #64 * 12, %a0           /* gap */
+        adda.l  %d1, %a0
+        dbra    %d3, b_row
+        move.l  %d1, %d2
+        mulu.w  #12, %d2                /* gap */
+        adda.l  %d2, %a0
         subq.w  #1, %d5
         bne.s   b1
 hang:   bra.s   hang

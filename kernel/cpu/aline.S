@@ -35,7 +35,13 @@ aline_entry:
         tst.b   0x12F                       /* CPUFlag: 68010+ adds a format word */
         beq.s   1f
         addq.l  #2, %sp
-        move.l  %d0, aline_d0
+        cmpi.b  #2, 0x12F                   /* 68010 has no CACR */
+        bcs.s   1f
+        cmpi.b  #4, 0x12F
+        bcs.s   0f
+        .short  0x4E71, 0xF4F8              /* nop; cpusha %bc (68040+) */
+        bra.s   1f
+0:      move.l  %d0, aline_d0
         .short  0x4E7A, 0x0002              /* movec cacr,d0 - flush: the */
         ori.w   #0x0808, %d0                /* trampoline is fresh code   */
         .short  0x4E7B, 0x0002              /* movec d0,cacr */

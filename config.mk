@@ -4,7 +4,7 @@
 # Target Hardware Architecture & Machine:
 #   MACHINE ?= se
 # Supported targets:
-#   universal - ONE image that boots on ANY supported Mac. Like System 7, the
+#   universal - ONE image that boots on ANY supported Mac. Like classic Mac OS, the
 #               boot block and kernel are processor-independent and detect the
 #               CPU/machine at run time (CPUFlag at $12F, ROM version), so the
 #               same binary adapts to a 68000 Plus/SE/Classic or a 68030 LC III.

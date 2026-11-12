@@ -14,18 +14,103 @@ void c2p(unsigned char *p, const char *c)
 
 long dir_id(const char *name)
 {
+    return dir_id_under(ROOT_DIR, name);
+}
+
+/* Find a child directory named `name` under `parent`; 0 if not present. */
+long dir_id_under(long parent, const char *name)
+{
     for (int idx = 1; idx < 200; idx++) {
         CInfoPBRec pb; unsigned char nm[64]; char c[64];
         memset(&pb, 0, sizeof pb);
         pb.dirInfo.ioNamePtr = nm;
         pb.dirInfo.ioVRefNum = vref;
-        pb.dirInfo.ioDrDirID = ROOT_DIR;
+        pb.dirInfo.ioDrDirID = parent;
         pb.dirInfo.ioFDirIndex = idx;
         if (PBGetCatInfoSync(&pb) != 0) break;
         int n = nm[0]; for (int i = 0; i < n; i++) c[i] = (char)nm[i + 1]; c[n] = 0;
         if ((pb.dirInfo.ioFlAttrib & 0x10) && ieq(c, name)) return pb.dirInfo.ioDrDirID;
     }
     return 0;
+}
+
+/* Resolve the PlusOS Desktop for the current user. The result is both an HFS
+ * dir id (for list_files) and an HFS colon-form path prefix (for building
+ * file paths such as ":home:bob:Desktop:notes"). Cached across calls.
+ *
+ * Lookup order:
+ *   1. $HOME env var, usually "/home/<user>", translated to HFS form and
+ *      followed by "Desktop".
+ *   2. If $HOME is empty (no login yet), fall back to ":Desktop" at the
+ *      volume root so a fresh / unconfigured disk still shows something.
+ * The Desktop subfolder of $HOME is created by the firstrun wizard; if it
+ * somehow isn't there we also create it on demand. */
+static long  g_desk_dir_id;                           /* 0 until resolved */
+static char  g_desk_prefix[64] = ":Desktop";          /* HFS path prefix, no trailing colon */
+
+static long ensure_dir_under(long parent, const char *name)
+{
+    long d = dir_id_under(parent, name);
+    if (d) return d;
+    HParamBlockRec pb; unsigned char nm[64];
+    memset(&pb, 0, sizeof pb);
+    int n = 0;
+    while (name[n] && n < 63) { nm[n + 1] = (unsigned char)name[n]; n++; }
+    nm[0] = (unsigned char)n;
+    pb.fileParam.ioNamePtr = nm;
+    pb.fileParam.ioVRefNum = vref;
+    pb.fileParam.ioDirID = parent;
+    if (PBDirCreateSync(&pb) != 0) return 0;
+    return dir_id_under(parent, name);
+}
+
+static void resolve_desktop(void)
+{
+    if (g_desk_dir_id) return;
+
+    char home[64] = "";
+    struct plusos_env_args e = { PLUSOS_ENV_GET, "HOME", home, sizeof home };
+    plusos_syscall(SYS_getenv, &e);
+
+    long parent = ROOT_DIR;
+    int po = 0;                                        /* offset in g_desk_prefix */
+    g_desk_prefix[0] = 0;
+
+    if (home[0] == '/') {
+        /* Walk /home/<user> one segment at a time, mirroring the HFS form
+         * into g_desk_prefix as we go. */
+        const char *p = home + 1;
+        while (*p) {
+            char seg[32]; int s = 0;
+            while (*p && *p != '/' && s < 31) seg[s++] = *p++;
+            seg[s] = 0;
+            if (*p == '/') p++;
+            if (!seg[0]) continue;
+            long next = dir_id_under(parent, seg);
+            if (!next) { parent = 0; break; }
+            parent = next;
+            if (po < (int)sizeof g_desk_prefix - 2) g_desk_prefix[po++] = ':';
+            for (int i = 0; seg[i] && po < (int)sizeof g_desk_prefix - 2; i++)
+                g_desk_prefix[po++] = seg[i];
+            g_desk_prefix[po] = 0;
+        }
+    }
+
+    if (parent == ROOT_DIR || parent == 0) {
+        /* Fallback: :Desktop at the volume root. */
+        strcpy(g_desk_prefix, ":Desktop");
+        g_desk_dir_id = ensure_dir_under(ROOT_DIR, "Desktop");
+        return;
+    }
+
+    /* Found the home dir; make sure Desktop is inside it. */
+    if (po < (int)sizeof g_desk_prefix - 9) {
+        g_desk_prefix[po++] = ':';
+        const char *d = "Desktop";
+        while (*d && po < (int)sizeof g_desk_prefix - 1) g_desk_prefix[po++] = *d++;
+        g_desk_prefix[po] = 0;
+    }
+    g_desk_dir_id = ensure_dir_under(parent, "Desktop");
 }
 
 int list_files(long dir, char names[][32], int max)
@@ -105,15 +190,16 @@ int rename_file(const char *from, const char *to)
     return rc;
 }
 
+/* Negative x means right-aligned (SCREEN_W + x); Trash y is computed via desk_bottom(). */
 static const struct { int kind; const char *id, *label; int x, y; } sys_icons[] = {
-    { K_PROGRAMS, "programs", "Programs",   SCREEN_W - 80, 28 },
-    { K_GAMES,    "games",    "Games",      24, 28 },
-    { K_SHELL,    "shell",    "Shell",      SCREEN_W - 80, 76 },
-    { K_FILES,    "files",    "Files",      SCREEN_W - 80, 124 },
-    { K_HEX,      "hexedit",  "Hex Edit",   SCREEN_W - 80, 170 },
-    { K_TASKS,    "tasks",    "Tasks",      SCREEN_W - 80, 216 },
-    { K_SETTINGS, "settings", "Settings",   SCREEN_W - 80, 262 },
-    { K_TRASH,    "trash",    "Trash",      SCREEN_W - 80, SCREEN_H - ICON_H - 4 },
+    { K_PROGRAMS, "programs", "Programs",   -80, 28 },
+    { K_GAMES,    "games",    "Games",       24, 28 },
+    { K_SHELL,    "shell",    "Shell",      -80, 76 },
+    { K_FILES,    "files",    "Files",      -80, 124 },
+    { K_HEX,      "hexedit",  "Hex Edit",   -80, 170 },
+    { K_TASKS,    "tasks",    "Tasks",      -80, 216 },
+    { K_SETTINGS, "settings", "Settings",   -80, 262 },
+    { K_TRASH,    "trash",    "Trash",      -80, -1 },
 };
 #define NSYS ((int)(sizeof sys_icons / sizeof sys_icons[0]))
 
@@ -156,19 +242,17 @@ static void place_free(Icon *ic, int self)
     ic->x = 16; ic->y = 200;
 }
 
-static long desk_dir;
-
 void free_icon(Icon *ic) { gs_free(&ic->img); gs_free(&ic->mask); }
 
 void build_icons(void)
 {
     static char names[MAX_ICONS][32];
     static uint8_t progs[MAX_ICONS];
-    if (!desk_dir) desk_dir = dir_id("Desktop");
-    int nfiles = desk_dir ? list_files(desk_dir, names, MAX_ICONS - NSYS) : 0;
+    resolve_desktop();
+    int nfiles = g_desk_dir_id ? list_files(g_desk_dir_id, names, MAX_ICONS - NSYS) : 0;
     for (int i = 0; i < nfiles; i++) {
-        char path[64];
-        snprintf(path, sizeof path, ":Desktop:%s", names[i]);
+        char path[96];
+        snprintf(path, sizeof path, "%s:%s", g_desk_prefix, names[i]);
         progs[i] = (uint8_t)is_program(path);
     }
     LOCK();
@@ -182,8 +266,8 @@ void build_icons(void)
         ic->kind = sys_icons[i].kind;
         scopy(ic->id, sys_icons[i].id, sizeof ic->id);
         scopy(ic->label, sys_icons[i].label, sizeof ic->label);
-        ic->x = sys_icons[i].x; ic->y = sys_icons[i].y;
-        if (ic->kind == K_TRASH) ic->y = desk_bottom() - ICON_H - 4;
+        ic->x = sys_icons[i].x < 0 ? (SCREEN_W + sys_icons[i].x) : sys_icons[i].x;
+        ic->y = sys_icons[i].y < 0 ? (desk_bottom() - ICON_H - 4) : sys_icons[i].y;
         ic->rendered = -1;
     }
     for (int i = 0; i < nfiles; i++) {
@@ -193,7 +277,7 @@ void build_icons(void)
         ic->rendered = -1;
         scopy(ic->label, names[i], sizeof ic->label);
         snprintf(ic->id, sizeof ic->id, "f/%s", names[i]);
-        snprintf(ic->path, sizeof ic->path, ":Desktop:%s", names[i]);
+        snprintf(ic->path, sizeof ic->path, "%s:%s", g_desk_prefix, names[i]);
         ic->program = progs[i];
         nicons++;
         if (!load_icon_pos(ic)) place_free(ic, nicons - 1);
@@ -340,14 +424,14 @@ int get_target(Target *t)
 
 static void unique_desktop_name(const char *base, char *out, int size)
 {
-    char path[80];
+    char path[96];
     snprintf(out, size, "%s", base);
-    snprintf(path, sizeof path, ":Desktop:%s", out);
+    snprintf(path, sizeof path, "%s:%s", g_desk_prefix, out);
     for (int n = 1; file_exists(path) && n < 50; n++) {
         char b[24]; scopy(b, base, 20);
         if (n == 1) snprintf(out, size, "%s copy", b);
         else snprintf(out, size, "%s copy %d", b, n);
-        snprintf(path, sizeof path, ":Desktop:%s", out);
+        snprintf(path, sizeof path, "%s:%s", g_desk_prefix, out);
     }
 }
 
@@ -385,12 +469,13 @@ static void copy_worker(void *arg)
 
 void copy_to_desktop(const char *src, const char *name)
 {
-    if (!desk_dir) { message("There is no Desktop folder", "on this disk."); return; }
+    resolve_desktop();
+    if (!g_desk_dir_id) { message("There is no Desktop folder", "for this user."); return; }
     struct copy_job *j = malloc(sizeof *j);
     if (!j) { message("Not enough memory", "to start the copy."); return; }
     unique_desktop_name(name, j->nm, sizeof j->nm);
     snprintf(j->src, sizeof j->src, "%s", src);
-    snprintf(j->dst, sizeof j->dst, ":Desktop:%s", j->nm);
+    snprintf(j->dst, sizeof j->dst, "%s:%s", g_desk_prefix, j->nm);
     if (gthread_create_ex(copy_worker, j, 4096, 1) < 0) {
         /* No thread slot: fall back to a foreground copy so the user still gets
          * their file. UI will freeze briefly, as it did before. */
@@ -440,8 +525,9 @@ void cmd_rename(void)
     if (t.prot) { message("That program is part of PlusOS", "and can't be renamed."); return; }
     char nm[32]; scopy(nm, t.name, sizeof nm);
     if (!prompt("New name:", nm, 28) || !strcmp(nm, t.name)) return;
-    char to[80];
-    snprintf(to, sizeof to, "%s%s", t.desktop ? ":Desktop:" : ":bin:", nm);
+    char to[96];
+    if (t.desktop) snprintf(to, sizeof to, "%s:%s", g_desk_prefix, nm);
+    else           snprintf(to, sizeof to, ":bin:%s", nm);
     if (file_exists(to)) { message("There is already a file", "with that name."); return; }
     if (rename_file(t.path, to) != 0) { message("Could not rename the file.", 0); return; }
     if (t.desktop) {

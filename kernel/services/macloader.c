@@ -1,8 +1,6 @@
 /* macloader.c - Classic Macintosh ('APPL' / 'CODE' Resource) Executable Loader
  *
- * Implements the Macintosh Segment Loader & A5 World runtime architecture
- * documented in F:\mac_rom\plus\os\segment_loader.s and
- * F:\sys71src\Internal\Asm\ResourceMgrPriv.a:
+ * Implements the Macintosh Segment Loader & A5 World runtime architecture:
  *
  *   1. Locates the executable's Resource Fork via:
  *      - HFS Resource Fork (OpenRF on ":bin:<name>" or "<name>")

@@ -1,4 +1,4 @@
-/* calc.c - Classic System 7.1 Calculator Desk Accessory & CLI Evaluator
+/* calc.c - Classic Macintosh Calculator Desk Accessory & CLI Evaluator
  *
  * Works in two modes:
  *   1. CLI expression evaluator: `calc 128 * 64 + 512`

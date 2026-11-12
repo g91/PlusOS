@@ -16,9 +16,12 @@ static int cl, ct, cr, cb;                  /* clip, in target coordinates */
 static void init_once(void)
 {
     if (screen_s.bits) return;
-    gs_wrap(&screen_s, plusos->screen, 64, GFX_SCREEN_W, GFX_SCREEN_H);
+    int rb = plusos->screen_rowbytes ? plusos->screen_rowbytes : 64;
+    int w  = plusos->screen_width    ? plusos->screen_width    : GFX_SCREEN_W;
+    int h  = plusos->screen_height   ? plusos->screen_height   : GFX_SCREEN_H;
+    gs_wrap(&screen_s, plusos->screen, rb, w, h);
     gs_wrap(&back_s, plusos->screen_back ? plusos->screen_back : plusos->screen,
-            64, GFX_SCREEN_W, GFX_SCREEN_H);
+            rb, w, h);
     if (!tgt) { tgt = &back_s; gfx_noclip(); }
 }
 
@@ -346,7 +349,7 @@ void gfx_poly_frame(const int *pts, int npts, int black)
     }
 }
 
-/* Scanline polygon rasterizer (even-odd rule, modeled on QuickDraw Polygons.s) */
+/* Scanline polygon rasterizer (even-odd rule, QuickDraw polygon algorithm) */
 void gfx_poly_dither(const int *pts, int npts, int shade)
 {
     init_once();

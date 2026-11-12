@@ -69,14 +69,20 @@ void api_init(void)
     a->run = ktrap_spawn;               /* runs the program as a ring-2 process */
     a->qd = &qd;
     a->screen = video_front();          /* the live screen */
-    a->screen_rowbytes = 64;
-    a->screen_width = 512;
-    a->screen_height = 342;
+    /* Report the live geometry, not a compile-time assumption, so apps built
+     * for "any machine" see the right size on LC III as well as Plus/SE. */
+    a->screen_rowbytes = video_rowbytes();
+    a->screen_width    = video_width();
+    a->screen_height   = video_rows();
     a->boot_vrefnum = g_boot_vref;
     a->font8x8 = plusos_font8x8;
     a->screen_back = video_back();      /* off-screen buffer for flicker-free drawing */
     a->present = video_present;
     a->present_rect = video_present_rect;
+    a->sleep_ticks = ktrap_sleep;
+    a->screen_depth = (int16_t)video_depth();
+    a->con_cols     = (int16_t)con_cols();
+    a->con_rows     = (int16_t)con_rows();
     plusos = a;
 }
 

@@ -1,6 +1,6 @@
 /* rominit.c - bring up the ROM's subsystems.
  *
- * Our boot block took over before the ROM's BootFromDisk (boot/boot_load.s)
+ * Our boot block took over before the ROM's disk bootstrapper
  * got to set up the machine. We do the same steps, in the same order:
  *   1. heaps     _SetApplBase: grow the system heap, create the application heap
  *   2. events    _InitEvents(20): OS event queue -> keyboard/mouse events
@@ -16,13 +16,7 @@ static void step(const char *what) { printf("  %-24s", what); }
 
 const char *cpu_name(void)
 {
-    switch (LM_BYTE(0x12F)) {           /* CPUFlag, set by the ROM's MOVEC probe */
-    case 0:  return "68000";
-    case 1:  return "68010";
-    case 2:  return "68020";
-    case 3:  return "68030";
-    default: return "680x0";
-    }
+    return hw_cpu_name();
 }
 
 uint32_t ram_bytes(void) { return LM_LONG(0x108); }      /* MemTop */
@@ -95,11 +89,23 @@ static void init_quickdraw(void)
     step("QuickDraw (InitGraf)");
     InitGraf(&qd.thePort);                              /* stores &qd.thePort at (A5) */
     OpenPort(&g_port);
-    uint8_t *scr = (uint8_t *)LM_LONG(0x824);
-    if ((uint8_t *)g_port.portBits.baseAddr != scr) {   /* should not happen; be safe */
+    /* On the Plus/SE the ROM's own QuickDraw port is already 512x342 at
+     * rowBytes 64. On the LC III (and any machine with a RAM frame buffer) the
+     * geometry is whatever the ROM probed - read it from the shared geometry
+     * reader, which reads the real low-memory globals ($0824/$0106/$0C20/
+     * $0C22). We call it directly (not the cached video_* accessors) because
+     * rom_init() runs BEFORE video_init(). Without this QuickDraw would
+     * clip/stretch to 512x342 on a 640x480 screen. */
+    uint8_t *scr;
+    int rb, w, h;
+    video_probe_geometry(&scr, &rb, &w, &h, 0);
+    if ((uint8_t *)g_port.portBits.baseAddr != scr ||
+        g_port.portBits.rowBytes != rb ||
+        g_port.portRect.right != w ||
+        g_port.portRect.bottom != h) {
         g_port.portBits.baseAddr = (Ptr)scr;
-        g_port.portBits.rowBytes = 64;
-        SetRect(&g_port.portBits.bounds, 0, 0, 512, 342);
+        g_port.portBits.rowBytes = rb;
+        SetRect(&g_port.portBits.bounds, 0, 0, w, h);
         g_port.portRect = g_port.portBits.bounds;
         RectRgn(g_port.visRgn, &g_port.portRect);
         ClipRect(&g_port.portRect);
@@ -117,6 +123,13 @@ void rom_init(void)
     g_boot_drive = (int16_t)LM_WORD(0x210);             /* BootDrive */
     for (uint8_t *q = (uint8_t *)LM_LONG(0x30A); q; q = *(uint8_t **)q)   /* DrvQHdr.qHead */
         if (*(int16_t *)(q + 6) == g_boot_drive) { g_boot_refnum = *(int16_t *)(q + 8); break; }
+    if (!g_boot_refnum) {
+        uint8_t *q = (uint8_t *)LM_LONG(0x30A);
+        if (q) {
+            g_boot_drive = *(int16_t *)(q + 6);
+            g_boot_refnum = *(int16_t *)(q + 8);
+        }
+    }
 
     init_heap();
     if (g_flags & PLUSOS_HAVE_HEAP) {

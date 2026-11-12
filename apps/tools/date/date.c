@@ -1,19 +1,33 @@
-/* date - the current date and time (also installed as "time"). */
-#include <plusos/plusos.h>
-#include <plusrom/OSUtil.h>
+/* date - print or set the system date and time. */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-int main(void)
+int main(int argc, char **argv)
 {
-    ULONGINT secs;
-    ReadDateTime(&secs);
-    DateTimeRec d;
-    SecondsToDate(secs, &d);
-    static const char *dn[] = { "", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-    static const char *mn[] = { "", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-    printf("%s %s %2d %04d  %02d:%02d:%02d\n",
-           (d.dayOfWeek >= 1 && d.dayOfWeek <= 7) ? dn[d.dayOfWeek] : "",
-           (d.month >= 1 && d.month <= 12) ? mn[d.month] : "", d.day, d.year,
-           d.hour, d.minute, d.second);
+    int utc = 0; const char *fmt = NULL;
+    time_t now = time(NULL);
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "-u") || !strcmp(argv[i], "--utc")) utc = 1;
+        else if (!strcmp(argv[i], "-R")) fmt = "%a, %d %b %Y %H:%M:%S +0000";
+        else if (!strcmp(argv[i], "-I")) fmt = "%Y-%m-%d";
+        else if (!strcmp(argv[i], "-d") && i + 1 < argc) {
+            const char *ds = argv[++i];
+            if (ds[0] == '@') now = (time_t)strtoul(ds + 1, NULL, 10);
+        } else if (!strcmp(argv[i], "-s") && i + 1 < argc) {
+            const char *ss = argv[++i];
+            if (ss[0] == '@') {
+                time_t nt = (time_t)strtoul(ss + 1, NULL, 10);
+                if (stime(&nt) != 0) { perror("date"); return 1; }
+                now = nt;
+            }
+        } else if (argv[i][0] == '+') fmt = argv[i] + 1;
+    }
+    if (!fmt) fmt = "%a %b %e %H:%M:%S UTC %Y";
+    struct tm *tm = utc ? gmtime(&now) : localtime(&now);
+    char out[96];
+    if (tm && strftime(out, sizeof out, fmt, tm) > 0) puts(out);
+    else printf("%lu\n", (unsigned long)now);
     return 0;
 }

@@ -1,6 +1,6 @@
 /* kbd.c - keyboard input.
  *
- * The Plus ROM's keyboard driver (os/keyboard.s) runs from the VIA interrupt:
+ * The Plus ROM's keyboard driver runs from the VIA interrupt:
  * it polls the keyboard, keeps the KeyMap up to date and asks a key
  * translation procedure (low-memory Key1Trans/Key2Trans) for a character.
  * The ROM leaves those procedures empty for the System file to fill in;
@@ -120,7 +120,7 @@ void kbd_init(int events)
 {
     (void)events;
     memcpy(prev, keymap(), 16);
-    if (machine_is_se())                    /* SE: ADB driver keeps the KeyMap; we poll it */
+    if (g_hw.has_adb || !machine_is_plus()) /* ADB Macs (SE/Classic/II/LC/Quadra): driver updates KeyMap */
         return;
     uint16_t sr;
     __asm__ volatile("move.w %%sr,%0\n\tori.w #0x0700,%%sr" : "=d"(sr));      /* no interrupts */
