@@ -151,6 +151,26 @@ int is_program(const char *path)
     return ok;
 }
 
+int is_text(const char *path)
+{
+    unsigned char p[256]; FInfo fi;
+    c2p(p, path);
+    if (GetFInfo(p, vref, &fi) == 0 && fi.fdType == 0x54455854UL) return 1; /* 'TEXT' */
+    const char *dot = 0; for (const char *s = path; *s; s++) if (*s == '.') dot = s;
+    if (dot && (ieq(dot,".txt")||ieq(dot,".md")||ieq(dot,".cfg")||ieq(dot,".c")||
+                ieq(dot,".h")||ieq(dot,".log")||ieq(dot,".ini")||ieq(dot,".sh"))) return 1;
+    INTEGER ref; char h[64];
+    if (FSOpen(p, vref, &ref) != 0) return 0;
+    LONGINT n = 64; int ok = FSRead(ref, &n, h) == 0;
+    FSClose(ref);
+    if (!ok || n <= 0) return 0;
+    for (int i = 0; i < n; i++) {
+        unsigned char ch = (unsigned char)h[i];
+        if (ch != '\n' && ch != '\r' && ch != '\t' && (ch < 0x20 || ch > 0x7E)) return 0;
+    }
+    return 1;
+}
+
 int copy_file(const char *src, const char *dst)
 {
     unsigned char ps[256], pd[256];
@@ -559,6 +579,7 @@ void open_icon(int i)
     case K_TRASH:    message("Drag a file onto the Trash", "to delete it."); break;
     case K_FILE:
         if (ic->program) { char *av[] = { ic->path, 0 }; start_prog(1, av); }
+        else if (is_text(ic->path)) { char *av[] = { "notes", ic->path, 0 }; start_prog(2, av); }
         else hex_edit(ic->path);
         break;
     }

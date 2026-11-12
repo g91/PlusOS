@@ -131,7 +131,8 @@ export class ADBTransceiver {
       this.intLow = st === 2 && this.srqFrom(this.device(this.lastCmd >> 4));
       this.via.shiftIn(b);
     } else {
-      this.intLow = true;                         // timeout: no (more) data
+      // timeout: no (more) data. /INT low on the even byte reports it; on the odd byte it would mean SRQ.
+      this.intLow = st === 1 ? true : this.srqFrom(this.device(this.lastCmd >> 4));
       this.via.shiftIn(0xFF);
     }
   }
@@ -170,5 +171,4 @@ export class ADBTransceiver {
   keyUp(code) { this.kbd.key(code, true); }
   mouseButton(down) { this.mouse.down = down; }
   mouseMove(dx, dy) { this.mouse.dx += dx; this.mouse.dy += dy; }
-  mouseSet(dx, dy) { this.mouse.dx = dx; this.mouse.dy = dy; }
 }

@@ -1,0 +1,2 @@
+show:
+	@echo [OUTIMG=$(OUTIMG)]

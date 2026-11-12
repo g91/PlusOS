@@ -19,12 +19,12 @@
 #define WM_FLOPPY_COMPLETED  (WM_USER + 103)
 #define WM_SETUP_COMPLETED   (WM_USER + 104)
 
-// Build backend: how the cross-compiler is invoked
+// Build toolchain state: PlusOS builds exclusively with its own native P68 toolchain
+// (toolchain\bin\p68-cc.exe, p68-as.exe, p68-ld.exe, p68-ar.exe, p68-make.exe). No WSL,
+// no MSYS2, no Linux. The tools are built once with MSVC (toolchain\build.cmd).
 enum BuildBackend {
-    BB_NONE = 0,       // not yet detected / unavailable
-    BB_MSYS2_LOCAL,    // tools\winbuild\msys2\  (portable, set up by setup.ps1)
-    BB_MSYS2_SYSTEM,   // C:\msys64\ or C:\msys2\  (user-installed)
-    BB_WSL,            // WSL Ubuntu (legacy fallback)
+    BB_NONE = 0,       // the P68 tools are not built yet — run Setup (toolchain\build.cmd)
+    BB_P68_NATIVE,     // toolchain\bin\*.exe present and ready
 };
 
 class ExplorerWindow;
@@ -132,7 +132,6 @@ public:
     void action_build_image();
     void action_build_floppy();
     void action_open_explorer();
-    void remount_bluescsi();   /* refresh the WSL drvfs mount so install reaches the SD card */
 
 private:
     HINSTANCE m_hInstance;
@@ -196,13 +195,14 @@ private:
     bool m_isBuilding = false;
     std::wstring m_repoRoot;
     std::wstring m_blueScsiDrive;
+    std::wstring m_lastBuiltImage;   // local path of the image the last build produced
+    std::wstring m_cardTarget;       // SD card destination to copy it to (empty = none)
     std::vector<DiscoveredApp> m_discoveredApps;
     std::vector<SourceApp>     m_sourceApps;      // every apps/<cat>/<name>/ found on disk
 
-    // Windows-native build backend
-    BuildBackend m_backend        = BB_NONE;
-    std::wstring m_backendBash;      // path to bash.exe (MSYS2)
-    std::wstring m_localToolchain;   // path to tools\winbuild\toolchain\ (if built)
+    // Native P68 toolchain
+    BuildBackend m_backend     = BB_NONE;    // BB_P68_NATIVE once the tools are built
+    std::wstring m_p68Dir;                    // path to toolchain\bin\ holding the *.exe tools
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     LRESULT handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -248,8 +248,7 @@ private:
     void action_setup_environment();
     void action_boot_vm();
     void detect_and_init_environment();
-    void detect_build_backend();
-    BuildBackend prompt_build_backend(bool forSetup);
+    void detect_build_backend();               // locate toolchain\bin\*.exe (the P68 tools)
     std::wstring build_make_command(const std::wstring& target, const std::wstring& extraFlags) const;
     std::wstring find_boot_image() const;
     void action_inject_external();

@@ -114,7 +114,7 @@ function doAction(action) {
     case 'keydown': mac.keyDown(parseInt(val, 16)); break;
     case 'keyup': mac.keyUp(parseInt(val, 16)); break;
     case 'move': { const [dx, dy] = val.split(',').map(Number); mac.mouseMove(dx, dy); break; }
-    case 'mouseto': { const [x, y] = val.split(',').map(Number); mouseTarget = { x, y, frames: 40 }; break; }
+    case 'mouseto': { const [x, y] = val.split(',').map(Number); mouseTarget = { x, y, frames: 4 }; break; }
     case 'click': mac.mouseButton(true); clickRelease = mac.frames + 6; break;
     case 'press': mac.mouseButton(true); break;
     case 'release': mac.mouseButton(false); break;
@@ -144,6 +144,7 @@ console.log(`PC=$${hex(c.pc)} SR=$${hex(c.getSR(), 4)} SP=$${hex(c.d[15])} stopp
 console.log(`D: ${Array.from(c.d.subarray(0, 8), (v) => hex(v)).join(' ')}\nA: ${Array.from(c.d.subarray(8, 16), (v) => hex(v)).join(' ')}`);
 if (excCount.size) console.log('exceptions: ' + [...excCount].sort((a, b) => a[0] - b[0]).map(([v, n]) => `v${v}x${n}`).join(' '));
 console.log(`pvdisk: ${mac.pv.stats.reads} reads (${mac.pv.stats.bytesRead} bytes), ${mac.pv.stats.writes} writes (${mac.pv.stats.bytesWritten} bytes), opened=${mac.pv.opened}`);
+for (let id = 0; id < 7; id++) { const t = mac.scsi.targets[id]; if (t) console.log(`scsi id ${id}: ${t.commands} commands, last: ${t.log.slice(-24).map((o) => hex(o, 2)).join(' ')}`); }
 if (opt.traceTraps) {
   const top = [...trapCount].sort((a, b) => b[1] - a[1]).slice(0, 24);
   console.log('A-traps (top): ' + top.map(([op, n]) => `${hex(op, 4)}x${n}`).join(' '));

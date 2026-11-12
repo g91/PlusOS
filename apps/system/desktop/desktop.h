@@ -225,6 +225,7 @@ long dir_id_under(long parent, const char *name);
 int  list_files(long dir, char names[][32], int max);
 int  file_exists(const char *path);
 int  is_program(const char *path);
+int  is_text(const char *path);
 int  copy_file(const char *src, const char *dst);
 int  delete_file(const char *path);
 int  rename_file(const char *from, const char *to);

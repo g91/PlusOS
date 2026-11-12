@@ -672,43 +672,70 @@ void MainWindow::action_build_image()
     if (res != IDYES) return;
 
     // Show temporary status
-    SendMessageW(m_hStatusBar, SB_SETTEXTW, 0, (LPARAM)L"🔨 Compiling and building image... please wait");
+    SendMessageW(m_hStatusBar, SB_SETTEXTW, 0, (LPARAM)L"Compiling and building image with the P68 toolchain... please wait");
 
-    // Execute build install via wsl or build.bat
-    std::wstring rootDir = L"C:\\Users\\Evil\\PlusOS";
-    std::wstring cmd = L"wsl.exe -d Ubuntu --cd /mnt/c/Users/Evil/PlusOS -- make install";
+    // Locate the repository root from the running executable: it sits either at <repo>\ or
+    // at <repo>\tools\disk_studio\. We walk up until we find make.cmd next to Makefile.p68.
+    std::wstring rootDir;
+    {
+        wchar_t exePath[MAX_PATH] = {};
+        GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+        std::wstring dir = exePath;
+        size_t slash = dir.find_last_of(L"\\/");
+        if (slash != std::wstring::npos) dir = dir.substr(0, slash);
+        for (int up = 0; up < 6 && !dir.empty(); ++up) {
+            if (GetFileAttributesW((dir + L"\\make.cmd").c_str()) != INVALID_FILE_ATTRIBUTES &&
+                GetFileAttributesW((dir + L"\\Makefile.p68").c_str()) != INVALID_FILE_ATTRIBUTES) {
+                rootDir = dir;
+                break;
+            }
+            size_t s2 = dir.find_last_of(L"\\/");
+            if (s2 == std::wstring::npos) break;
+            dir = dir.substr(0, s2);
+        }
+    }
+    if (rootDir.empty()) {
+        MessageBoxW(m_hWnd,
+            L"Could not locate the PlusOS repository (make.cmd / Makefile.p68).\r\n\r\n"
+            L"Run Disk Studio from inside the PlusOS folder.",
+            L"Repository Not Found", MB_ICONERROR | MB_OK);
+        return;
+    }
+    if (GetFileAttributesW((rootDir + L"\\toolchain\\bin\\p68-cc.exe").c_str()) == INVALID_FILE_ATTRIBUTES) {
+        MessageBoxW(m_hWnd,
+            L"The PlusOS native compilers are not built yet.\r\n\r\n"
+            L"Open the OS Builder and click 'Setup Build Environment', or run toolchain\\build.cmd.",
+            L"P68 Toolchain Required", MB_ICONWARNING | MB_OK);
+        return;
+    }
+
+    // Build natively with our own tools: make.cmd compiles the OS (p68-cc/as/ld/ar) and
+    // produces the hard-drive image through tools\hdbuild.
+    std::wstring cmd = L"cmd.exe /c \"cd /d \"" + rootDir + L"\" && call make.cmd image\"";
 
     STARTUPINFOW si = {};
     si.cb = sizeof(si);
     PROCESS_INFORMATION pi = {};
-
     BOOL ok = CreateProcessW(nullptr, (LPWSTR)cmd.c_str(), nullptr, nullptr, FALSE, 0, nullptr, rootDir.c_str(), &si, &pi);
-    if (!ok) {
-        // Fallback to cmd.exe build.bat install
-        cmd = L"cmd.exe /c \"call C:\\Users\\Evil\\PlusOS\\build.bat install\"";
-        ok = CreateProcessW(nullptr, (LPWSTR)cmd.c_str(), nullptr, nullptr, FALSE, 0, nullptr, rootDir.c_str(), &si, &pi);
-    }
-
     if (ok) {
-        WaitForSingleObject(pi.hProcess, 300000); // Wait up to 5 minutes
+        WaitForSingleObject(pi.hProcess, 600000); // up to 10 minutes
         DWORD exitCode = 1;
         GetExitCodeProcess(pi.hProcess, &exitCode);
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
 
+        std::wstring img = rootDir + L"\\images\\PlusOS_p68.hda";
         if (exitCode == 0) {
-            std::wstring defaultImg = L"C:\\Users\\Evil\\PlusOS\\images\\PlusOS.hda";
-            open_image(defaultImg);
-            MessageBoxW(m_hWnd, L"Build & installation succeeded! Hard drive image is now open in Disk Studio.",
+            open_image(img);
+            MessageBoxW(m_hWnd, L"Build succeeded! The hard drive image is now open in Disk Studio.",
                         L"Build Successful", MB_ICONINFORMATION | MB_OK);
         } else {
-            MessageBoxW(m_hWnd, L"Build completed with errors. Check console or make logs.",
+            MessageBoxW(m_hWnd, L"Build completed with errors. Check the build log.",
                         L"Build Notice", MB_ICONWARNING | MB_OK);
-            std::wstring defaultImg = L"C:\\Users\\Evil\\PlusOS\\images\\PlusOS.hda";
-            open_image(defaultImg);
+            if (GetFileAttributesW(img.c_str()) != INVALID_FILE_ATTRIBUTES) open_image(img);
         }
     } else {
-        MessageBoxW(m_hWnd, L"Failed to start build process.", L"Execution Error", MB_ICONERROR | MB_OK);
+        MessageBoxW(m_hWnd, L"Failed to start the build process.", L"Execution Error", MB_ICONERROR | MB_OK);
     }
 }
 

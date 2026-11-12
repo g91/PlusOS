@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PlusOS Emulator</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --case: #d8d2c0; --case-hi: #ebe6d8; --case-lo: #b3ac98; --case-dark: #8d8674; --ink: #26241f; --ink-soft: #5a564b;
+    --bezel: #1b1b1b; --accent: #2f6f4f; --warn: #a33a2a; --panel: #f4f1e8; --line: #26241f;
+    --mono: "Chicago", "ChicagoFLF", "Geneva", "Lucida Grande", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: #6f8f8f; color: var(--ink); font: 13px/1.35 var(--mono);
+    background-image: repeating-conic-gradient(#7a9a9a 0% 25%, #6b8b8b 0% 50%); background-size: 4px 4px;
+    display: flex; flex-direction: column; align-items: center; padding: 14px 10px 30px;
+  }
+  .mac {
+    background: linear-gradient(180deg, var(--case-hi), var(--case) 18%, var(--case) 80%, var(--case-lo));
+    border: 2px solid var(--case-dark); border-radius: 14px 14px 10px 10px; padding: 22px 26px 14px;
+    box-shadow: 0 2px 0 #fff8 inset, 0 12px 28px #0006; max-width: 100%;
+  }
+  .bezel {
+    background: var(--bezel); border-radius: 18px; padding: 16px; box-shadow: 0 0 0 3px var(--case-lo), 0 3px 8px #0008 inset;
+    display: flex; justify-content: center; align-items: center; position: relative;
+  }
+  canvas#screen {
+    display: block; background: #fff; image-rendering: pixelated; image-rendering: crisp-edges; border-radius: 6px;
+    width: 512px; height: 342px; cursor: crosshair; touch-action: none; outline: none;
+  }
+  canvas#screen.locked, canvas#screen.hidecursor { cursor: none; }
+  .overlay {
+    position: absolute; inset: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    color: #e9e6da; text-align: center; pointer-events: none; padding: 12px;
+  }
+  .overlay.hidden { display: none; }
+  .overlay button { pointer-events: auto; }
+  .under { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 12px; }
+  .logo { font-weight: bold; letter-spacing: .5px; color: var(--ink-soft); display: flex; align-items: center; gap: 8px; }
+  .logo i { width: 14px; height: 14px; display: inline-block; border-radius: 3px;
+    background: linear-gradient(180deg, #5fb346 0 17%, #f6c022 17% 34%, #f18a1c 34% 50%, #dd3a34 50% 67%, #8f3f97 67% 84%, #2f95d6 84%); }
+  .slot { flex: 1; height: 7px; max-width: 150px; background: #1b1b1b; border-radius: 4px; box-shadow: 0 1px 0 #fff8; position: relative; }
+  .led { width: 8px; height: 8px; border-radius: 50%; background: #3a3a32; box-shadow: 0 1px 0 #fff8; }
+  .led.on { background: #ffb02e; box-shadow: 0 0 6px #ffb02e; }
+  .readout { font-variant-numeric: tabular-nums; color: var(--ink-soft); min-width: 150px; text-align: right; white-space: nowrap; }
+
+  .panel { margin-top: 14px; width: 100%; max-width: 760px; background: var(--panel); border: 2px solid var(--line); box-shadow: 3px 3px 0 var(--line); }
+  .titlebar { border-bottom: 2px solid var(--line); padding: 2px 8px; text-align: center; font-weight: bold;
+    background: repeating-linear-gradient(180deg, var(--panel) 0 1px, var(--line) 1px 2px, var(--panel) 2px 3px); }
+  .titlebar span { background: var(--panel); padding: 0 10px; }
+  .body { padding: 10px 12px; display: grid; gap: 10px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  label { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  select, button, .filebtn {
+    font: inherit; color: var(--ink); background: #fff; border: 2px solid var(--line); border-radius: 7px; padding: 3px 10px; min-height: 28px; cursor: pointer;
+  }
+  select { border-radius: 4px; max-width: 100%; }
+  button:active, .filebtn:active, button.on { background: var(--line); color: #fff; }
+  button.primary { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--line); margin: 4px; }
+  button:disabled { opacity: .45; cursor: default; }
+  .filebtn input { display: none; }
+  .seg { display: inline-flex; }
+  .seg button { border-radius: 0; margin-left: -2px; }
+  .seg button:first-child { border-radius: 7px 0 0 7px; margin-left: 0; }
+  .seg button:last-child { border-radius: 0 7px 7px 0; }
+  .disks { display: grid; gap: 4px; }
+  .disk { display: flex; gap: 8px; align-items: center; border: 1px solid var(--line); padding: 3px 6px; background: #fff; flex-wrap: wrap; }
+  .disk b { flex: 1; min-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+  .disk small { color: var(--ink-soft); }
+  .disk button, .disk select { min-height: 22px; padding: 0 6px; }
+  .status { min-height: 1.4em; color: var(--ink-soft); }
+  .status.err { color: var(--warn); }
+  .help { color: var(--ink-soft); font-size: 12px; }
+  .drop { outline: 3px dashed var(--accent); outline-offset: 4px; }
+  #softkbd { position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; font-size: 16px; }
+  body.embed { padding: 0; background: #000; justify-content: center; }
+  body.embed .panel, body.embed .under { display: none; }
+  body.embed .mac { border: 0; border-radius: 0; padding: 0; background: #000; box-shadow: none; }
+  body.embed .bezel { padding: 0; border-radius: 0; box-shadow: none; }
+  body.embed .overlay { inset: 0; }
+  :fullscreen .bezel, .bezel:fullscreen { width: 100vw; height: 100vh; border-radius: 0; padding: 0; }
+  @media (max-width: 620px) {
+    body { padding: 6px 4px 20px; }
+    .mac { padding: 10px 8px 8px; border-radius: 10px; }
+    .bezel { padding: 6px; border-radius: 10px; }
+    .overlay { inset: 6px; }
+    .readout { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="mac" id="mac">
+  <div class="bezel" id="bezel">
+    <canvas id="screen" width="512" height="342" tabindex="0" aria-label="Emulated Macintosh screen"></canvas>
+    <div class="overlay" id="overlay">
+      <div id="overlayText">Loading…</div>
+      <button class="primary" id="overlayPower" hidden>Power on</button>
+    </div>
+  </div>
+  <div class="under">
+    <div class="logo"><i></i><span id="modelName">PlusOS Emulator</span></div>
+    <div class="slot"></div>
+    <div class="led" id="led" title="disk activity"></div>
+    <div class="readout" id="readout">off</div>
+  </div>
+</div>
+
+<div class="panel" id="panel">
+  <div class="titlebar"><span>Control Panel</span></div>
+  <div class="body">
+    <div class="row">
+      <button id="power" class="primary">Power on</button>
+      <button id="reset" disabled title="Reset the machine">Reset</button>
+      <button id="nmi" disabled title="Programmer's interrupt switch (NMI)">Interrupt</button>
+      <button id="pause" disabled>Pause</button>
+      <span class="seg" title="Emulation speed">
+        <button data-speed="1" class="on">1×</button><button data-speed="2">2×</button><button data-speed="0">Max</button>
+      </span>
+      <button id="sound" title="Sound on/off">Sound: off</button>
+      <button id="fullscreen">Full screen</button>
+      <button id="shot">Screenshot</button>
+    </div>
+    <div class="row">
+      <label>Model <select id="machine"></select></label>
+      <label>CPU <select id="cpu"></select></label>
+      <label>RAM <select id="ram"></select></label>
+      <label>Scale <select id="scale"><option value="0">Fit</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+    </div>
+    <div class="row">
+      <label>ROM <select id="rom"></select></label>
+      <label class="filebtn">Load ROM file…<input type="file" id="romFile"></label>
+      <label title="Skip the ROM's RAM test at power-on"><input type="checkbox" id="fast" checked> Fast boot</label>
+    </div>
+    <div>
+      <div class="row" style="margin-bottom:6px">
+        <b>Disks</b>
+        <label class="filebtn">Add disk image…<input type="file" id="diskFile" multiple></label>
+        <span class="help">or drop .hda / .dsk / .img files anywhere on the page</span>
+      </div>
+      <div class="disks" id="disks"></div>
+    </div>
+    <div class="row">
+      <label>Mouse <select id="mouseMode"><option value="abs">Absolute (click and point)</option><option value="lock">Captured (pointer lock, Esc releases)</option></select></label>
+      <button id="kbd" title="Show the on-screen keyboard (touch devices)">Keyboard</button>
+      <span class="seg" title="Send a key"><button data-key="35">Esc</button><button data-key="30">Tab</button><button data-key="37" data-toggle="1">⌘</button><button data-key="3A" data-toggle="1">⌥</button></span>
+    </div>
+    <div class="status" id="status"></div>
+    <div class="help">
+      Click the screen to give it the keyboard. Alt = Option, Windows/⌘ key = Command (on the Plus, Ctrl also acts as Command).
+      Disk writes stay in memory; use “Download” on a disk to save the modified image. Settings can be given in the URL:
+      <code>?machine=se&amp;ram=4&amp;cpu=68000&amp;disk=../images/PlusOS.hda&amp;speed=1&amp;autostart=1&amp;embed=1</code>
+    </div>
+  </div>
+</div>
+<input id="softkbd" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" aria-hidden="true">
+<script type="module" src="js/ui/main.js"></script>
+</body>
+</html>

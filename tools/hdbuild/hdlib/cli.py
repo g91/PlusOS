@@ -53,6 +53,11 @@ def _image_args(p, staged=False):
                         "(FILE.json metadata from extract-driver is used if present)")
     g.add_argument("--driver-type", help="partition type of the driver (default Apple_Driver43)")
     g.add_argument("--driver-bootargs", metavar="HEX", help="boot-args bytes after pmProcessor")
+    g.add_argument("--driver-from", metavar="DIR_OR_IMAGE",
+                   help="auto-source an Apple SCSI driver: if an image, extract its driver; if a "
+                        "directory (e.g. a BlueSCSI SD card), scan its *.hda for the first one that "
+                        "has a driver and reuse it. Lets the image boot on real hardware without "
+                        "naming a driver file. Ignored if --driver or --from-template is given.")
     g.add_argument("--from-template", metavar="IMAGE",
                    help="copy DDR, partition map and driver partition from a working disk image and "
                         "rebuild only its Apple_HFS partition")
@@ -126,10 +131,69 @@ def cmd_stage(a):
 
 
 def cmd_image(a):
+    _resolve_driver_from(a)
     return _do_image(a, a.root or os.path.join(stage_mod.repo_root(), "build", "disk_root"))
 
 
+def _image_has_driver(path):
+    """Return True if `path` is a disk image with an Apple_Driver partition."""
+    try:
+        with image.Opened(path) as img:
+            return bool(img.apm and apm.find_driver(img.apm))
+    except Exception:
+        return False
+
+
+def _resolve_driver_from(a):
+    """Honour --driver-from: turn a directory or image into a concrete driver source.
+    Sets a.from_template (reuse an image's DDR/map/driver) unless --driver / --from-template
+    already chose one. Scans a directory (e.g. a BlueSCSI SD card) for the first *.hda that
+    carries a driver, preferring larger/newer system disks over PlusOS's own output."""
+    src = getattr(a, "driver_from", None)
+    if not src or getattr(a, "driver", None) or getattr(a, "from_template", None):
+        return
+    # a bare Windows drive letter ("F:" or "F:\") means that drive's root directory
+    if len(src) == 2 and src[1] == ":":
+        src = src + os.sep
+    if os.path.isdir(src):
+        cands = []
+        for name in os.listdir(src):
+            if not name.lower().endswith((".hda", ".img", ".dsk")):
+                continue
+            p = os.path.join(src, name)
+            # skip the PlusOS image we are about to (re)write and tiny network stubs
+            if "plusos" in name.lower():
+                continue
+            try:
+                sz = os.path.getsize(p)
+            except OSError:
+                continue
+            if sz < 2 * 1024 * 1024:
+                continue
+            if _image_has_driver(p):
+                cands.append((sz, p))
+        if not cands:
+            raise CliError("--driver-from %s: no disk image with an Apple SCSI driver found there "
+                           "(put a bootable Mac OS .hda on the card, or use --driver / --from-template)" % src)
+        # prefer the largest driver-bearing system disk (most likely a full Mac OS install)
+        cands.sort()
+        chosen = cands[-1][1]
+        print("  driver: auto-sourced from %s" % chosen)
+        a.from_template = chosen
+    elif os.path.isfile(src):
+        if _image_has_driver(src):
+            print("  driver: using template image %s" % src)
+            a.from_template = src
+        else:
+            # treat it as a raw driver blob
+            print("  driver: using blob %s" % src)
+            a.driver = src
+    else:
+        raise CliError("--driver-from %s: not a file or directory" % src)
+
+
 def cmd_build(a):
+    _resolve_driver_from(a)
     root = _do_stage(a)
     return _do_image(a, root, staged=True)
 

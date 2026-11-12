@@ -19,6 +19,8 @@ export class SCSIDisk {
     this.vendor = (opts.vendor || 'PLUSOS').padEnd(8).slice(0, 8);
     this.product = (opts.product || 'VIRTUAL DISK').padEnd(16).slice(0, 16);
     this.sense = [0, 0, 0];           // key, asc, ascq
+    this.log = [];                    // opcodes of the commands received (most recent 64)
+    this.commands = 0;
   }
 
   cdbLength(op) { const g = op >> 5; return g === 0 ? 6 : g === 5 ? 12 : 10; }
@@ -26,6 +28,7 @@ export class SCSIDisk {
   // Execute a command. Returns { status, dataIn?: Uint8Array, dataOutLen?: number, done?(data) }.
   command(cdb) {
     const op = cdb[0];
+    this.commands++; this.log.push(op); if (this.log.length > 64) this.log.shift();
     const good = () => { if (op !== 0x03) this.sense = [0, 0, 0]; return { status: 0 }; };
     const fail = (key, asc) => { this.sense = [key, asc, 0]; return { status: 2 }; };
     switch (op) {
@@ -153,7 +156,9 @@ export class NCR5380 {
     return this.target && (this.phase & 1) ? this.tData : 0;
   }
   phaseMatch() { return !this.target || this.stage === 'selected' || (this.tcr & 7) === this.phase; }
-  drq() { return this.dma && this.req && this.phaseMatch(); }
+  // DRQ follows REQ while DMA mode is active, also after the target has changed phase (the Plus ROM
+  // waits for it after the last byte of a blind write); the transfer itself needs a matching phase.
+  drq() { return this.dma && this.req; }
 
   read(reg, dack) {
     if (dack) return this.dmaRead();
@@ -237,13 +242,13 @@ export class NCR5380 {
 
   // pseudo-DMA: one access = one complete handshake
   dmaRead() {
-    if (!this.target || !this.req || !(this.phase & 1)) return 0;
+    if (!this.target || !this.req || !(this.phase & 1) || (this.tcr & 7) !== this.phase) return 0;
     const v = this.tData;
     this.handshake(0);
     return v;
   }
   dmaWrite(v) {
-    if (!this.target || !this.req || (this.phase & 1)) return;
+    if (!this.target || !this.req || (this.phase & 1) || (this.tcr & 7) !== this.phase) return;
     this.handshake(v);
   }
 }

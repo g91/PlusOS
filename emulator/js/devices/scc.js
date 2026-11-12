@@ -8,7 +8,7 @@
 class Channel {
   constructor() { this.wr = new Uint8Array(16); this.dcd = 0; this.reset(); }
   reset() { this.wr.fill(0); this.ptr = 0; this.latched = false; this.rr0Latch = 0; this.extIP = false; }
-  rr0() { return 0x04 | 0x40 | (this.dcd ? 0x08 : 0); }       // tx buffer empty, tx underrun/EOM, DCD
+  rr0() { return 0x04 | 0x10 | 0x40 | (this.dcd ? 0x08 : 0); }       // tx buffer empty, sync/hunt (idle line), tx underrun/EOM, DCD
 }
 
 export class SCC8530 {

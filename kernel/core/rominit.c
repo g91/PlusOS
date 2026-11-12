@@ -25,23 +25,29 @@ static void init_heap(void)
 {
     step("heap (SetApplBase)");
     uint32_t sysz = LM_LONG(0x2A6);                     /* SysZone */
+    uint32_t cur_appl = LM_LONG(0x2AA);                 /* ApplZone */
     uint32_t stack_bottom = __plusos_load_addr - KERNEL_STACK;
     uint32_t base = (sysz + SYS_HEAP_SIZE + 15) & ~15UL;
+    if (cur_appl > sysz && cur_appl + 0x18000 < stack_bottom) {
+        uint32_t grown = (cur_appl + 0x8000 + 15) & ~15UL;
+        if (grown > base) base = grown;
+    }
     if (base + 0x10000 >= stack_bottom) {
         printf("skipped: not enough RAM\n");
         return;
     }
-    plusrom_set_appl_base((void *)base);                /* also resets ApplLimit to its default */
-    LM_LONG(0x130) = stack_bottom - 0x400;              /* ApplLimit: the heap must stop below our
-                                                           stack and image (set AFTER SetApplBase) */
+    LM_LONG(0x130) = stack_bottom - 0x400;              /* Ensure ApplLimit is above base before SetApplBase */
+    int16_t err = plusrom_set_appl_base((void *)base);  /* Also resets ApplLimit to its default */
+    LM_LONG(0x130) = stack_bottom - 0x400;              /* Re-clamp ApplLimit below our stack and image */
     LM_LONG(0x118) = LM_LONG(0x2A6);                    /* TheZone = SysZone for the next steps */
-    if (LM_LONG(0x2AA) != base) {                       /* ApplZone */
-        printf("FAILED (ApplZone %08lx)\n", (unsigned long)LM_LONG(0x2AA));
+    uint32_t final_appl = LM_LONG(0x2AA);
+    if (final_appl <= sysz || final_appl + 0x10000 >= stack_bottom) {
+        printf("FAILED (ApplZone %08lx, err %d)\n", (unsigned long)final_appl, (int)err);
         return;
     }
     g_flags |= PLUSOS_HAVE_HEAP;
-    printf("ok  system %luK, apps %06lx-%06lx\n", (unsigned long)((base - sysz) >> 10),
-           (unsigned long)base, (unsigned long)LM_LONG(0x130));
+    printf("ok  system %luK, apps %06lx-%06lx\n", (unsigned long)((final_appl - sysz) >> 10),
+           (unsigned long)final_appl, (unsigned long)LM_LONG(0x130));
 }
 
 static void init_events(void)

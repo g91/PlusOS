@@ -1,0 +1,198 @@
+# Makefile.p68 - build ALL of PlusOS natively on Windows with the P68 toolchain.
+#
+#   ..\toolchain\bin\p68-make.exe -f Makefile.p68 [MACHINE=se] [target]
+# or simply:  make.cmd            (the one-click Windows front-end)
+#
+# No WSL, no Linux, no GNU tools: p68-cc (compiler + assembler), p68-ld, p68-ar, and
+# tools\hdbuild (pure Python) build the kernel, the two SDK libraries, every app, and
+# the bootable hard-drive image.  Optimised with -Os and section GC.
+#
+# Targets:  all (default)  sdks  kernel  apps  rt  image  floppy  clean
+# ---------------------------------------------------------------------------
+
+TC      := toolchain
+BIN     := $(TC)/bin
+CC      := $(BIN)/p68-cc.exe
+LD      := $(BIN)/p68-ld.exe
+AR      := $(BIN)/p68-ar.exe
+PY      ?= python
+HDBUILD := $(PY) tools/hdbuild/hdbuild.py
+
+OUT     := build_p68
+MACHINE ?= se
+
+# ---- target machine flags (mirror config.mk: arch, machine defines, framebuffer) ----
+#   ARCH = CPU flag (-m68000 for compact Macs, -m68030 for the LC III)
+#   FBDEF = default screen geometry for that machine
+ifeq ($(MACHINE),plus)
+  ARCH  := -m68000
+  MDEF  := -DTARGET_MACPLUS -DPLUSOS_MACHINE_PLUS
+  FBDEF := -DFB_DEFAULT_WIDTH=512 -DFB_DEFAULT_HEIGHT=342 -DFB_DEFAULT_ROWBYTES=64
+else ifeq ($(MACHINE),classic)
+  ARCH  := -m68000
+  MDEF  := -DTARGET_MACCLASSIC -DPLUSOS_MACHINE_CLASSIC
+  FBDEF := -DFB_DEFAULT_WIDTH=512 -DFB_DEFAULT_HEIGHT=342 -DFB_DEFAULT_ROWBYTES=64
+else ifeq ($(MACHINE),lc3)
+  ARCH  := -m68030
+  MDEF  := -DTARGET_MACLC3 -DPLUSOS_MACHINE_LC3
+  FBDEF := -DFB_DEFAULT_WIDTH=640 -DFB_DEFAULT_HEIGHT=480 -DFB_DEFAULT_ROWBYTES=80
+else ifeq ($(MACHINE),universal)
+  ARCH  := -m68000
+  MDEF  := -DTARGET_UNIVERSAL -DPLUSOS_MACHINE_UNIVERSAL
+  FBDEF := -DFB_DEFAULT_WIDTH=512 -DFB_DEFAULT_HEIGHT=342 -DFB_DEFAULT_ROWBYTES=64
+else
+  ARCH  := -m68000
+  MDEF  := -DTARGET_MACSE -DPLUSOS_MACHINE_SE
+  FBDEF := -DFB_DEFAULT_WIDTH=512 -DFB_DEFAULT_HEIGHT=342 -DFB_DEFAULT_ROWBYTES=64
+endif
+MDEF += $(FBDEF)
+
+# The kernel and apps are built with the machine's CPU arch; apps stay -m68000 so one
+# app binary runs everywhere (the LC III runs 68000 user code fine), but the KERNEL uses
+# $(ARCH) so the LC III gets 68030 cache handling and its boot path.
+CFLAGS  := -m68000 -Os -ffunction-sections -fdata-sections -w
+GFXFLAGS := -m68000 -O2 -ffunction-sections -fdata-sections -w
+KARCH   := $(ARCH)
+
+SP := sdks/macplus
+SS := sdks/macse
+
+# ---- runtime library (libp68rt.a) -----------------------------------------
+RT_OBJ := $(OUT)/rt/lmath.o $(OUT)/rt/int64.o $(OUT)/rt/softfloat.o
+$(OUT)/rt/lmath.o: $(TC)/rt/lmath.S
+	@echo CC   $<
+	@$(CC) -m68000 -c $< -o $@
+$(OUT)/rt/int64.o: $(TC)/rt/int64.c
+	@echo CC   $<
+	@$(CC) -m68000 -O2 -ffunction-sections -c $< -o $@
+$(OUT)/rt/softfloat.o: $(TC)/rt/softfloat.c
+	@echo CC   $<
+	@$(CC) -m68000 -O2 -ffunction-sections -c $< -o $@
+$(OUT)/rt/libp68rt.a: $(RT_OBJ)
+	@$(AR) rcs $@ $(RT_OBJ)
+rt: $(OUT)/rt/libp68rt.a
+
+# ---- SDK library builders -------------------------------------------------
+# $(call sdklib, SDKDIR, ROMPREFIX, OUTDIR)
+define SDK_template
+$(3)_INC := -I$(1)/include/libc -I$(1)/include
+$(3)_LIBC  := $$(patsubst %,$(2)/obj/%.o,$$(wildcard $(1)/src/libc/*.c $(1)/src/libc/*.S))
+$(3)_ROM   := $$(patsubst %,$(2)/obj/%.o,$$(wildcard $(1)/src/$(4)/*.c $(1)/src/$(4)/glue/*.c))
+$(3)_OS    := $$(patsubst %,$(2)/obj/%.o,$(1)/src/runtime/rt_common.c $(1)/src/runtime/font8x8.c)
+$(3)_RTAPP := $$(patsubst %,$(2)/obj/%.o,$(1)/src/runtime/rt_app.c $(1)/src/runtime/thread.c)
+$(3)_GFX   := $$(patsubst %,$(2)/obj/%.o,$$(wildcard $(1)/src/gfx/*.c $(1)/src/gfx/*.S))
+$(3)_NET   := $$(patsubst %,$(2)/obj/%.o,$$(wildcard $(1)/src/net/*.c))
+
+$(2)/obj/$(1)/src/gfx/%.o: $(1)/src/gfx/%
+	@echo CC   $$<
+	@$(CC) $(GFXFLAGS) $$($(3)_INC) -c $$< -o $$@
+$(2)/obj/$(1)/%.o: $(1)/%
+	@echo CC   $$<
+	@$(CC) $(CFLAGS) $$($(3)_INC) -c $$< -o $$@
+
+$(2)/lib/libc.a: $$($(3)_LIBC)
+	@$(AR) rcs $$@ $$^
+$(2)/lib/lib$(4).a: $$($(3)_ROM)
+	@$(AR) rcs $$@ $$^
+$(2)/lib/libplusos.a: $$($(3)_OS)
+	@$(AR) rcs $$@ $$^
+$(2)/lib/librt_app.a: $$($(3)_RTAPP)
+	@$(AR) rcs $$@ $$^
+$(2)/lib/libplusgfx.a: $$($(3)_GFX)
+	@$(AR) rcs $$@ $$^
+$(2)/lib/libplusnet.a: $$($(3)_NET)
+	@$(AR) rcs $$@ $$^
+$(2)/lib/crt0_app.o: $(1)/src/runtime/crt0.S
+	@echo CC   $$<
+	@$(CC) -m68000 $$($(3)_INC) -c $$< -o $$@
+$(2)/lib/crt0_kernel.o: $(1)/src/runtime/crt0.S
+	@echo CC   $$< '(kernel)'
+	@$(CC) -m68000 $$($(3)_INC) -DPLUSOS_KERNEL -c $$< -o $$@
+
+$(3)_LIBS := $(2)/lib/libc.a $(2)/lib/lib$(4).a $(2)/lib/libplusos.a $(2)/lib/librt_app.a \
+             $(2)/lib/libplusgfx.a $(2)/lib/libplusnet.a $(2)/lib/crt0_app.o $(2)/lib/crt0_kernel.o
+endef
+
+$(eval $(call SDK_template,$(SP),$(OUT)/sdk_macplus,PLUS,plusrom))
+$(eval $(call SDK_template,$(SS),$(OUT)/sdk_macse,SE,serom))
+
+SPL := $(OUT)/sdk_macplus
+SSL := $(OUT)/sdk_macse
+sdks: $(PLUS_LIBS) $(SE_LIBS) $(OUT)/rt/libp68rt.a
+
+# ---- kernel ---------------------------------------------------------------
+KINC := -I$(SP)/include/libc -I$(SP)/include -Ikernel -Ikernel/core -Ikernel/cpu -Ikernel/proc \
+        -Ikernel/drivers -Ikernel/drivers/video -Ikernel/drivers/input -Ikernel/drivers/sound \
+        -Ikernel/services -idirafter $(SS)/include
+KSRC := $(wildcard kernel/*.c kernel/*.S kernel/*/*.c kernel/*/*.S kernel/*/*/*.c kernel/*/*/*.S)
+KOBJ := $(patsubst %,$(OUT)/%.o,$(KSRC))
+
+# Machine stamp: kernel objects are machine-specific (different -m680x0 / -DPLUSOS_MACHINE_*),
+# but the file timestamps do not change when MACHINE does. This stamp's NAME encodes the
+# machine; when MACHINE changes, the old stamp is removed and the new one is newer than every
+# kernel object, forcing the kernel and loader to rebuild with the right flags.
+MSTAMP := $(OUT)/.machine.$(MACHINE)
+$(MSTAMP):
+	@$(PY) -c "import os,glob,sys; d='$(OUT)'; os.makedirs(d,exist_ok=True); [os.remove(f) for f in glob.glob(d+'/.machine.*')]; open('$(MSTAMP)','w').close()"
+
+# KCFLAGS = kernel compile flags with the machine's CPU arch ($(KARCH) overrides -m68000).
+KCFLAGS := $(KARCH) -Os -ffunction-sections -fdata-sections -w
+$(OUT)/kernel/%.c.o: kernel/%.c $(MSTAMP)
+	@echo CC   $< ($(MACHINE))
+	@$(CC) $(KCFLAGS) $(MDEF) $(KINC) -c $< -o $@
+$(OUT)/kernel/%.S.o: kernel/%.S $(MSTAMP)
+	@echo AS   $< ($(MACHINE))
+	@$(CC) $(KCFLAGS) $(MDEF) $(KINC) -c $< -o $@
+
+$(OUT)/kernel/kernel.pex: $(KOBJ) sdks
+	@echo LD   $@
+	@$(LD) -T $(SP)/ld/plusos.ld --gc-sections -Map=$(OUT)/kernel/kernel.map --name PLUSOS -o $@ \
+	    $(SPL)/lib/crt0_kernel.o $(KOBJ) --start-group $(SPL)/lib/libplusos.a $(SPL)/lib/libplusrom.a \
+	    $(SPL)/lib/libc.a $(OUT)/rt/libp68rt.a $(SSL)/lib/libserom.a --end-group
+kernel: $(OUT)/kernel/kernel.pex
+
+# ---- boot block -----------------------------------------------------------
+$(OUT)/boot/loader.bin: boot/loader.S $(MSTAMP)
+	@echo CC   $< ($(MACHINE))
+	@$(CC) $(KARCH) $(MDEF) -DKERNEL_OFFSET="(60000*512)" -DKERNEL_BYTES="(512*512)" -c $< -o $(OUT)/boot/loader.o
+	@$(LD) --oformat binary -Ttext 0 -o $@ $(OUT)/boot/loader.o
+loader: $(OUT)/boot/loader.bin
+
+all: kernel loader apps
+	@echo PlusOS built with the P68 toolchain (MACHINE=$(MACHINE)).
+
+# ---- apps -----------------------------------------------------------------
+# Apps are built by the companion recipe in make_apps (p68-make keeps this file readable;
+# the app list is large and uniform, so a helper script compiles and links them).
+apps: sdks
+	@$(PY) $(TC)/mk_apps.py --out $(OUT) --cc $(CC) --ld $(LD)
+
+# ---- hard-drive image -----------------------------------------------------
+# OUTIMG overrides the output path (Disk Studio passes the chosen .hda or a BlueSCSI SD card).
+# DRIVER embeds an Apple SCSI driver so the image BOOTS ON REAL HARDWARE / BlueSCSI:
+#   DRIVER=F:\            scan a BlueSCSI SD card for a bootable Mac OS .hda and reuse its driver
+#   DRIVER=path\to.hda    reuse that image's driver
+#   DRIVER=path\to.drv    use a driver blob (from `hdbuild.py extract-driver`)
+# Without DRIVER the image is emulator-only (the Mac ROM will skip it on real SCSI).
+OUTIMG    ?= images/PlusOS_p68.hda
+FLOPPYIMG ?= images/PlusOS_Floppy.dsk
+DRIVER    ?=
+_DRVFLAG   = $(if $(DRIVER),--driver-from $(DRIVER),)
+image: all
+	@$(HDBUILD) build --build $(OUT) --root $(OUT)/disk_root \
+	    --loader $(OUT)/boot/loader.bin --kernel $(OUT)/kernel/kernel.pex \
+	    $(_DRVFLAG) --size 64M --out "$(OUTIMG)"
+	@echo Hard drive image: $(OUTIMG)
+
+floppy: all
+	@$(CC) -m68000 $(MDEF) -DKERNEL_OFFSET="(100*512)" -DKERNEL_BYTES="(512*512)" -c boot/loader.S -o $(OUT)/boot/loader_floppy.o
+	@$(LD) --oformat binary -Ttext 0 -o $(OUT)/boot/loader_floppy.bin $(OUT)/boot/loader_floppy.o
+	@$(HDBUILD) build --preset floppy1440 --build $(OUT) --kernel-block 100 --kernel-blocks 512 \
+	    --loader $(OUT)/boot/loader_floppy.bin --kernel $(OUT)/kernel/kernel.pex --out "$(FLOPPYIMG)"
+	@echo Floppy image: $(FLOPPYIMG)
+
+clean:
+	@echo cleaning $(OUT)
+	@$(PY) -c "import shutil,sys; shutil.rmtree('$(OUT)', ignore_errors=True)"
+
+.PHONY: all sdks kernel loader apps rt image floppy clean

@@ -1,0 +1,8 @@
+== apps/tools/kill/kill.c
+apps/tools/kill/kill.c:13: error: use of undeclared identifier 'SIGHUP' (near 'SIGHUP')
+== apps/tools/nohup/nohup.c
+apps/tools/nohup/nohup.c:10: error: use of undeclared identifier 'SIGHUP' (near 'SIGHUP')
+== apps/tools/timeout/timeout.c
+apps/tools/timeout/timeout.c:34: error: use of undeclared identifier 'SIGTERM' (near 'SIGTERM')
+== sdks/macplus/src/libc/posix.c
+sdks/macplus/src/libc/posix.c:1173: error: expected ';' (near 'g_sighandlers')

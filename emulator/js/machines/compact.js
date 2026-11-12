@@ -35,6 +35,9 @@ export class CompactMac {
     if (!opts.rom) throw new Error('no ROM image');
     let romLen = 1; while (romLen < opts.rom.length) romLen <<= 1;
     this.romMask = romLen - 1;
+    // The ROM is decoded in $400000-$43FFFF (mirrored inside); above that the bus floats. The Plus ROM
+    // relies on this: it detects SCSI hardware by comparing $420000 with $440000.
+    this.romEnd = 0x400000 + Math.max(0x40000, romLen);
     this.rom = new Uint8Array(romLen + 8);
     this.rom.set(opts.rom);
     this.romPatched = -1;
@@ -48,7 +51,7 @@ export class CompactMac {
     this.nextSecond = this.cyclesPerSecond;
     this.irqVia = false; this.irqScc = false; this.nmiSwitch = false;
     this.portA = 0xFF; this.portB = 0xFF;
-    this.mouseDX = 0; this.mouseDY = 0; this.mouseDown = false; this.x2 = 0; this.y2 = 0; this.mouseTimer = false;
+    this.mouseDX = 0; this.mouseDY = 0; this.mouseDown = false; this.x2 = 0; this.y2 = 0; this.mouseTimer = false; this.absWait = 0;
     this.sound = new Uint8Array(LINES_PER_FRAME);
     this.soundOn = false; this.soundVolume = 7;
     this.images = [];                 // attached disk images { bytes, name, info, mode, dirty }
@@ -228,19 +231,26 @@ export class CompactMac {
   }
   // Absolute pointing: steer the guest cursor (low-memory RawMouse/MTemp) towards a screen position.
   mouseTo(x, y) {
+    // Absolute pointing cannot be expressed with a relative mouse, so this is the one place where
+    // the emulator writes guest memory: MTemp ($828) and RawMouse ($82C) get the new position and
+    // CrsrNew ($8CE) is set from CrsrCouple ($8CF), which is what the ROM's own mouse handlers do.
+    if (this.overlay) return;
     const r = this.ram;
-    const gy = (r[0x828] << 8 | r[0x829]) << 16 >> 16, gx = (r[0x82A] << 8 | r[0x82B]) << 16 >> 16;
-    const dx = x - gx, dy = y - gy;
-    if (this.isSE) { this.input.mouseSet(dx, dy); return; }
-    this.mouseDX = dx; this.mouseDY = dy;
-    if (dx || dy) this.kickMouse();
+    x = Math.max(0, Math.min(511, x | 0)); y = Math.max(0, Math.min(341, y | 0));
+    if (((r[0x832] << 8) | r[0x833]) === x && ((r[0x830] << 8) | r[0x831]) === y) return;     // Mouse already there
+    for (const a of [0x828, 0x82C]) { r[a] = y >> 8; r[a + 1] = y; r[a + 2] = x >> 8; r[a + 3] = x; }
+    // leave RawMouse one pixel short so the cursor task sees a (unscaled) movement and updates Mouse
+    const x0 = x > 0 ? x - 1 : 1;
+    r[0x82E] = x0 >> 8; r[0x82F] = x0;
+    r[0x8CE] = r[0x8CF];
   }
 
   // ---- bus -------------------------------------------------------------------------------------
   read8(a) {
     a &= 0xFFFFFF;
     if (a < 0x400000) return this.overlay ? this.rom[a & this.romMask] : this.ram[a & this.ramMask];
-    if (a < 0x580000) { if (this.overlay && this.isSE) this.overlay = false; return this.rom[a & this.romMask]; }
+    if (a < this.romEnd) { if (this.overlay && this.isSE) this.overlay = false; return this.rom[a & this.romMask]; }
+    if (a < 0x580000) return 0xFF;
     return this.ioRead8(a);
   }
   read16(a) {
@@ -249,7 +259,8 @@ export class CompactMac {
       if (!this.overlay) { a &= this.ramMask; return (this.ram[a] << 8) | this.ram[a + 1]; }
       a &= this.romMask; return (this.rom[a] << 8) | this.rom[a + 1];
     }
-    if (a < 0x580000) { if (this.overlay && this.isSE) this.overlay = false; a &= this.romMask; return (this.rom[a] << 8) | this.rom[a + 1]; }
+    if (a < this.romEnd) { if (this.overlay && this.isSE) this.overlay = false; a &= this.romMask; return (this.rom[a] << 8) | this.rom[a + 1]; }
+    if (a < 0x580000) return 0xFFFF;
     return this.ioRead16(a);
   }
   read32(a) {

@@ -39,6 +39,7 @@
         .equ    ioTrap, 6
         .equ    dCtlRefNum, 24
         .equ    JIODone, 0x08FC
+        .equ    SonyVars, 0x0134
 
         .text
 hdr:    .word   0x6F00                  | dNeedLock, dNeedTime, status/control/write/read enable
@@ -63,6 +64,17 @@ open:   movem.l %d3-%d4/%a2-%a3,-(%sp)
         move.l  %a1,PV_DCE(%a2)
         moveq   #1,%d0
         move.l  %d0,PV_CMD(%a2)
+        | Classic System software patches the ROM floppy driver in place and expects what its Open
+        | leaves behind: the variable block SonyVars (784 bytes, low memory $0134) and the driver's
+        | Time Manager task at SonyVars+280 at the head of the Time Manager queue. Provide both; the
+        | task is never primed and its routine does nothing.
+        move.l  #784,%d0
+        .short  0xA71E                  | _NewPtr ,SYS,CLEAR
+        move.l  %a0,SonyVars
+        lea     280(%a0),%a0
+        lea     idle(%pc),%a1
+        move.l  %a1,6(%a0)              | tmAddr
+        .short  0xA058                  | _InsTime
         moveq   #0,%d3
 1:      move.l  %d3,PV_INDEX(%a2)
         move.l  PV_DRIVE(%a2),%d4       | drive number, 0 = no more drives
@@ -80,6 +92,8 @@ open:   movem.l %d3-%d4/%a2-%a3,-(%sp)
 2:      movem.l (%sp)+,%d3-%d4/%a2-%a3
         moveq   #0,%d0
         rts
+
+idle:   rts
 
 close:  moveq   #-24,%d0                | closErr: this driver cannot be closed
         rts

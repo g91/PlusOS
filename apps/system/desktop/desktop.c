@@ -24,7 +24,7 @@ Window *z[MAX_WIN];
 int     nwin;
 
 Menu menus[NMENUS] = {
-    { "PlusOS",  { "About PlusOS", "System Info", "Software Center", "Calculator", "Note Pad", "Puzzle", "Task Manager", "Settings..." }, 8 },
+    { "PlusOS",  { "About PlusOS", "System Info", "Software Center", "Calculator", "TextEdit", "Puzzle", "Task Manager", "Settings..." }, 8 },
     { "File",    { "Open", "Open in Hex Editor", "Programs", "-", "Quit Desktop" }, 5 },
     { "Edit",    { "Copy", "Paste", "Duplicate", "Rename...", "-", "Delete" }, 6 },
     { "View",    { "Clean Up Icons", "-", "Theme Wallpaper", "Matrix Wallpaper" }, 4 },
@@ -394,7 +394,7 @@ void click(int mx, int my)
             int cx = mx - w->x - APP_PADX, cy = my - w->y - APP_TOP;
             if (cx >= 0 && cy >= 0 && cx < w->app_w && cy < w->app_h) {
                 post_ev(w->app_id, PLUSOS_EV_MOUSEDOWN, cx, cy, 0);
-                while (mouse_down()) nap(1);
+                while (mouse_down()) { sync_apps(); nap(1); }
                 post_ev(w->app_id, PLUSOS_EV_MOUSEUP, mouse_x() - w->x - APP_PADX, mouse_y() - w->y - APP_TOP, 0);
             }
             return;
