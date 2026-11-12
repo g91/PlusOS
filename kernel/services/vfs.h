@@ -19,6 +19,11 @@ int  vfs_fd_write(int fd, const void *buf, int32_t count);
 int  vfs_fd_dup_to_child(int parent_fd);
 int  vfs_pipe_alloc(int *rfd, int *wfd);
 
+/* Kernel-internal log sink (used by klog to persist /boot.log). vfs_klog_open
+ * returns a raw VFS handle (not a per-process fd); vfs_klog_write appends to it. */
+int  vfs_klog_open(const char *path);
+int  vfs_klog_write(int handle, const void *buf, int32_t count);
+
 int  vfs_normalize_path(const char *in, char *out, int cap, int follow_last_link);
 long vfs_syscall(struct plusos_vfs_args *a);
 

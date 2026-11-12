@@ -8,6 +8,7 @@
 #define KLOG_BUF_SIZE 2048
 
 void klog_init(void);
+void klog_open_file(const char *path);   /* begin persisting to disk (e.g. "/boot.log") */
 void klog_write(int level, const char *msg, int len);
 int  klog_read(char *buf, int max_len, int offset);
 void klog(int level, const char *fmt, ...);

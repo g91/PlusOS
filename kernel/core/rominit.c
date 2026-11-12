@@ -9,6 +9,7 @@
  * Each step prints first, so a hang shows where it happened.
  */
 #include "kernel.h"
+#include "../services/klog.h"
 
 #define SYS_HEAP_SIZE  0x18000          /* system heap: 96 KB (drivers, FCBs, VCBs) */
 
@@ -24,16 +25,36 @@ uint32_t ram_bytes(void) { return LM_LONG(0x108); }      /* MemTop */
 static void init_heap(void)
 {
     step("heap (SetApplBase)");
+    uint32_t memtop = LM_LONG(0x108);                   /* MemTop */
+    uint32_t bufptr = LM_LONG(0x10C);                   /* BufPtr: top of usable RAM below the ROM's buffers */
     uint32_t sysz = LM_LONG(0x2A6);                     /* SysZone */
     uint32_t cur_appl = LM_LONG(0x2AA);                 /* ApplZone */
     uint32_t stack_bottom = __plusos_load_addr - KERNEL_STACK;
+
+    /* The whole memory map, logged before we touch anything - this is the data
+     * needed to diagnose a heap-setup failure on an unfamiliar machine. */
+    klog(PLUSOS_LOG_INFO, "heap: MemTop=%06lx BufPtr=%06lx SysZone=%06lx ApplZone=%06lx",
+         (unsigned long)memtop, (unsigned long)bufptr, (unsigned long)sysz, (unsigned long)cur_appl);
+    klog(PLUSOS_LOG_INFO, "heap: load_addr=%06lx stack_bottom=%06lx (kstack=%lxh)",
+         (unsigned long)__plusos_load_addr, (unsigned long)stack_bottom, (unsigned long)KERNEL_STACK);
+
     uint32_t base = (sysz + SYS_HEAP_SIZE + 15) & ~15UL;
     if (cur_appl > sysz && cur_appl + 0x18000 < stack_bottom) {
         uint32_t grown = (cur_appl + 0x8000 + 15) & ~15UL;
         if (grown > base) base = grown;
     }
+    klog(PLUSOS_LOG_INFO, "heap: requested base=%06lx (need base+64K < stack_bottom=%06lx)",
+         (unsigned long)base, (unsigned long)stack_bottom);
+
     if (base + 0x10000 >= stack_bottom) {
-        printf("skipped: not enough RAM\n");
+        /* No gap between the system heap and the kernel image. Almost always
+         * means the loader placed the kernel too low in RAM for this machine. */
+        printf("skipped: no room (base %06lx, stack %06lx)\n",
+               (unsigned long)base, (unsigned long)stack_bottom);
+        klog(PLUSOS_LOG_ERR, "heap: NO ROOM - base %06lx + 64K >= stack_bottom %06lx; "
+             "kernel loaded too low (load_addr %06lx of %06lx RAM)",
+             (unsigned long)base, (unsigned long)stack_bottom,
+             (unsigned long)__plusos_load_addr, (unsigned long)memtop);
         return;
     }
     LM_LONG(0x130) = stack_bottom - 0x400;              /* Ensure ApplLimit is above base before SetApplBase */
@@ -42,12 +63,18 @@ static void init_heap(void)
     LM_LONG(0x118) = LM_LONG(0x2A6);                    /* TheZone = SysZone for the next steps */
     uint32_t final_appl = LM_LONG(0x2AA);
     if (final_appl <= sysz || final_appl + 0x10000 >= stack_bottom) {
-        printf("FAILED (ApplZone %08lx, err %d)\n", (unsigned long)final_appl, (int)err);
+        printf("FAILED (ApplZone %06lx, err %d)\n", (unsigned long)final_appl, (int)err);
+        klog(PLUSOS_LOG_ERR, "heap: SetApplBase($A057) FAILED err=%d ApplZone=%06lx "
+             "(wanted >%06lx and +64K<%06lx); _SetApplBase may be unsupported on this ROM",
+             (int)err, (unsigned long)final_appl, (unsigned long)sysz, (unsigned long)stack_bottom);
         return;
     }
     g_flags |= PLUSOS_HAVE_HEAP;
     printf("ok  system %luK, apps %06lx-%06lx\n", (unsigned long)((final_appl - sysz) >> 10),
            (unsigned long)final_appl, (unsigned long)LM_LONG(0x130));
+    klog(PLUSOS_LOG_INFO, "heap: ok system %luK apps %06lx-%06lx",
+         (unsigned long)((final_appl - sysz) >> 10), (unsigned long)final_appl,
+         (unsigned long)LM_LONG(0x130));
 }
 
 static void init_events(void)

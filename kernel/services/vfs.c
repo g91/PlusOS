@@ -516,6 +516,44 @@ int vfs_fd_write(int fd, const void *buf, int32_t count)
     }
 }
 
+/* ---- kernel-internal log sink -------------------------------------------------
+ * The kernel event logger (klog) needs to persist /boot.log without owning a
+ * per-process fd. These helpers open the file and return the raw VFS *handle*
+ * (an index into g_files), which vfs_fd_write() accepts directly when there is
+ * no proc_current mapping. The handle outlives any single process and is only
+ * touched from klog, which serializes its own access. */
+int vfs_klog_open(const char *path)
+{
+    if (!path || !path[0]) return -22;
+    /* Open for write, create if missing, truncate so each boot starts fresh. */
+    int fd = vfs_open_path(path, PLUSOS_O_WRONLY | PLUSOS_O_CREAT | PLUSOS_O_TRUNC, 0644);
+    if (fd < 0) return fd;
+    /* vfs_open_path registered the handle in proc_current->fds[fd]; detach the
+     * fd slot and hand back the bare handle so it is not closed on proc exit. */
+    int h = fd;
+    if (proc_current && fd >= 0 && fd < MAX_PROC_FDS) {
+        h = proc_current->fds[fd];
+        proc_current->fds[fd] = -1;
+    }
+    return h;
+}
+
+int vfs_klog_write(int handle, const void *buf, int32_t count)
+{
+    if (!buf || count <= 0) return -22;
+    if (handle < 0 || handle >= MAX_VFS_FILES) return -9;
+    VFSFile *f = &g_files[handle];
+    if (f->type != VF_HFS || !f->hfs_ref) return -9;
+    /* Always append at EOF so the log grows monotonically regardless of pos. */
+    LONGINT eof = 0;
+    if (GetEOF(f->hfs_ref, &eof) == 0) f->pos = (int32_t)eof;
+    if (SetFPos(f->hfs_ref, 1, f->pos) != 0) return -5;
+    LONGINT n = count;
+    OSErr e = FSWrite(f->hfs_ref, &n, buf);
+    if (n > 0) f->pos += (int32_t)n;
+    return (e == 0) ? (int)n : -28;
+}
+
 int vfs_pipe_alloc(int *rfd, int *wfd)
 {
     int pr = -1, pw = -1;

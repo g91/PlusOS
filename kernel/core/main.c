@@ -48,6 +48,12 @@ static int start_app(const char *name)
 static void init_task(void *arg)
 {
     (void)arg;
+    /* The root filesystem is mounted by now (VFS came up in KSTAGE_SERVICES),
+     * so start persisting the kernel log to disk. This back-fills everything
+     * logged during early boot (held in the RAM ring) into /boot.log and tees
+     * every subsequent klog line, so a full boot record survives a reboot. */
+    klog_open_file("/boot.log");
+
     /* Before the first user program runs, make sure there is a user to run it
      * as: if /etc/passwd is absent, walk the first-run wizard; then prompt for
      * login. Both are skipped automatically once accounts exist and one has
@@ -112,17 +118,25 @@ __attribute__((noreturn)) void __plusos_kernel_start(void)
     modules_register();
     int bad = 0;
     bad += kmod_boot_stage(KSTAGE_MEMORY);
-    bad += kmod_boot_stage(KSTAGE_BASE);
+    bad += kmod_boot_stage(KSTAGE_BASE);        /* klog comes up here; earlier lines aren't logged */
+    klog(PLUSOS_LOG_INFO, "boot: %s on %s (%s), %luK RAM", PLUSOS_VERSION,
+         hw_machine_name(), hw_cpu_name(), (unsigned long)(ram_bytes() >> 10));
     bad += kmod_boot_stage(KSTAGE_DRIVERS);     /* video must be up before the api stage wires it */
     bad += kmod_boot_stage(KSTAGE_SERVICES);
 
     printf("Starting the kernel: scheduler, timer, IPC, syscalls\n");
+    klog(PLUSOS_LOG_INFO, "boot: starting kernel core (scheduler, timer, IPC, syscalls)");
     bad += kmod_boot_stage(KSTAGE_CORE);
-    if (bad)
+    if (bad) {
         printf("  WARNING: %d module(s) did not start (see `lsmod`)\n", bad);
+        klog(PLUSOS_LOG_WARN, "boot: %d module(s) did not start", bad);
+    }
     if (proc_create_kernel("init", init_task, 0) < 0 ||
-        proc_create_kernel("heartbeat", heartbeat_task, 0) < 0)
+        proc_create_kernel("heartbeat", heartbeat_task, 0) < 0) {
         printf("  WARNING: could not create the startup tasks\n");
+        klog(PLUSOS_LOG_WARN, "boot: could not create the startup tasks");
+    }
+    klog(PLUSOS_LOG_INFO, "boot: kernel init complete, entering scheduler");
 
     sched_run();                    /* this context becomes idle; never returns */
 }

@@ -8,6 +8,15 @@ extern uint32_t fake_now;               /* the test's fake 60 Hz clock */
 #include "kernel.h"
 #include "kmodule.h"
 #include "kconfig.h"
+#include "../services/klog.h"
+#endif
+
+/* Boot-stage events are logged to the kernel event log (and thence /boot.log)
+ * as well as printed to the console. The host-side unit test has no klog. */
+#ifdef KMOD_HOST
+#define KMOD_LOG(level, ...) ((void)0)
+#else
+#define KMOD_LOG(level, ...) klog((level), __VA_ARGS__)
 #endif
 
 #ifndef KMOD_NOW
@@ -83,6 +92,7 @@ int kmod_boot_stage(int stage)
         if (missing_dep(m, dep, sizeof dep)) {
             m->state = KMOD_SKIPPED;
             printf("  module %s skipped (needs %s)\n", m->name, dep);
+            KMOD_LOG(4, "module %s skipped (needs %s)", m->name, dep);
             bad++;
             continue;
         }
@@ -97,9 +107,13 @@ int kmod_boot_stage(int stage)
             m->err = (int16_t)rc;
             printf("  module %s FAILED (%d)%s\n", m->name, rc,
                    (m->flags & KMOD_F_ESSENTIAL) ? " - essential!" : "");
+            KMOD_LOG(3, "module %s FAILED (%d)%s", m->name, rc,
+                     (m->flags & KMOD_F_ESSENTIAL) ? " - essential!" : "");
             bad++;
         } else {
             m->state = KMOD_RUNNING;
+            KMOD_LOG(6, "module %s started (%u tick%s)", m->name,
+                     (unsigned)m->init_ticks, m->init_ticks == 1 ? "" : "s");
             if (boot_n < KMOD_MAX) boot_order[boot_n++] = i;
         }
     }

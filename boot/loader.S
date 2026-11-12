@@ -414,10 +414,42 @@ try_first:
         move.w  8(%a0), %d6
 have_drv:
 
-        /* 2. Load address: below BufPtr, reserving 64 KB kernel stack + guard */
-        move.l  0x10C, %d0              /* BufPtr */
-        sub.l   #KERNEL_BYTES + 0x10400, %d0
-        andi.w  #0xFFF0, %d0
+        /* 2. Load address: place the kernel high in RAM, reserving 64 KB stack
+         * + guard below it. We anchor on MemTop, NOT BufPtr: during the boot
+         * block (before the ROM's second-phase memory sizing) BufPtr can still
+         * sit only a few hundred KB above zero even on a machine with many MB of
+         * RAM (seen on the SE/30), which would load the kernel so low the ROM
+         * system heap has no room to grow (SetApplBase then fails). MemTop is
+         * the true top of RAM. We keep a 32 KB margin below MemTop for the ROM's
+         * own globals/buffers, and if BufPtr happens to be valid and lower we
+         * still stay below it. */
+        move.l  0x108, %d0              /* MemTop (top of physical RAM) */
+        move.l  0x10C, %d1             /* BufPtr */
+        /* Prefer BufPtr (top of app RAM, just under the ROM's buffers) ONLY when
+         * it is sane: non-zero and within 1 MB of MemTop. A BufPtr far below
+         * MemTop is the boot-block transient seen on the SE/30 - ignore it and
+         * use MemTop-32K instead. */
+        tst.l   %d1
+        beq.s   use_memtop
+        move.l  %d0, %d2
+        sub.l   %d1, %d2              /* d2 = MemTop - BufPtr */
+        cmpi.l  #0x100000, %d2        /* gap >= 1 MB ? BufPtr is bogus-low */
+        bcc.s   use_memtop
+        move.l  %d1, %d0             /* BufPtr sane: load just below it */
+        bra.s   have_top
+use_memtop:
+        /* Cap the top at 8 MB. The low 8 MB is addressable in both 24- and
+         * 32-bit modes on every 680x0 Mac, so the kernel and its stack are safe
+         * even if the machine is still in 24-bit mode at boot-block time. 8 MB
+         * minus SysZone and the image still leaves megabytes for the heap - far
+         * more than the few hundred KB that was failing. */
+        cmpi.l  #0x800000, %d0        /* MemTop > 8 MB ? */
+        bls.s   1f
+        move.l  #0x800000, %d0       /* clamp to 8 MB */
+1:      sub.l   #0x8000, %d0          /* 32 KB margin under the top for ROM buffers */
+have_top:
+        sub.l   #KERNEL_BYTES + 0x10400, %d0   /* reserve image + 64 KB stack + guard */
+        andi.l  #0xFFFFFFF0, %d0      /* 16-byte align (full 32-bit mask) */
         movea.l %d0, %a4
 
         /* 3. Chunked _Read (<= 16 KB per call) using PC-relative IOParamBlock */
