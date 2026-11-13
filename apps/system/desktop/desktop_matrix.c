@@ -31,8 +31,12 @@ void render_resume(void)
     if (--render_depth <= 0) { render_depth = 0; render_pause_req = 0; }
 }
 
-#define MCOLS 64
-#define MROWS 40
+/* Compile-time maxima (cover up to 640x480: 80 cols x 60 rows of 8x8 cells).
+ * The live grid uses m_cols/m_rows, derived from the real screen at m_init, so
+ * the rain fills the whole display on the LC III, not just a 512x320 corner. */
+#define MCOLS 80
+#define MROWS 60
+static int     m_cols = MCOLS, m_rows = MROWS;         /* active grid for this screen */
 static int     m_head[MCOLS], m_len[MCOLS];
 static uint8_t m_rate[MCOLS], m_cnt[MCOLS];
 static uint8_t m_cover[MROWS][MCOLS];
@@ -44,7 +48,7 @@ static unsigned rnd(void) { rnd_state = rnd_state * 1103515245u + 12345u; return
 
 static void m_reset(int c, int fresh)
 {
-    m_head[c] = fresh ? -(int)(rnd() % MROWS) : -(int)(rnd() % 24);
+    m_head[c] = fresh ? -(int)(rnd() % m_rows) : -(int)(rnd() % 24);
     m_len[c] = 6 + (int)(rnd() % 20);
     m_rate[c] = (uint8_t)(1 + rnd() % 3);
     m_cnt[c] = 0;
@@ -53,10 +57,14 @@ static void m_reset(int c, int fresh)
 void m_init(void)
 {
     if (!wall_s.bits && gs_init(&wall_s, SCREEN_W, SCREEN_H)) { matrix_on = 0; return; }
+    /* Fit the grid to the real screen (8x8 cells below the menu bar), clamped to
+     * the array maxima. */
+    m_cols = SCREEN_W / 8;            if (m_cols > MCOLS) m_cols = MCOLS; if (m_cols < 1) m_cols = 1;
+    m_rows = (SCREEN_H - MENUBAR_H) / 8; if (m_rows > MROWS) m_rows = MROWS; if (m_rows < 1) m_rows = 1;
     memset(wall_s.bits, 0xFF, FB_BYTES);
     memset(m_pend, 0, sizeof m_pend);
     rnd_state ^= now();
-    for (int c = 0; c < MCOLS; c++) m_reset(c, 1);
+    for (int c = 0; c < m_cols; c++) m_reset(c, 1);
 }
 
 void m_cover_update(void)
@@ -100,12 +108,22 @@ static void m_cell(int c, int r, int style)
 
 static int m_mx0, m_mx1, m_my0, m_my1;
 
+/* Dirty scanline band touched since the last present (screen y coordinates).
+ * m_push writes only the 1-bpp back buffer; m_step presents this band once,
+ * which the kernel expands to the hardware depth (fast, table-driven). Writing
+ * straight to a "front" pointer no longer works because on a color display the
+ * live framebuffer is a different depth than the 1-bpp buffer apps draw into. */
+static int m_dirty_t = 0x7FFF, m_dirty_b = -1;
+
 static void m_push(int c, int r)
 {
     if (m_cover[r][c]) return;
     if (c >= m_mx0 && c <= m_mx1 && r >= m_my0 && r <= m_my1) { m_pend[r][c] = 1; return; }
-    int off = (MENUBAR_H + r * 8) * ROWB + c;
-    for (int i = 0; i < 8; i++, off += ROWB) BACK->bits[off] = FRONT->bits[off] = wall_s.bits[off];
+    int y0 = MENUBAR_H + r * 8;
+    int off = y0 * ROWB + c;
+    for (int i = 0; i < 8; i++, off += ROWB) BACK->bits[off] = wall_s.bits[off];
+    if (y0 < m_dirty_t) m_dirty_t = y0;
+    if (y0 + 8 > m_dirty_b) m_dirty_b = y0 + 8;
     m_pend[r][c] = 0;
 }
 
@@ -116,27 +134,37 @@ static void m_step(void)
     int mx = mouse_x(), my = mouse_y();
     m_mx0 = (mx - 6) >> 3; m_mx1 = (mx + 20) >> 3;
     m_my0 = (my - 6 - MENUBAR_H) >> 3; m_my1 = (my + 20 - MENUBAR_H) >> 3;
-    for (int r = 0; r < MROWS; r++)
-        for (int c = 0; c < MCOLS; c++)
+    for (int r = 0; r < m_rows; r++)
+        for (int c = 0; c < m_cols; c++)
             if (m_pend[r][c]) m_push(c, r);
     UNLOCK();
-    for (int c = 0; c < MCOLS; c++) {
+    for (int c = 0; c < m_cols; c++) {
         if (++m_cnt[c] < m_rate[c]) continue;
         m_cnt[c] = 0;
         LOCK();
         int h = m_head[c];
-        if (h >= 0 && h < MROWS) { m_cell(c, h, 1); m_push(c, h); }
+        if (h >= 0 && h < m_rows) { m_cell(c, h, 1); m_push(c, h); }
         h = ++m_head[c];
-        if (h >= 0 && h < MROWS) { m_cell(c, h, 2); m_push(c, h); }
+        if (h >= 0 && h < m_rows) { m_cell(c, h, 2); m_push(c, h); }
         int tail = h - m_len[c];
-        if (tail >= 0 && tail < MROWS) { m_cell(c, tail, 0); m_push(c, tail); }
+        if (tail >= 0 && tail < m_rows) { m_cell(c, tail, 0); m_push(c, tail); }
         if (h > 2 && (rnd() & 7) == 0) {
             int r = h - 1 - (int)(rnd() % (m_len[c] > 1 ? m_len[c] - 1 : 1));
-            if (r >= 0 && r < MROWS && r > tail) { m_cell(c, r, 1); m_push(c, r); }
+            if (r >= 0 && r < m_rows && r > tail) { m_cell(c, r, 1); m_push(c, r); }
         }
-        if (tail >= MROWS) m_reset(c, 0);
+        if (tail >= m_rows) m_reset(c, 0);
         UNLOCK();
     }
+    /* Push everything the matrix changed this step to the screen in one present
+     * (expanded to the native depth by the kernel). */
+    LOCK();
+    if (m_dirty_b > m_dirty_t) {
+        int t = m_dirty_t < 0 ? 0 : m_dirty_t;
+        int b = m_dirty_b > SCREEN_H ? SCREEN_H : m_dirty_b;
+        gfx_present_rows(t, b);
+        m_dirty_t = 0x7FFF; m_dirty_b = -1;
+    }
+    UNLOCK();
 }
 
 void set_wallpaper(int matrix)

@@ -507,6 +507,9 @@ long syscall_dispatch(long num, void *arg)
         return vfs_syscall((struct plusos_vfs_args *)arg);
     case SYS_posix:
         return posix_syscall((struct plusos_posix_args *)arg);
+    case SYS_cacheflush:
+        cache_flush();                               /* privileged I+D flush on the app's behalf */
+        return 0;
     default:
         return -1;
     }

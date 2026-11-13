@@ -68,19 +68,23 @@ void api_init(void)
     a->shutdown = ktrap_shutdown;
     a->run = ktrap_spawn;               /* runs the program as a ring-2 process */
     a->qd = &qd;
-    a->screen = video_front();          /* the live screen */
-    /* Report the live geometry, not a compile-time assumption, so apps built
-     * for "any machine" see the right size on LC III as well as Plus/SE. */
-    a->screen_rowbytes = video_rowbytes();
+    /* PlusOS graphics (desktop, gfx.c) are 1-bpp. The back buffer is 1-bpp and
+     * video_present expands it to the hardware depth. So apps must see the
+     * 1-bpp rowBytes for their off-screen drawing. On a 1-bpp display this is
+     * just the real rowBytes. We also point `screen` at the back buffer (not the
+     * raw color framebuffer): an app that draws to `screen` then presents works,
+     * and nothing draws 1-bpp directly into a color front buffer. */
+    a->screen_rowbytes = video_back_rowbytes();     /* 1-bpp back-buffer stride */
     a->screen_width    = video_width();
     a->screen_height   = video_rows();
     a->boot_vrefnum = g_boot_vref;
     a->font8x8 = plusos_font8x8;
-    a->screen_back = video_back();      /* off-screen buffer for flicker-free drawing */
+    a->screen_back = video_back();      /* off-screen 1-bpp buffer for flicker-free drawing */
+    a->screen      = video_back();      /* draw target == back buffer (expanded on present) */
     a->present = video_present;
     a->present_rect = video_present_rect;
     a->sleep_ticks = ktrap_sleep;
-    a->screen_depth = (int16_t)video_depth();
+    a->screen_depth = 1;                /* what apps draw in; hardware depth hidden by present */
     a->con_cols     = (int16_t)con_cols();
     a->con_rows     = (int16_t)con_rows();
     plusos = a;

@@ -46,13 +46,16 @@ crt0_entry:
 2:      subq.l  #1, %d0
         bpl.s   1b
 
-#ifdef PLUSOS_KERNEL
-        /* 68020/030/040+: we just patched code, flush the caches. Only
-         * the kernel does this - it runs in supervisor. Apps run in user mode,
-         * where privileged cache ops would fault; the kernel flushes caches
-         * for them in exec_spawn before the process starts. */
+        /* 68020/030/040+: we just self-modified our own code (relocation). The
+         * instruction cache may hold stale pre-relocation bytes, so flush before
+         * running any of it. The kernel's pre-launch flush in exec_spawn happened
+         * BEFORE this relocation, so it does not cover these writes - without a
+         * flush here the first indirect call reads a stale/zero pointer and faults
+         * (seen as an ADDRESS ERROR / null deref on the 68030 LC III & SE/30). */
         cmpi.b  #2, 0x12F                   /* CPUFlag: 0=000 1=010 2=020 3=030 4=040 */
-        bcs.s   3f
+        bcs.s   3f                          /* 68000/010: no cache, nothing to do */
+#ifdef PLUSOS_KERNEL
+        /* Kernel runs in supervisor: flush the caches directly. */
         cmpi.b  #4, 0x12F
         bcs.s   2f
         .short  0x4E71, 0xF4F8              /* nop; cpusha %bc (68040+) */
@@ -60,8 +63,13 @@ crt0_entry:
 2:      .short  0x4E7A, 0x0002              /* movec cacr,d0 */
         ori.w   #0x0808, %d0                /* clear instruction + data cache */
         .short  0x4E7B, 0x0002              /* movec d0,cacr */
-3:
+#else
+        /* App runs in user mode: movec is privileged, so ask the kernel to flush
+         * via SYS_cacheflush (71). d0 = syscall number, trap #1 is the gate. */
+        moveq   #71, %d0                    /* SYS_cacheflush */
+        trap    #1
 #endif
+3:
         /* ---- clear BSS (overwrites the relocation table we just used) ---- */
         lea     __bss_start, %a1
         move.l  #__bss_end, %d0

@@ -14,6 +14,7 @@
  *      ScreenRow, $0C20 RowBits, $0C22 ColLines) or compact 512x342x1bpp.
  */
 #include "kernel.h"
+#include "../../services/klog.h"
 
 #define FB_DEFAULT_ROWBYTES 64
 #define FB_DEFAULT_ROWS     342
@@ -90,11 +91,15 @@ typedef struct SysVDConnectInfo {
 
 static uint8_t *front;
 static uint8_t *back;
-static int      s_rowbytes = FB_DEFAULT_ROWBYTES;
+static int      s_rowbytes = FB_DEFAULT_ROWBYTES;    /* front (hardware) rowBytes */
 static int      s_rows     = FB_DEFAULT_ROWS;
 static int      s_width    = FB_DEFAULT_WIDTH;
-static int      s_depth    = FB_DEFAULT_DEPTH;
-static uint32_t s_bytes    = FB_DEFAULT_ROWBYTES * FB_DEFAULT_ROWS;
+static int      s_depth    = FB_DEFAULT_DEPTH;        /* front depth: 1/2/4/8/16/32 */
+static uint32_t s_bytes    = FB_DEFAULT_ROWBYTES * FB_DEFAULT_ROWS;   /* front size */
+/* The off-screen back buffer PlusOS graphics draw into is ALWAYS 1-bpp (the
+ * desktop and gfx.c are monochrome). On a color front buffer, video_present
+ * expands it to the native depth. s_mono_rb is the back buffer's rowBytes. */
+static int      s_mono_rb  = FB_DEFAULT_ROWBYTES;
 
 static VideoCardInfo s_cards[MAX_VIDEO_CARDS];
 static int           s_ncards;
@@ -102,6 +107,7 @@ static int           s_ncards;
 uint8_t *video_front(void)    { return front; }
 uint8_t *video_back(void)     { return back ? back : front; }
 int      video_rowbytes(void) { return s_rowbytes; }
+int      video_back_rowbytes(void) { return back ? s_mono_rb : s_rowbytes; }
 int      video_rows(void)     { return s_rows; }
 int      video_width(void)    { return s_width; }
 int      video_depth(void)    { return s_depth; }
@@ -132,11 +138,101 @@ static void wait_vblank(void)
     while (*ticks == t && ++spins < 200000) { }
 }
 
+/* 1-bpp -> 8-bpp expansion lookup table: each source byte (8 mono pixels) maps
+ * to 8 destination bytes packed in a uint64. Mac convention: bit=1 is black, so
+ * on the default CLUT (0=white, 0xFF=black) a set bit becomes 0xFF. Building
+ * this once turns the hot path into one load + one 8-byte store per 8 pixels,
+ * instead of a per-pixel shift/branch/switch - the big win for 640x480x8. */
+/* Each source byte -> two 32-bit words (8 expanded 8-bpp pixels). The 68030
+ * writes the row as aligned longs, so 8 pixels cost one table load + two stores
+ * instead of eight byte writes. */
+static uint32_t s_exp8[256][2];
+static int      s_exp8_ready = 0;
+
+static void build_exp8(void)
+{
+    for (int v = 0; v < 256; v++) {
+        uint8_t e[8];
+        for (int b = 0; b < 8; b++) e[b] = (v & (0x80 >> b)) ? 0xFFu : 0x00u;  /* bit7 = leftmost */
+        /* Big-endian 68k: byte 0 is the most significant of the long. */
+        s_exp8[v][0] = ((uint32_t)e[0] << 24) | ((uint32_t)e[1] << 16) | ((uint32_t)e[2] << 8) | e[3];
+        s_exp8[v][1] = ((uint32_t)e[4] << 24) | ((uint32_t)e[5] << 16) | ((uint32_t)e[6] << 8) | e[7];
+    }
+    s_exp8_ready = 1;
+}
+
+/* Fast 8-bpp row expansion: whole source bytes via the table (8 px at a time as
+ * two longs), then any trailing pixels of a non-multiple-of-8 width. dst rows in
+ * an 8-bpp framebuffer start long-aligned (rowBytes is a multiple of 4). */
+static void expand_row_1_to_8(uint8_t *dst, const uint8_t *src, int width)
+{
+    int full = width >> 3;                      /* whole source bytes */
+    uint32_t *d = (uint32_t *)dst;
+    for (int bi = 0; bi < full; bi++) {
+        const uint32_t *e = s_exp8[src[bi]];
+        *d++ = e[0];
+        *d++ = e[1];
+    }
+    int rem = width & 7;
+    if (rem) {
+        uint8_t bits = src[full];
+        uint8_t *db = dst + (full << 3);
+        for (int b = 0; b < rem; b++) db[b] = (bits & (0x80 >> b)) ? 0xFFu : 0x00u;
+    }
+}
+
+/* Slow generic expansion for the rarer 2/4/16/32-bpp displays. */
+static void expand_row_1_to_n(uint8_t *dst, const uint8_t *src, int width, int depth)
+{
+    int x = 0;
+    for (int bi = 0; x < width; bi++) {
+        uint8_t bits = src[bi];
+        for (int b = 7; b >= 0 && x < width; b--, x++) {
+            uint8_t on = (bits >> b) & 1;            /* 1 = black */
+            switch (depth) {
+            case 4:  if (x & 1) dst[x >> 1] = (uint8_t)((dst[x >> 1] & 0xF0) | (on ? 0x0F : 0x00));
+                     else       dst[x >> 1] = (uint8_t)((dst[x >> 1] & 0x0F) | (on ? 0xF0 : 0x00));
+                     break;
+            case 2:  { int sh = (3 - (x & 3)) * 2; uint8_t m = (uint8_t)(0x3 << sh);
+                       dst[x >> 2] = (uint8_t)((dst[x >> 2] & ~m) | (on ? m : 0)); } break;
+            case 16: { uint16_t *d = (uint16_t *)dst; d[x] = on ? 0xFFFF : 0x0000; } break;
+            case 32: { uint32_t *d = (uint32_t *)dst; d[x] = on ? 0xFFFFFFFFu : 0x00000000u; } break;
+            default: dst[x] = on ? 0xFFu : 0x00u; break;
+            }
+        }
+    }
+}
+
+/* Copy the 1-bpp back buffer rows [top,bottom) to the front buffer, expanding to
+ * the native depth. On a 1-bpp display this is a straight byte copy. */
+static void present_rows(int top, int bottom)
+{
+    if (s_depth <= 1) {
+        blit(front + (uint32_t)top * (uint32_t)s_rowbytes,
+             back  + (uint32_t)top * (uint32_t)s_mono_rb,
+             (uint32_t)(bottom - top) * (uint32_t)s_rowbytes);
+        return;
+    }
+    if (!s_exp8_ready) build_exp8();
+    uint8_t was_busy = LM_BYTE(0x8CD);
+    LM_BYTE(0x8CD) = 1;
+    if (s_depth == 8) {
+        for (int y = top; y < bottom; y++)
+            expand_row_1_to_8(front + (uint32_t)y * (uint32_t)s_rowbytes,
+                              back  + (uint32_t)y * (uint32_t)s_mono_rb, s_width);
+    } else {
+        for (int y = top; y < bottom; y++)
+            expand_row_1_to_n(front + (uint32_t)y * (uint32_t)s_rowbytes,
+                              back  + (uint32_t)y * (uint32_t)s_mono_rb, s_width, s_depth);
+    }
+    LM_BYTE(0x8CD) = was_busy;
+}
+
 void video_present(void)
 {
     if (!back) return;
     wait_vblank();
-    blit(front, back, s_bytes);
+    present_rows(0, s_rows);
 }
 
 void video_present_rect(int top, int bottom)
@@ -145,9 +241,7 @@ void video_present_rect(int top, int bottom)
     if (top < 0) top = 0;
     if (bottom > s_rows) bottom = s_rows;
     if (top >= bottom) return;
-    blit(front + (uint32_t)top * (uint32_t)s_rowbytes,
-         back + (uint32_t)top * (uint32_t)s_rowbytes,
-         (uint32_t)(bottom - top) * (uint32_t)s_rowbytes);
+    present_rows(top, bottom);
 }
 
 static int ptr_looks_sane(uint32_t p)
@@ -454,15 +548,70 @@ int video_set_mode(uint8_t slot, uint8_t mode_id)
     return 0;
 }
 
+/* Force the main display to 1-bit (monochrome) depth. PlusOS's QuickDraw-style
+ * graphics (the desktop, gfx.c) are 1-bpp only: on a color Mac that boots at
+ * 8-bpp (e.g. the LC III at 640x480x8) they would write one bit per pixel into
+ * an 8-bit framebuffer, so everything renders into a narrow garbled strip.
+ * Switching the hardware to 1-bpp makes the framebuffer match what the whole OS
+ * draws, so the same monochrome UI is correct on every Mac. Returns 1 if it
+ * changed the depth, 0 if nothing to do (already 1-bpp, or no settable card -
+ * the SE/Plus/compact path has no video driver and is left untouched). */
+int video_force_mono(void)
+{
+    if (s_depth <= 1) return 0;                 /* already monochrome */
+    klog(6, "video: %dx%dx%d (rb %d) - switching to 1-bpp for the mono UI",
+         s_width, s_rows, s_depth, s_rowbytes);
+    video_scan_displays();                      /* populate s_cards for video_set_mode */
+
+    /* Find the settable main card for the log (video_set_mode picks it too). */
+    int settable = 0;
+    for (int i = 0; i < s_ncards; i++)
+        if (s_cards[i].refnum < 0) { settable = 1; break; }
+    if (!settable) {
+        klog(4, "video: no settable video driver found (%d card(s)); staying at %d-bpp - "
+                "the desktop may render narrow. gfx is 1-bpp only.", s_ncards, s_depth);
+        return 0;
+    }
+
+    /* csMode 128 = 1 bpp on Apple video drivers. video_set_mode re-probes the
+     * geometry (rowBytes shrinks to width/8) and updates s_depth. */
+    if (video_set_mode(0xFF, 128) != 0) {
+        klog(4, "video: SetMode(1-bpp) was rejected by the driver; staying at %d-bpp", s_depth);
+        return 0;
+    }
+    if (s_depth > 1) {
+        klog(4, "video: driver accepted SetMode but depth is still %d-bpp", s_depth);
+        return 0;
+    }
+    /* The text console was set up (in rom_init) at the old depth/base; re-probe
+     * it so boot messages keep rendering after the switch. */
+    con_init();
+    klog(6, "video: now %dx%dx1 (rb %d)", s_width, s_rows, s_rowbytes);
+    return 1;
+}
+
 void video_init(void)
 {
     video_probe_geometry(&front, &s_rowbytes, &s_width, &s_rows, &s_depth);
     s_bytes = (uint32_t)s_rowbytes * (uint32_t)s_rows;
 
+    /* The back buffer is 1-bpp regardless of the hardware depth: PlusOS graphics
+     * (desktop, gfx.c) are monochrome. video_present expands it to the native
+     * depth when it copies to the front buffer. On a 1-bpp display this is a
+     * plain byte copy (s_mono_rb == s_rowbytes). We force the back buffer's
+     * rowBytes to whole 16-bit words of the pixel width, matching gs_init()/
+     * the compact-Mac layout the desktop assumes. */
+    s_mono_rb = (((s_width + 15) >> 4) << 1);
+    if (s_depth <= 1 && s_mono_rb != s_rowbytes) s_mono_rb = s_rowbytes; /* keep exact on true 1-bpp */
+    uint32_t back_bytes = (uint32_t)s_mono_rb * (uint32_t)s_rows;
+
     back = 0;
-    if (s_bytes <= 32768) {
-        back = kmalloc(s_bytes);
-        if (back) memcpy(back, front, s_bytes);
+    if (back_bytes <= 65536) {
+        back = kmalloc(back_bytes);
+        if (back) {
+            /* start black-on-white like a fresh 1-bpp screen (0 = white) */
+            memset(back, 0, back_bytes);
+        }
     }
     video_scan_displays();
 }

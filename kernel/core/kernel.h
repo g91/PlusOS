@@ -100,12 +100,14 @@ void      video_present_rect(int top, int bottom); /* flip rows [top, bottom) */
 int       video_rowbytes(void);                    /* bytes per scanline (ScreenRow) */
 int       video_rows(void);                        /* height in pixels */
 int       video_width(void);                       /* width in pixels */
+int       video_back_rowbytes(void);               /* 1-bpp back-buffer stride (for apps) */
 int       video_depth(void);                       /* bits per pixel (1/2/4/8/16/32) */
 uint32_t  video_bytes(void);                       /* total framebuffer byte size */
 int       video_card_count(void);
 const VideoCardInfo *video_card_at(int index);
 void      video_scan_displays(void);
 int       video_set_mode(uint8_t slot, uint8_t mode_id);
+int       video_force_mono(void);                 /* drop a color display to 1-bpp (no-op if already mono) */
 /* Read live screen geometry from MainDevice/GDevice and low-memory globals
  * ($0824 base, $0106 rowBytes, $0C20 width, $0C22 height; depth derived). */
 void      video_probe_geometry(uint8_t **base, int *rowbytes, int *width,

@@ -144,6 +144,24 @@ static void init_quickdraw(void)
         ClipRect(&g_port.portRect);
     }
     SetPort(&g_port);
+
+    /* Pin the cursor to the real screen. The ROM's ADB mouse interrupt clamps
+     * the Mouse position ($830 v, $832 h) to CrsrPin ($834, a Rect top/left/
+     * bottom/right). Because our boot block took over before the ROM sized the
+     * screen, CrsrPin can still hold a compact-Mac (or zero-height) rect - which
+     * is why on the LC III the cursor moved horizontally but the vertical range
+     * was clamped. Set it to the full probed geometry and drop the mouse in the
+     * middle so both axes have room. */
+    LM_WORD(0x834) = 0;                                 /* CrsrPin.top    */
+    LM_WORD(0x836) = 0;                                 /* CrsrPin.left   */
+    LM_WORD(0x838) = (int16_t)h;                        /* CrsrPin.bottom */
+    LM_WORD(0x83A) = (int16_t)w;                        /* CrsrPin.right  */
+    LM_WORD(0x830) = (int16_t)(h / 2);                  /* Mouse.v */
+    LM_WORD(0x832) = (int16_t)(w / 2);                  /* Mouse.h */
+    LM_LONG(0x828) = ((uint32_t)(h / 2) << 16) | (uint16_t)(w / 2);   /* MTemp */
+    LM_LONG(0x82C) = LM_LONG(0x828);                    /* RawMouse */
+    LM_BYTE(0x8CE) = 0xFF;                              /* CrsrNew: force a cursor refresh */
+
     HideCursor();                                       /* text mode: no arrow over the text */
     g_flags |= PLUSOS_HAVE_QD;
     printf("ok  %dx%d, rowBytes %d\n", g_port.portRect.right, g_port.portRect.bottom,

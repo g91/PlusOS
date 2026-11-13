@@ -225,10 +225,13 @@ static void proc_launch(void)
 {
     int_enable();                       /* switches start with interrupts off */
     Proc *p = proc_current;
-    if (p->ring == RING_USER)
+    if (p->ring == RING_USER) {
+        klog(PLUSOS_LOG_INFO, "proc: entering ring-2 '%s' pid %d entry=%06lx usp=%06lx",
+             p->name, p->pid, (unsigned long)p->user_entry, (unsigned long)p->user_sp);
         ctx_start_user(p->user_sp, p->user_entry);   /* drop to ring 2; returns via exit */
-    else
+    } else {
         p->entry(p->arg);               /* ring-0/1 task body */
+    }
     proc_exit(0);                       /* body returned: exit */
 }
 

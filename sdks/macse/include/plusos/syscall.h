@@ -85,6 +85,7 @@ enum {
     SYS_sys7,          /* 68: a0 = plusos_sys7_args*  -> 0 or -1 */
     SYS_vfs,           /* 69: a0 = plusos_vfs_args*   -> fd/count/0 or -errno */
     SYS_posix,         /* 70: a0 = plusos_posix_args* -> 0/val or -errno */
+    SYS_cacheflush,    /* 71: flush I+D caches (kernel does the privileged op) -> 0 */
 };
 
 /* SYS_users: user accounts backed by /etc/passwd and /etc/shadow. One call

@@ -61,28 +61,37 @@ static void init_task(void *arg)
      * a disk with an empty /etc still boots to a shell). */
     login_firstrun();
     login_prompt();
+    klog(PLUSOS_LOG_INFO, "init: login complete, selecting first program");
 
     /* The boot setting picks the first program. Holding Option at boot forces
      * the shell, in case the desktop is broken. */
     int option_down = (LM_BYTE(0x174 + 7) & 0x04) != 0;        /* KeyMap: Option = key $3A */
     int boot_cfg = cfg_get(PLUSOS_CFG_BOOT);
+    klog(PLUSOS_LOG_INFO, "init: boot_cfg=%d option_down=%d", boot_cfg, option_down);
     if (boot_cfg == PLUSOS_BOOT_MENU && !option_down) {
+        klog(PLUSOS_LOG_INFO, "init: entering boot menu");
         menu_main();
     }
     int want_desktop = (boot_cfg == PLUSOS_BOOT_DESKTOP) && !option_down;
     const char *first = want_desktop ? "desktop" : "shell";
     const char *other = want_desktop ? "shell" : "desktop";
     for (;;) {
+        klog(PLUSOS_LOG_INFO, "init: spawning '%s'", first);
         int pid = start_app(first);
+        klog(PLUSOS_LOG_INFO, "init: spawn('%s') -> pid %d", first, pid);
         if (pid < 0) {
             printf("init: cannot start the %s (%s).\n", first, exec_error(pid));
             pid = start_app(other);
+            klog(PLUSOS_LOG_WARN, "init: fallback spawn('%s') -> pid %d", other, pid);
         }
         if (pid < 0) {
             printf("init: no userland programs; starting the recovery console.\n");
+            klog(PLUSOS_LOG_ERR, "init: no userland programs, entering recovery menu");
             menu_main();            /* never returns */
         }
+        klog(PLUSOS_LOG_INFO, "init: waiting on pid %d", pid);
         proc_wait(pid);             /* runs in ring 2 until it exits ... */
+        klog(PLUSOS_LOG_INFO, "init: pid %d exited, switching program", pid);
         const char *t = first;      /* ... then switch: exit the shell -> desktop, */
         first = other;              /* quit the desktop -> shell */
         other = t;
