@@ -1,0 +1,34 @@
+# Cloudflare Tunnel config for the PlusOS OTA server.
+#
+# This publishes the local OTA server at https://ota.d0a.net through Cloudflare,
+# with WebSocket support (the client update feed uses WSS). No inbound port on
+# your machine needs to be open — cloudflared dials out.
+#
+# One-time setup (install cloudflared first: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/):
+#
+#   cloudflared tunnel login                       # authorize for the d0a.net zone
+#   cloudflared tunnel create plusos-ota           # creates a tunnel + credentials json
+#   cloudflared tunnel route dns plusos-ota ota.d0a.net
+#
+# Then point this file at the credentials file the create step printed and run:
+#
+#   cloudflared tunnel --config otaserver/cloudflared/config.yml run plusos-ota
+#
+# (On Windows you can install it as a service: `cloudflared service install`.)
+
+tunnel: plusos-ota
+# Replace with the path the `tunnel create` step printed, e.g.
+#   C:\Users\Evil\.cloudflared\<TUNNEL-UUID>.json
+credentials-file: CHANGE_ME_TUNNEL_CREDENTIALS.json
+
+ingress:
+  - hostname: ota.d0a.net
+    service: http://127.0.0.1:8799
+    originRequest:
+      # WebSocket + long-lived update feed
+      noTLSVerify: true
+      connectTimeout: 30s
+      # keep idle update sockets alive
+      keepAliveTimeout: 90s
+  # everything else 404s
+  - service: http_status:404

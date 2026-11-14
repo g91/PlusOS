@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlusOS Updates</title>
+<link rel="stylesheet" href="/panel/ota.css">
+</head>
+<body class="light">
+
+<div class="win">
+  <div class="titlebar">
+    <span class="dot"></span>
+    <span class="t">PlusOS Software Update</span>
+    <span class="grow"></span>
+    <span class="pill" id="conn">connecting…</span>
+    <button class="btn sm" id="darkBtn">Dark</button>
+  </div>
+
+  <div class="pad">
+    <div class="spread">
+      <div class="row">
+        <label>Channel
+          <select id="channel">
+            <option value="stable">stable</option>
+            <option value="beta">beta</option>
+            <option value="nightly">nightly</option>
+          </select>
+        </label>
+        <label>Machine
+          <select id="machine">
+            <option value="">any</option>
+            <option value="se">SE/30</option>
+            <option value="plus">Mac Plus</option>
+            <option value="classic">Classic</option>
+            <option value="lc3">LC III</option>
+            <option value="universal">universal</option>
+          </select>
+        </label>
+        <button class="btn sm" id="refreshBtn">Refresh</button>
+      </div>
+      <div class="muted" id="srvtime"></div>
+    </div>
+
+    <h2>Updates</h2>
+    <p class="muted" id="summary">Checking for updates…</p>
+    <div id="releases"></div>
+
+    <div class="spread" style="margin-top:14px">
+      <div class="row">
+        <button class="btn" id="selAll">Select All</button>
+        <button class="btn" id="selNone">Select None</button>
+      </div>
+      <button class="btn danger" id="downloadBtn">Download Selected</button>
+    </div>
+
+    <h2>How to apply</h2>
+    <p class="muted">
+      Downloads are the raw update artifacts. To apply them to a PlusOS disk or
+      BlueSCSI card without reflashing, run the <b>PlusOS Updater</b> tool
+      (<code>otaserver/updater/plusos_updater.py</code>), which pulls the same
+      release over this server and calls <code>hdbuild update</code> for you,
+      preserving your files.
+    </p>
+    <div class="log" id="activity">Ready.</div>
+  </div>
+</div>
+
+<script src="/panel/client.js"></script>
+</body>
+</html>

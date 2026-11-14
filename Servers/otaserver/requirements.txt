@@ -1,0 +1,12 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+websockets==14.1
+python-multipart==0.0.20
+# optional, for rich CPU/RAM/process metrics in the control panel:
+psutil==6.1.1
+# optional, for running the LFM2-2.6B Update Assistant in-process (OTA_AI_LOCAL=1).
+# Prefer an external OpenAI-compatible endpoint via OTA_AI_BASE_URL instead; these
+# pull in multi-GB wheels, so they are intentionally left commented out:
+# transformers==4.46.3
+# torch==2.5.1
+# accelerate==1.2.1

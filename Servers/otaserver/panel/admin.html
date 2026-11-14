@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlusOS OTA — Control Panel</title>
+<link rel="stylesheet" href="/panel/ota.css">
+</head>
+<body class="light">
+
+<!-- ===== LOGIN ===== -->
+<div class="win narrow" id="loginWin">
+  <div class="titlebar"><span class="dot"></span><span class="t">OTA Control Panel</span></div>
+  <div class="pad">
+    <h2>Admin Login</h2>
+    <div class="row">
+      <input id="pw" type="password" placeholder="admin password" style="flex:1" autocomplete="current-password">
+      <button class="btn" id="loginBtn">Log In</button>
+    </div>
+    <div class="err" id="loginErr"></div>
+    <p class="muted">Publishing is gated separately by the signed publish key on the
+      maintainer's machine — this password only controls the panel.</p>
+  </div>
+</div>
+
+<!-- ===== PANEL ===== -->
+<div class="win hidden" id="panelWin">
+  <div class="titlebar">
+    <span class="dot"></span>
+    <span class="t">PlusOS OTA — Control Panel</span>
+    <span class="grow"></span>
+    <span class="pill" id="pubpill"></span>
+    <button class="btn sm" id="darkBtn">Dark</button>
+    <button class="btn sm" id="logoutBtn">Log Out</button>
+  </div>
+  <div class="pad">
+    <div class="tabs">
+      <div class="tab on" data-tab="overview">Overview</div>
+      <div class="tab" data-tab="releases">Releases</div>
+      <div class="tab" data-tab="system">System</div>
+      <div class="tab" data-tab="audit">Audit</div>
+      <div class="tab" data-tab="settings">Settings</div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="tabpage on" id="tab-overview">
+      <div class="grid" id="statGrid"></div>
+      <h2>Host</h2>
+      <div id="hostInfo" class="muted"></div>
+      <div style="margin-top:8px">
+        <div class="spread"><span>CPU</span><span id="cpuTxt"></span></div>
+        <div class="meter"><i id="cpuBar"></i></div>
+        <div class="spread" style="margin-top:8px"><span>Memory</span><span id="memTxt"></span></div>
+        <div class="meter"><i id="memBar"></i></div>
+        <div class="spread" style="margin-top:8px"><span>Disk</span><span id="diskTxt"></span></div>
+        <div class="meter"><i id="diskBar"></i></div>
+      </div>
+    </div>
+
+    <!-- RELEASES -->
+    <div class="tabpage" id="tab-releases">
+      <div class="spread">
+        <h2 style="border:0">Releases</h2>
+        <button class="btn sm" id="pruneBtn">Prune Orphan Blobs</button>
+      </div>
+      <div id="relList"></div>
+    </div>
+
+    <!-- SYSTEM -->
+    <div class="tabpage" id="tab-system">
+      <div class="spread">
+        <h2 style="border:0">Processes</h2>
+        <div class="row">
+          <button class="btn sm" id="procRefresh">Refresh</button>
+          <button class="btn sm danger" id="restartBtn">Restart OTA Service</button>
+        </div>
+      </div>
+      <div class="log" style="max-height:300px" id="procBox"></div>
+
+      <h2>Shell</h2>
+      <div id="shellOff" class="muted hidden">
+        Shell is disabled on this server. Start it with <code>OTA_ALLOW_SHELL=1</code> to enable.
+      </div>
+      <div id="shellOn" class="hidden">
+        <div class="row">
+          <input id="cmd" placeholder="command…" style="flex:1; font-family:var(--mono)">
+          <button class="btn" id="runBtn">Run</button>
+        </div>
+        <p class="err">⚠ Commands run with the server's privileges and are logged. Be careful.</p>
+        <div class="log console" id="shellOut"></div>
+      </div>
+    </div>
+
+    <!-- AUDIT -->
+    <div class="tabpage" id="tab-audit">
+      <div class="spread"><h2 style="border:0">Audit Log</h2><button class="btn sm" id="auditRefresh">Refresh</button></div>
+      <div class="log" id="auditBox"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tabpage" id="tab-settings">
+      <h2>Change Admin Password</h2>
+      <div class="row">
+        <input id="oldpw" type="password" placeholder="current">
+        <input id="newpw" type="password" placeholder="new (min 6)">
+        <button class="btn" id="pwBtn">Change</button>
+      </div>
+      <div class="err" id="pwMsg"></div>
+      <h2>Public URL</h2>
+      <p class="muted" id="pubUrl"></p>
+    </div>
+  </div>
+</div>
+
+<script src="/panel/admin.js"></script>
+</body>
+</html>

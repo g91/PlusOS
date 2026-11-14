@@ -1,0 +1,17 @@
+# The publish key is the maintainer's private secret — never commit it.
+.publish_key
+
+# Runtime data: SQLite DB + content-addressed artifact blobs.
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Updater remembers the last-used disk/server here.
+updater/.updater_state.json
+
+# Local Python
+__pycache__/
+*.pyc
+.venv/
+venv/
