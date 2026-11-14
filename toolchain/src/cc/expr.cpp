@@ -454,7 +454,11 @@ Node *conditional() {
 }
 
 static Node *compoundLiteral(Type *ty, Token *t) {
-    if (!curFn) errorAt(t, "compound literals at file scope are not supported");
+    if (!curFn) { // file scope: an anonymous static object, initialised at link time
+        Obj *g = newAnonGlobal(ty, t);
+        fileScopeInitializer(g);
+        return newVarNode(g, t);
+    }
     Obj *var = newLocal("", ty, t);
     Node *init = localInitializer(var, t);
     Node *v = newVarNode(var, t);

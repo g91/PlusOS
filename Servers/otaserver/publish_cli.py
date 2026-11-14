@@ -37,7 +37,24 @@ import urllib.request
 import urllib.error
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.normpath(os.path.join(HERE, ".."))
+
+
+def _find_repo_root(start):
+    """Walk up from this file to the PlusOS repo root (the dir with Makefile.p68).
+    Robust to the server living at otaserver/ or Servers/otaserver/."""
+    d = start
+    for _ in range(6):
+        if os.path.exists(os.path.join(d, "Makefile.p68")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    # fallback: previous behaviour (parent of this dir)
+    return os.path.normpath(os.path.join(start, ".."))
+
+
+REPO = _find_repo_root(HERE)
 
 # Optional AI endpoint for generating per-app docs at compile time (same vars as
 # the server's ai.py HTTP backend). Without it, a template doc is written.

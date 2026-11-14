@@ -1,0 +1,5 @@
+# Deprecated and removed in 3.16; will not be documented on older versions
+Py_FileSystemDefaultEncodeErrors
+Py_FileSystemDefaultEncoding
+Py_HasFileSystemDefaultEncoding
+Py_UTF8Mode

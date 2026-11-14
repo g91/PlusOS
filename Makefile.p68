@@ -206,7 +206,7 @@ OTA_CHANNEL ?= stable
 OTA_TITLE   ?=
 OTA_NOTES   ?=
 ota: all
-	@$(PY) otaserver/publish_cli.py --server "$(OTA_SERVER)" --channel "$(OTA_CHANNEL)" \
+	@$(PY) Servers/otaserver/publish_cli.py --server "$(OTA_SERVER)" --channel "$(OTA_CHANNEL)" \
 	    --machine "$(MACHINE)" --build $(OUT) --title "$(OTA_TITLE)" --notes "$(OTA_NOTES)"
 	@echo Published OTA release from $(OUT) to $(OTA_SERVER)
 

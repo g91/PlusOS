@@ -1,3 +1,4 @@
+#include <functional>
 // parse.cpp - types, scopes, declarations, initialisers and the translation-unit driver.
 #include "parse_int.h"
 
@@ -1217,6 +1218,17 @@ static void unionInit(Init *in) {
         tok = tok->next;
         in->unionIdx = (int)idx;
         designation(in->kids[idx]);
+        // further designators into the same (or another) member: { .op.code = 1, .op.arg = 2 }
+        while (equal(",") && tok->next->is(".")) {
+            tok = tok->next->next;
+            size_t j = d->members.size();
+            for (size_t k = 0; k < d->members.size(); k++)
+                if (d->members[k].name == tok->text) j = k;
+            if (j == d->members.size()) errorAt(tok, "union has no member named '%s'", tok->text.c_str());
+            tok = tok->next;
+            in->unionIdx = (int)j;
+            designation(in->kids[j]);
+        }
         consume(",");
         expect("}");
         return;
@@ -1237,6 +1249,16 @@ static void initializer2(Init *in) {
     in->tok = tok;
     if (in->ty->kind == TY_ARRAY) {
         if (tok->kind == Token::STR && isCharType(in->ty->base)) { stringInit(in); return; }
+        if (equal("(") && tok->next->kind == Token::STR && isCharType(in->ty->base)) { // ("literal")
+            Token *q = tok->next;
+            while (q->kind == Token::STR) q = q->next;
+            if (q->is(")")) {
+                tok = tok->next;
+                stringInit(in);
+                expect(")");
+                return;
+            }
+        }
         if (equal("{") && tok->next->kind == Token::STR && isCharType(in->ty->base)) {
             tok = tok->next;
             stringInit(in);
@@ -1374,7 +1396,19 @@ static bool writeInit(Init *in, Type *ty, std::vector<unsigned char> &buf, int o
     int64_t v;
     std::string sym;
     if (!evalConst(e, &v, &sym)) {
-        if (diag) errorAt(in->tok, "initializer element is not constant");
+        if (diag) {
+            std::string d;
+            std::function<void(Node *, int)> dump = [&](Node *n, int depth) {
+                if (!n || depth > 4) return;
+                d += format("[k%d", (int)n->kind);
+                if (n->kind == ND_VAR && n->var) d += ":" + n->var->name;
+                if (n->kind == ND_MEMBER && n->member) d += ":" + n->member->name;
+                dump(n->lhs, depth + 1); dump(n->rhs, depth + 1);
+                d += "]";
+            };
+            dump(e, 0);
+            errorAt(in->tok, "initializer element is not constant %s (target kind %d size %d)", d.c_str(), (int)ty->kind, (int)tsize(ty));
+        }
         return false;
     }
     if (!sym.empty()) {
@@ -1405,6 +1439,8 @@ static void globalInitializer(Obj *var) {
         if (allZero && !var->ty->isConst) { var->isBss = true; var->data.clear(); }
     }
 }
+
+void fileScopeInitializer(Obj *var) { globalInitializer(var); }
 
 // build assignments for a local initialiser
 static Node *initDesg(Init *in, Type *ty, Node *desg, Token *t) {

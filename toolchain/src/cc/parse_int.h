@@ -50,6 +50,7 @@ Node *declaration(Type *base, Attrs *attr);   // local declaration; returns init
 void localStaticDecl(Type *base, Attrs *attr);
 void parseTypedef(Type *base, Attrs *attr);
 Node *localInitializer(Obj *var, Token *t);
+void fileScopeInitializer(Obj *var);
 
 Node *expr();
 Node *assign();

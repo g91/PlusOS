@@ -6,6 +6,7 @@
 #include "cc.h"
 #ifdef P68_HAVE_AS
 #include "../as/assembler.h"
+bool g_longJtab = false;
 #endif
 
 namespace p68 {
@@ -222,6 +223,7 @@ int main(int argc, char **argv) {
         } else if (a == "-m68881" || a == "-mhard-float") opt.fpu = true;
         else if (a == "-msoft-float") opt.fpu = false;
         else if (a == "-ffunction-sections") opt.functionSections = true;
+        else if (a == "-mlong-jtab") g_longJtab = true;
         else if (a == "-fdata-sections") opt.dataSections = true;
         else if (a == "-ffixed-a5") opt.fixedA5 = true;
         else if (a == "-fno-fixed-a5") opt.fixedA5 = false;

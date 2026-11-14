@@ -313,7 +313,7 @@ static int is_gui_app(const char *name)
     const char *n = leaf(name);
     return ieq(n, "taskman") || ieq(n, "files") ||
            ieq(n, "calc") || ieq(n, "notes") || ieq(n, "puzzle") ||
-           ieq(n, "pkgmgr") || ieq(n, "installer");
+           ieq(n, "pkgmgr") || ieq(n, "installer") || ieq(n, "ikanet");
 }
 
 static int is_fullscreen_app(const char *name)

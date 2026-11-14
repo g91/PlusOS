@@ -5,6 +5,7 @@
 //       --colour-->  Chaitin/Briggs graph colouring with move-biased selection and spilling
 //       --emit---->  GAS-syntax assembly (Motorola operands, % register prefix)
 #include "cc.h"
+extern bool g_longJtab;
 
 namespace p68 {
 
@@ -1745,13 +1746,20 @@ static void emitMI(Emit &e, MI &m, int nextBlockId, const std::string &retLabel,
         static int tabCounter = 0;
         tab = format(".LT%d", tabCounter++);
         const char *r = regName(m.dst.reg);
+        if (g_longJtab) {
+            e.line(format("add.w %s,%s", r, r));
+            e.line(format("add.w %s,%s", r, r));
+            e.line(format("move.l %s(%%pc,%s.w),%s", tab.c_str(), r, r));
+            e.line(format("jmp %s(%%pc,%s.l)", tab.c_str(), r));
+        } else {
         e.line(format("add.w %s,%s", r, r));
         e.line(format("move.w %s(%%pc,%s.w),%s", tab.c_str(), r, r));
         e.line(format("jmp %s(%%pc,%s.w)", tab.c_str(), r));
+        }
         *e.out += tab + ":\n";
         std::vector<int> targets((size_t)m.tabCount, m.tabDefault);
         for (auto &c : m.cases) targets[(size_t)c.first] = c.second;
-        for (int t : targets) e.line(format(".word %s-%s", e.blockLabel(t).c_str(), tab.c_str()));
+        for (int t : targets) e.line(format("%s %s-%s", g_longJtab ? ".long" : ".word", e.blockLabel(t).c_str(), tab.c_str()));
         break;
     }
     case M_ASM: {

@@ -451,7 +451,8 @@ void ppInit() {
         "__restrict=", "__restrict__=", "__extension__=", "__typeof=__typeof__", "__asm=__asm__",
         "__builtin_expect(x,y)=(x)", "__builtin_offsetof(t,m)=((unsigned long)&((t*)0)->m)",
         "__builtin_va_copy(d,s)=((d)=(s))", "__builtin_va_end(ap)=((void)0)", "__builtin_constant_p(x)=0",
-        "__pascal=pascal",
+        "__pascal=pascal", "__builtin_huge_val()=(1e999)", "__builtin_inf()=(1e999)", "__builtin_huge_valf()=((float)1e999)",
+        "__builtin_nan(s)=(-(1e999-1e999))", "__builtin_nanf(s)=((float)-(1e999-1e999))",
         nullptr};
     for (int i = 0; defs[i]; i++) {
         std::string d = defs[i];
@@ -537,7 +538,7 @@ static PPVal ppPrimary() {
         ppTok = t->next;
         return {v, u};
     }
-    if (t->kind == Token::STR && t->text[0] == '\'') {
+    if (t->kind == Token::STR && (t->text[0] == '\'' || (t->text[0] == 'L' && t->text[1] == '\''))) {
         ppTok = t->next;
         return {charConstValue(t), false};
     }

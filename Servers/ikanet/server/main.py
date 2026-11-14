@@ -248,12 +248,24 @@ class Hub:
 hub = Hub()
 
 
-async def send_channel_history(ws: WebSocket, cid: int):
-    rows = db.recent_messages(cid, 60)
-    out = []
+async def send_channel_history(ws: WebSocket, cid: int, split: bool = False, limit: int = 60):
+    """Send a room's recent messages.
+
+    Browsers get one "history" frame. Small clients (the native 68k IKANET app)
+    ask for split=True: a history_begin marker, one ordinary "msg" frame per
+    message, then history_end. A 68000 cannot buffer a ~25 KB history frame, so
+    every frame it receives stays well under 1 KB.
+    """
+    limit = max(1, min(int(limit or 60), 200))
+    rows = db.recent_messages(cid, limit)
+    if not split:
+        out = [serialize_message(r) for r in rows]
+        await ws.send_text(json.dumps({"t": "history", "channel_id": cid, "messages": out}))
+        return
+    await ws.send_text(json.dumps({"t": "history_begin", "channel_id": cid, "count": len(rows)}))
     for r in rows:
-        out.append(serialize_message(r))
-    await ws.send_text(json.dumps({"t": "history", "channel_id": cid, "messages": out}))
+        await ws.send_text(json.dumps({"t": "msg", "hist": True, **serialize_message(r)}))
+    await ws.send_text(json.dumps({"t": "history_end", "channel_id": cid}))
 
 
 def serialize_message(r) -> dict:
@@ -291,8 +303,13 @@ async def _authenticate_ws(ws: WebSocket):
     try:
         raw = await asyncio.wait_for(ws.receive_text(), timeout=30)
         data = json.loads(raw)
+    except WebSocketDisconnect:
+        return None                      # client hung up first: nothing to close
     except Exception:
-        await ws.close(code=4002)
+        try:
+            await ws.close(code=4002)
+        except Exception:
+            pass
         return None
     if data.get("t") != "auth":
         await ws.send_text(json.dumps({"t": "error", "msg": "auth required"}))
@@ -377,7 +394,8 @@ async def handle_ws_message(ws: WebSocket, user, data: dict):
     if t == "subscribe":
         cid = int(data["channel_id"])
         await hub.join(cid, ws, user["username"])
-        await send_channel_history(ws, cid)
+        await send_channel_history(ws, cid, split=bool(data.get("split")),
+                                   limit=data.get("limit") or 60)
         await hub.broadcast(cid, {
             "t": "presence", "channel_id": cid, "users": hub.presence(cid),
         })
@@ -407,7 +425,8 @@ async def handle_ws_message(ws: WebSocket, user, data: dict):
             "t": "dm_opened",
             "channel": {**channel_dto(ch), "with": other["username"]},
         }))
-        await send_channel_history(ws, ch["id"])
+        if not data.get("split"):                 # split clients re-subscribe themselves
+            await send_channel_history(ws, ch["id"])
         return
 
     if t == "add_channel":
@@ -421,7 +440,8 @@ async def handle_ws_message(ws: WebSocket, user, data: dict):
         db.join_channel(user["id"], ch["id"], saved=True)
         await hub.join(ch["id"], ws, user["username"])
         await ws.send_text(json.dumps({"t": "channel_added", "channel": channel_dto(ch)}))
-        await send_channel_history(ws, ch["id"])
+        if not data.get("split"):                 # split clients re-subscribe themselves
+            await send_channel_history(ws, ch["id"])
         return
 
     if t == "leave_channel":
