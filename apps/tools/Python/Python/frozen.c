@@ -133,4 +133,5 @@ const struct _module_alias *_PyImport_FrozenAliases = aliases;
 /* Embedding apps may change this pointer to point to their favorite
    collection of frozen modules: */
 
-const struct _frozen *PyImport_FrozenModules = NULL;
+extern const struct _frozen _PlusOS_frozen_extra[];   /* PlusOS port: encodings, see PlusOS/freeze_extra.py */
+const struct _frozen *PyImport_FrozenModules = _PlusOS_frozen_extra;

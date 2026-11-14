@@ -115,6 +115,7 @@ The server is a small **FastAPI + WebSocket + SQLite** service. It stores accoun
 ## Navigation
 
 - **Previous Chapter**: [← 20. OTA Update Server: Over-the-Air Updates](/wiki/20-ota-update-server)
+- **Next Chapter**: [22. PlusUI: GUI Framework, Designer & Code Generator →](/wiki/22-plusui-gui-framework-and-designer)
 - **Networking**: [9. PlusNET: DaynaPORT TCP/IP Stack →](/wiki/09-networking-plusnet)
 - **Build Your Own App**: [12. SDK & Application Development Guide →](/wiki/12-sdk-and-app-development)
 - **Table of Contents**: [Return to Getting Started](/wiki/01-getting-started)

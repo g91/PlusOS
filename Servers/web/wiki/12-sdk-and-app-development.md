@@ -138,4 +138,5 @@ The resulting `.pex` file can be copied directly to `:bin:` on the `PlusOS.hda` 
 
 - **Previous Chapter**: [← 11. Complete Syscall ABI Reference (SYS 1-63)](/wiki/11-syscall-abi-reference)
 - **Next Chapter**: [13. PlusOS Disk Studio & Compiler Pipeline →](/wiki/13-plusos-disk-studio-and-compiler)
+- **Graphical Apps**: [22. PlusUI: GUI Framework, Designer & Code Generator →](/wiki/22-plusui-gui-framework-and-designer)
 - **Table of Contents**: [Return to Getting Started](/wiki/01-getting-started)

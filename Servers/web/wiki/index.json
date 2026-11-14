@@ -145,5 +145,12 @@
     "category": "Networking",
     "summary": "A retro System 6/7-style chat network for PlusOS: accounts, rooms, DMs, 16x16 profile icons, and file/image sharing. A native Macintosh app (over PlusNET) and a web client share the same WebSocket server, so browser and 68000 users chat together.",
     "order": 21
+  },
+  {
+    "slug": "22-plusui-gui-framework-and-designer",
+    "title": "PlusUI: GUI Framework, Designer & Code Generator",
+    "category": "Development",
+    "summary": "Build graphical PlusOS apps without hand-drawing every control: the PlusUI widget framework (windows, buttons, text boxes, lists, menus, tabs, message boxes), the drag-and-drop PlusUI Designer for Windows, macOS and Linux, and the puigen code generator that turns a saved design into C or C++ with handler stubs. Includes the download, a five-minute tutorial, full widget and API reference, and the uidemo example.",
+    "order": 22
   }
 ]
