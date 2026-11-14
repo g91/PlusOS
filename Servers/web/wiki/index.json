@@ -1,0 +1,149 @@
+[
+  {
+    "slug": "01-getting-started",
+    "title": "Getting Started with PlusOS",
+    "category": "Basics",
+    "summary": "Introduction to PlusOS by the1Domo, system overview, hardware requirements, and your first boot.",
+    "order": 1
+  },
+  {
+    "slug": "02-hardware-support",
+    "title": "Hardware Support & ROM Architectures",
+    "category": "Architecture",
+    "summary": "Deep dive into Macintosh Plus (128K ROM) vs Macintosh SE (256K ROM), ADB, VIA, SCSI, and sound.",
+    "order": 2
+  },
+  {
+    "slug": "03-bootloader-and-startup",
+    "title": "Bootloader & Kernel Relocation",
+    "category": "Architecture",
+    "summary": "How loader.S executes from HFS boot blocks, places the kernel below BufPtr, and initializes the ROM.",
+    "order": 3
+  },
+  {
+    "slug": "04-kernel-architecture",
+    "title": "Kernel Core & Dual-Ring Execution",
+    "category": "Kernel",
+    "summary": "Ring-0 supervisor vs Ring-2 userland, A-line trap interception (vector 10), and exception recovery.",
+    "order": 4
+  },
+  {
+    "slug": "05-memory-management-and-gc",
+    "title": "Dynamic RAM Management & Garbage Collection",
+    "category": "Kernel",
+    "summary": "kmem dynamic heap, slab pools (32B to 512B), canary sentinels, garbage collector & compactor, RAM disk.",
+    "order": 5
+  },
+  {
+    "slug": "06-multitasking-and-ipc",
+    "title": "Preemptive Multitasking & IPC Subsystems",
+    "category": "Kernel",
+    "summary": "Round-robin preemptive scheduler, delta timer wheels, FIFO pipes, semaphores, mutexes, and signals.",
+    "order": 6
+  },
+  {
+    "slug": "07-desktop-and-window-server",
+    "title": "Desktop GUI & Multi-OS Theme Engine",
+    "category": "Userland",
+    "summary": "The desktop compositor, tear-free page flipping, 6 themes (System 7, Amiga, Win95/98, Aero, Hacker Matrix).",
+    "order": 7
+  },
+  {
+    "slug": "08-classic-mac-loader",
+    "title": "Classic Mac 'APPL' Executable Loader",
+    "category": "Userland",
+    "summary": "Parsing HFS Resource Forks, CODE 0 Jump Table synthesis, A5 World reconstruction, and _LoadSeg hooking.",
+    "order": 8
+  },
+  {
+    "slug": "09-networking-plusnet",
+    "title": "PlusNET: DaynaPORT TCP/IP Stack",
+    "category": "Networking",
+    "summary": "Driving BlueSCSI WiFi / DaynaPORT over SCSI ID 4, ARP, IPv4, ICMP, UDP, DHCP, DNS, telnet, and IRC.",
+    "order": 9
+  },
+  {
+    "slug": "10-graphics-and-3d-engine",
+    "title": "Fixed-Point 3D Engine & Graphics",
+    "category": "Graphics",
+    "summary": "16.16 fixed-point math on the 68000, 4x4 Bayer dithering, 2D polygons/hexagons, and 3D wireframe/solid meshes.",
+    "order": 10
+  },
+  {
+    "slug": "11-syscall-abi-reference",
+    "title": "Complete Syscall ABI Reference (SYS 1-63)",
+    "category": "Reference",
+    "summary": "Full ABI documentation for all 63 PlusOS system calls, argument registers, data structures, and errors.",
+    "order": 11
+  },
+  {
+    "slug": "12-sdk-and-app-development",
+    "title": "SDK & Application Development Guide",
+    "category": "Development",
+    "summary": "Writing C applications using <plusos/...>, <plusrom/...>, and <serom/...>, linker scripts, and cross-compiling.",
+    "order": 12
+  },
+  {
+    "slug": "13-plusos-disk-studio-and-compiler",
+    "title": "PlusOS Disk Studio & Compiler Pipeline",
+    "category": "Tools",
+    "summary": "Comprehensive guide to PlusOS Disk Studio (PlusOSDiskStudio.exe), native C++ GUI compiler, multi-threaded build pipeline, dual-boot configurator, live log streaming, software package checklist, compile directory auto-scanner, HFS explorer, and the crash-safe in-place Update button that refreshes the kernel + software on an existing disk while keeping all your files.",
+    "order": 13
+  },
+  {
+    "slug": "14-bootable-floppy-and-installer",
+    "title": "Minimal Bootable Floppy & Hard Drive Installer",
+    "category": "Installation",
+    "summary": "How to compile and write 800K and 1.44M Macintosh bootable floppies, minimal recovery footprint, installer.pex, capacity guidelines (<800 KB limit), and hardware provisioning.",
+    "order": 14
+  },
+  {
+    "slug": "15-package-repository-and-network-management",
+    "title": "Package Repository Server & Software Center",
+    "category": "Networking",
+    "summary": "Standalone dual HTTP (8088) and SSL/HTTPS (8443) package repository server, Cloudflare caching, pkg CLI, and pkgmgr GUI software center.",
+    "order": 15
+  },
+  {
+    "slug": "16-macintosh-lc3-rom-decompilation-and-port",
+    "title": "Macintosh LC III ROM Reverse-Engineering & Port",
+    "category": "Architecture",
+    "summary": "100% decompilation of the 1024 KB Universal SuperMario ROM ($067C), opcode signature mapping engine, dispatch table decompression, 68030 cache coherency, and C++ reimplementation.",
+    "order": 16
+  },
+  {
+    "slug": "17-modular-kernel-and-self-healing",
+    "title": "Modular Kernel: Drivers, Services & Self-Healing",
+    "category": "Kernel",
+    "summary": "Kernel modules (core/driver/service), the KModule lifecycle, named kpipe pipelines for inter-module messaging, and a supervisor that isolates and restarts failed modules so a crash is not a panic.",
+    "order": 17
+  },
+  {
+    "slug": "18-crash-debugger-and-post-mortem-dumps",
+    "title": "In-Kernel Crash Debugger & Post-Mortem Dumps",
+    "category": "Kernel",
+    "summary": "On-screen debugger panel, full 68000 register capture, the PDMP post-mortem dump format written via raw ROM traps, and the plusdump CLI viewer with a dependency-free 68000 disassembler.",
+    "order": 18
+  },
+  {
+    "slug": "19-universal-boot",
+    "title": "Universal Boot: One Image for Every 680x0 Mac",
+    "category": "Architecture",
+    "summary": "A single PlusOS.hda that boots a Macintosh Plus, SE, Classic (68000) or LC III (68030), detecting the CPU via CPUFlag at $12F like System 7, plus run-time 68030 cache coherency, A-line dispatch, and Sonora video geometry.",
+    "order": 19
+  },
+  {
+    "slug": "20-ota-update-server",
+    "title": "OTA Update Server: Over-the-Air Updates",
+    "category": "Networking",
+    "summary": "Update PlusOS over the internet without reflashing. The standalone OTA server (FastAPI + WebSocket + SQLite) at ota.d0a.net via Cloudflare, signed per-compile publishing, content-addressed artifacts, the PlusOS Updater and native plusupdate clients, an AI assistant (LFM2-2.6B) that writes release notes and per-app changelogs, and an admin control panel with live system monitoring.",
+    "order": 20
+  },
+  {
+    "slug": "21-ikanet-chat-client",
+    "title": "IKANET: Chat Client & Server",
+    "category": "Networking",
+    "summary": "A retro System 6/7-style chat network for PlusOS: accounts, rooms, DMs, 16x16 profile icons, and file/image sharing. A native Macintosh app (over PlusNET) and a web client share the same WebSocket server, so browser and 68000 users chat together.",
+    "order": 21
+  }
+]

@@ -2,7 +2,9 @@
 import argparse
 import json
 import os
+import shutil
 import sys
+import tempfile
 
 from . import apm, fsck, image, macroman, manifest, stage as stage_mod, __version__
 from .hfs import SECTOR, HFSError, fourcc_str
@@ -198,6 +200,100 @@ def cmd_build(a):
     return _do_image(a, root, staged=True)
 
 
+# PlusOS-owned top-level volume entries. Everything else on the volume is user
+# data (e.g. home/, etc/, tmp/, documents) and must survive an update untouched.
+# These are the entries `stage` writes; an update replaces exactly these.
+_SYSTEM_TOP = {"bin", "games", "multiboot.cfg", ".boot", ".rsrc", ".hdbuild.json"}
+# Inside Desktop/, these items are PlusOS's; any other Desktop item is the user's.
+_SYSTEM_DESKTOP = {"return to plusos", "installer"}
+
+
+def _is_system_rel(rel):
+    """True if a staged relative path (forward slashes) belongs to PlusOS, not
+    the user - so an update may overwrite it."""
+    parts = rel.split("/")
+    top = parts[0].lower()
+    if top in _SYSTEM_TOP:
+        return True
+    if top == "desktop":
+        if len(parts) == 1:
+            return True                       # the Desktop folder itself
+        return parts[1].lower() in _SYSTEM_DESKTOP
+    return False
+
+
+def _copy_user_files(src_extract, dst_stage, log):
+    """Copy every NON-system file/dir from an extracted volume (src_extract) into
+    the freshly staged volume (dst_stage), preserving user data. System paths are
+    skipped because the fresh stage already holds the new versions. Also carries
+    over matching resource-fork side files under .rsrc/."""
+    kept = 0
+    for dirpath, dirnames, filenames in os.walk(src_extract):
+        rel_dir = os.path.relpath(dirpath, src_extract).replace(os.sep, "/")
+        if rel_dir == ".":
+            rel_dir = ""
+        # prune whole system subtrees (don't even descend into .rsrc/.boot)
+        if rel_dir and _is_system_rel(rel_dir):
+            dirnames[:] = []
+            # still allow user items inside Desktop/
+            if rel_dir.lower() != "desktop":
+                continue
+        for fn in filenames:
+            rel = (rel_dir + "/" + fn) if rel_dir else fn
+            # .rsrc/<path>.rsrc side files follow their owning file's system-ness
+            owner = rel
+            if rel.startswith(".rsrc/") and rel.endswith(".rsrc"):
+                owner = rel[len(".rsrc/"):-len(".rsrc")]
+            if _is_system_rel(owner):
+                continue
+            s = os.path.join(dirpath, fn)
+            d = os.path.join(dst_stage, *rel.split("/"))
+            os.makedirs(os.path.dirname(d), exist_ok=True)
+            shutil.copy2(s, d)
+            kept += 1
+    log("  preserved %d user file(s) from the existing volume" % kept)
+    return kept
+
+
+def cmd_update(a):
+    """Update kernel + software on an existing image/card WITHOUT reformatting:
+    the HFS volume's user data (home, etc, documents, Desktop items) is carried
+    across, and the image's own Apple SCSI driver / partition map is reused."""
+    target = a.image
+    if not os.path.isfile(target):
+        raise CliError("update: %s does not exist (use `build` to create a new disk)" % target)
+
+    final_out = a.out or target
+    # Reuse THIS image's driver + partition map so the result still boots on the
+    # same hardware.
+    a.from_template = target
+
+    tmp = tempfile.mkdtemp(prefix="plusos_update_")
+    try:
+        extracted = os.path.join(tmp, "old")
+        fresh = os.path.join(tmp, "new")
+        # Build to a temp file first, then move it into place, so a half-written
+        # image can never clobber the card/disk we are reading the template from.
+        a.out = os.path.join(tmp, "updated.hda")
+        print("  reading existing volume %s ..." % target)
+        image.extract(target, extracted, force=True)
+        print("  staging the new kernel + software ...")
+        a.root = fresh
+        root = _do_stage(a)                   # fresh bin/, Games/, Desktop system items, kernel, boot
+        print("  preserving user data ...")
+        _copy_user_files(extracted, root, print)
+        print("  rebuilding image (user files kept, driver reused) ...")
+        rc = _do_image(a, root, staged=True)
+        if rc != 0:
+            return rc
+        print("  writing %s ..." % final_out)
+        shutil.move(a.out, final_out)
+        print("  update complete: kernel + software refreshed, user data preserved.")
+        return 0
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 def _date(secs):
     return (manifest.iso_from_mac(secs) or "-").replace("T", " ")
 
@@ -391,6 +487,14 @@ def main(argv=None):
     _stage_args(p)
     _image_args(p)
     p.set_defaults(fn=cmd_build)
+
+    p = sub.add_parser("update", help="update kernel + software on an existing image/card, "
+                                      "keeping user files and the disk's Apple driver")
+    p.add_argument("image", help="existing PlusOS image or BlueSCSI .hda to update in place")
+    p.add_argument("--out", "-o", metavar="IMAGE", help="write the result here instead of overwriting")
+    _stage_args(p)
+    _image_args(p)
+    p.set_defaults(fn=cmd_update)
 
     p = sub.add_parser("ls", help="list files in an image")
     p.add_argument("image")

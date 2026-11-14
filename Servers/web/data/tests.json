@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "title": "PlusOS 2.0 Hardware Test #1: Mac SE & BlueSCSI WiFi",
+    "version": "2.0.0-rc1",
+    "date": "2026-11-08",
+    "author": "the1Domo",
+    "target_hardware": "Macintosh SE / Macintosh Plus with BlueSCSI V2",
+    "instructions": "Please test booting on real hardware with BlueSCSI. Verify the boot banner displays 'PlusOS 2.0 by the1Domo', test `theme 5` (Hacker Matrix), verify `net` connects to WiFi over SCSI ID 4, test `ping google.com` and `cube3d`. Report any screen artifacts or crashes.",
+    "download_url": "/downloads/PlusOS.hda",
+    "active": true
+  }
+]

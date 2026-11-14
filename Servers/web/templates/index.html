@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlusOS 3.1 by the1Domo — The Bare-Metal Operating System for Every 680x0 Macintosh</title>
+  <meta name="description" content="PlusOS 3.1 by the1Domo is an advanced bare-metal operating system for the vintage Macintosh Plus, SE, Classic, and LC III. Version 3.1 introduces the Universal Loader — one image that boots any 680x0 Mac — plus a modular self-healing kernel and an in-kernel crash debugger, alongside preemptive multitasking, dynamic RAM management, TCP/IP networking, 3D graphics, and Classic Mac application support.">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
+</head>
+<body>
+
+  <!-- Background Animated Matrix Digital Rain Canvas -->
+  <canvas id="matrix-canvas"></canvas>
+
+  <!-- Retro Apple Menu Bar -->
+  <header class="mac-menubar">
+    <div class="menu-left">
+      <svg class="apple-logo" width="13" height="15" viewBox="0 0 170 170" style="vertical-align:-1px; fill:currentColor; margin-right:4px;">
+        <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.08-7.5-7.79-11.4-14.14-5.65-9.16-10.05-19.37-13.2-30.63-3.14-11.26-4.72-22.12-4.72-32.58 0-14.15 3.49-25.96 10.46-35.43 6.98-9.48 15.82-14.28 26.54-14.42 5.12 0 10.74 1.41 16.86 4.23 6.12 2.82 10.15 4.3 12.08 4.3 1.8 0 6.04-1.55 12.72-4.66 6.68-3.1 12.18-4.5 16.5-4.21 12.59.95 22.39 5.86 29.41 14.74-11.04 6.69-16.44 15.89-16.2 27.6.22 9.22 3.79 16.94 10.71 23.16 6.92 6.22 14.98 9.77 24.19 10.66-2.02 6.09-4.53 12.43-7.53 19.01zM119.22 31.84c0-7.39 2.65-14.19 7.95-20.4 5.3-6.21 11.83-10.19 19.59-11.44.15 1.13.22 2.14.22 3.03 0 7.39-2.73 14.29-8.19 20.7-5.46 6.41-12.1 10.12-19.92 11.14-.15-1.03-.22-2.04-.22-3.03z"/>
+      </svg>
+      <a href="/" style="font-weight:900;">PlusOS 3.1</a>
+      <a href="#whats-new">🚀 What's New</a>
+      <a href="/wiki">📖 Wiki</a>
+      <a href="#studio">⚡ Studio</a>
+      <a href="https://discord.gg/hkpe76G7AU" target="_blank" rel="noopener">💬 Discord</a>
+      <a href="https://github.com/g91/PlusOS" target="_blank" rel="noopener">🐙 GitHub</a>
+      <a href="#showcase">📸 Showcase</a>
+      <a href="#download">💾 Download</a>
+      <a href="#features">Features</a>
+      <a href="#specs">Specs</a>
+    </div>
+    <div class="menu-right">
+      {{AUTH_MENUBAR_HTML}}
+      <a href="#" id="matrix-toggle">Matrix Rain: ON</a>
+      <a href="#" id="theme-toggle">CRT Mode: OFF</a>
+      <span id="menubar-clock">12:00 PM</span>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ADVERTISEMENT HERO BANNER -->
+    <section class="mac-window">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">PlusOS 3.1 — Official Distribution &amp; Showcase (plusos.d0a.net)</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="ad-hero-banner">
+        <span class="ad-badge">{{CONTENT_HERO_BADGE}}</span>
+        <h1 class="ad-hero-title">{{CONTENT_HERO_TITLE}}</h1>
+        <p class="ad-hero-subtitle">
+          {{CONTENT_HERO_SUBTITLE}}
+        </p>
+
+        <!-- PRIMARY CALL TO ACTION BUTTONS -->
+        <div class="ad-cta-row">
+          <a href="/wiki" class="btn-cta btn-cta-wiki">
+            <span>📖</span>
+            <span>Explore the Wiki</span>
+          </a>
+          <a href="#studio" class="btn-cta" style="background:#0055ff; color:#fff; border-color:#0033aa;">
+            <span>⚡</span>
+            <span>Disk Studio &amp; Compiler</span>
+          </a>
+          <a href="https://discord.gg/hkpe76G7AU" target="_blank" rel="noopener" class="btn-cta btn-cta-discord">
+            <span>💬</span>
+            <span>Join our Discord</span>
+          </a>
+          <a href="https://github.com/g91/PlusOS" target="_blank" rel="noopener" class="btn-cta btn-cta-github">
+            <span>🐙</span>
+            <span>View on GitHub</span>
+          </a>
+          <a href="#download" class="btn-cta btn-cta-download">
+            <span>💾</span>
+            <span>Download Center</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="mac-content">
+        <!-- Two Column Pitch & Hardware Showcase -->
+        <div class="hero">
+          <div class="hero-text">
+            <h2>{{CONTENT_PITCH_HEADLINE}}</h2>
+            <p class="hero-desc">
+              {{CONTENT_PITCH_BODY}}
+            </p>
+            <ul style="margin: 0 0 16px 20px; font-size: 13px; line-height: 1.7;">
+              <li><strong>Preemptive 60 Hz Scheduling</strong>: Run background jobs, daemons, and concurrent CLI tools with ease.</li>
+              <li><strong>Dynamic RAM Manager &amp; GC</strong>: Multi-tier slab pools, canary sentinels, and automatic garbage compaction prevent out-of-memory crashes.</li>
+              <li><strong>Native Classic Mac App Compatibility</strong>: Run authentic Mac applications through in-kernel A5 World and Jump Table synthesis.</li>
+              <li><strong>Internet over Wi-Fi</strong>: Full DaynaPORT SCSI emulation connects your Mac to the web via BlueSCSI.</li>
+            </ul>
+            <div style="margin-top: 16px;">
+              <a href="/wiki/01-getting-started" class="btn-mac btn-primary">Read the Getting Started Guide &rarr;</a>
+            </div>
+          </div>
+          <div class="hardware-preview">
+            <img src="/docs/dasktop.png" alt="PlusOS 3.1 running on a real physical Macintosh SE with Hacker Matrix theme" class="zoomable-img" data-src="/docs/dasktop.png" data-caption="Live Hardware: Macintosh SE running PlusOS 3.1 with real-time Hacker Matrix Rain">
+            <div class="hardware-caption">Live on physical hardware: Macintosh SE running PlusOS with real-time Matrix rain (Click to enlarge)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT'S NEW IN 3.1 -->
+    <section class="mac-window" id="whats-new">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">What's New in PlusOS 3.1 — The Universal Loader Release</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="mac-content">
+        <div style="text-align:center; margin-bottom:18px;">
+          <span class="ad-badge" style="background:#0b2a5a; color:#7cc0ff; border-color:#7cc0ff;">🚀 NEW IN 3.1 • ONE IMAGE, EVERY 680x0 MAC</span>
+          <h2 style="margin:8px 0;">Build Once. Boot Anywhere.</h2>
+          <p style="max-width:720px; margin:0 auto; font-size:14px; line-height:1.6; color:#333;">
+            PlusOS 3.1 introduces the <strong>Universal Loader</strong>: a single <code>PlusOS.hda</code> that boots a Macintosh&nbsp;Plus, SE, Classic (68000) <strong>or</strong> an LC&nbsp;III (68030), detecting the CPU and hardware at run time — exactly the way System&nbsp;7 ships one System file for every Macintosh. Move the same card between machines and it just boots.
+          </p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card" style="border-left:4px solid #0055ff;">
+            <h3>🌐 Universal Loader</h3>
+            <p>One image for the Plus, SE, Classic, and LC III. The kernel reads <code>CPUFlag</code> (<code>$012F</code>) at boot and adapts console geometry, framebuffer, keyboard, ROM trap tables, 68030 cache coherency, and A-line dispatch automatically. Build it with <code>MACHINE=universal</code>.</p>
+          </div>
+          <div class="feature-card" style="border-left:4px solid #00aa44;">
+            <h3>🧩 Modular Self-Healing Kernel</h3>
+            <p>Every subsystem is a supervised module — drivers and services that talk over named pipelines. A built-in supervisor isolates and restarts any module that fails, so a crashing driver no longer takes the machine down with it.</p>
+          </div>
+          <div class="feature-card" style="border-left:4px solid #cc2244;">
+            <h3>🐞 In-Kernel Crash Debugger</h3>
+            <p>Faults are caught, shown on an on-screen debugger panel, and written to a post-mortem <code>PlusOS CrashDump</code> — then recovered from instead of resetting the Mac. Decode dumps offline with <code>plusdump</code> and its built-in 68000 disassembler.</p>
+          </div>
+          <div class="feature-card" style="border-left:4px solid #7722cc;">
+            <h3>🖥️ Full LC III (68030) Support</h3>
+            <p>Native 640×480 Sonora video, NCR 53C96 high-speed SCSI, 68030 instruction/data cache management, and a direct Toolbox dispatch path for user-mode apps — all gated at run time so the same binary still runs on an 8 MHz 68000.</p>
+          </div>
+        </div>
+        <div style="text-align:center; margin-top:16px;">
+          <a href="/wiki/19-universal-boot" class="btn-mac btn-primary">Read: Universal Boot &amp; LC III Support &rarr;</a>
+          <a href="/wiki/17-modular-kernel-and-self-healing" class="btn-mac" style="background:#111; color:#fff; border-color:#555;">Modular Kernel &rarr;</a>
+          <a href="/wiki/18-crash-debugger-and-post-mortem-dumps" class="btn-mac" style="background:#111; color:#fff; border-color:#555;">Crash Debugger &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURED PHYSICAL HARDWARE SPOTLIGHT (docs/dasktop.png) -->
+    <section class="hardware-spotlight">
+      <div class="hardware-spotlight-content">
+        <div>
+          <img src="/docs/dasktop.png" alt="PlusOS 3.1 on Macintosh SE Hardware" class="hardware-spotlight-img zoomable-img" data-src="/docs/dasktop.png" data-caption="PlusOS 3.1 live on physical Macintosh SE hardware — Theme switcher, Matrix wallpaper, and desktop icons.">
+        </div>
+        <div class="hardware-spotlight-text">
+          <span class="ad-badge" style="background:#093b16; color:#00ff66; border-color:#00ff66;">⚡ PROVEN ON PHYSICAL SILICON</span>
+          <h3>Real Hardware Spotlight</h3>
+          <p>
+            Here is <strong>PlusOS 3.1 by the1Domo</strong> running directly on physical vintage <strong>Macintosh SE</strong> hardware with an authentic Motorola 68000 CPU.
+          </p>
+          <p>
+            Shown above is the desktop in <strong>Hacker CRT Matrix Mode</strong>: digital code rain animates in the background while the live Theme &amp; Settings window allows hot-swapping between System 7.1, Commodore Amiga, Windows 95/98, and Vista Aero themes without rebooting!
+          </p>
+          <div style="display:flex; gap:10px; margin-top:14px;">
+            <a href="#showcase" class="btn-mac btn-primary" style="background:#00ff66; color:#000; border-color:#00ff66;">View All 25 Showcase Shots &darr;</a>
+            <a href="/wiki/07-desktop-and-window-server" class="btn-mac" style="background:#111; color:#fff; border-color:#555;">Desktop Architecture &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 PILLARS VALUE PROPOSITION -->
+    <div class="value-props-bar">
+      <div class="value-prop-item">
+        <div class="value-prop-icon">⚡</div>
+        <h3>Preemptive Kernel</h3>
+        <p>Ring-0 supervisor isolation, 60 Hz VBL preemption, background tasking (<code>&amp;</code>), and priority scheduling.</p>
+      </div>
+      <div class="value-prop-item">
+        <div class="value-prop-icon">🧠</div>
+        <h3>Smart RAM &amp; GC</h3>
+        <p>5 zero-fragmentation slab pools (32B–512B), heap canaries, and automatic mark-sweep garbage collection.</p>
+      </div>
+      <div class="value-prop-item">
+        <div class="value-prop-icon">🌐</div>
+        <h3>PlusNET TCP/IP</h3>
+        <p>Autonomous networking stack: DHCP, DNS, ping, telnet, and live IRC over BlueSCSI Wi-Fi.</p>
+      </div>
+      <div class="value-prop-item">
+        <div class="value-prop-icon">🕹️</div>
+        <h3>Classic Mac Loader</h3>
+        <p>Execute native Classic Mac <code>'APPL'</code> binaries directly with resource fork parsing and <code>_LoadSeg</code> hooking.</p>
+      </div>
+    </div>
+
+    <!-- FEATURE HIGHLIGHTS -->
+    <section class="mac-window" id="features">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">Next-Generation Features for Classic Silicon</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="mac-content">
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>🎨 6 Multi-OS Themes</h3>
+            <p>Transform your desktop instantly without rebooting: <strong>Mac OS 7.1</strong>, <strong>Commodore Amiga Workbench</strong>, <strong>Windows 95</strong>, <strong>Windows 98</strong>, <strong>Vista/7 Aero</strong>, or the animated <strong>Hacker CRT Matrix Rain</strong>.</p>
+          </div>
+          <div class="feature-card">
+            <h3>🎲 16.16 Fixed-Point 3D</h3>
+            <p>Smooth 30+ FPS real-time 3D wireframe and solid mesh rendering. Powered by 68000 integer math, sine lookup tables, and 16-shade 4x4 ordered Bayer dithering.</p>
+          </div>
+          <div class="feature-card">
+            <h3>🖥️ Tear-Free Compositor</h3>
+            <p>Hand-crafted 68000 assembly blitter (<code>vblit.S</code>) unrolls 64-byte scanlines synchronized to hardware VBL beam for flicker-free window movement.</p>
+          </div>
+          <div class="feature-card">
+            <h3>📜 63 Syscalls ABI</h3>
+            <p>Comprehensive supervisor interface: FIFO pipes, counting semaphores, mutexes, shared memory, POSIX signals, syslog ring buffer, and PRAM access.</p>
+          </div>
+          <div class="feature-card">
+            <h3>🎮 13 Built-in Games &amp; VMs</h3>
+            <p>Play Asteroids, Tetris, Pacman, Lunar Lander, Dungeon, or Racer. Emulate vintage architectures with CHIP-8 VM, MOS 6502 Apple I, and Retro BASIC.</p>
+          </div>
+          <div class="feature-card">
+            <h3>⌨️ Modern Shell Conveniences</h3>
+            <p>Persistent 20-command history saved across reboots (<code>:PlusOS History</code>), smart Tab auto-completion, job control, and background task management.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEVELOPER TOOLS & DISK STUDIO SUITE -->
+    <section class="mac-window" id="studio">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">Developer Tools — PlusOS Disk Studio &amp; Multi-Threaded Compiler</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="mac-content">
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div>
+            <span class="ad-badge" style="background:#093b16; color:#00ff66; border-color:#00ff66;">⚡ NEW IN PLUSOS 3.1</span>
+            <h2 style="margin:8px 0;">PlusOS Disk Studio (<code style="font-size:16px;">PlusOSDiskStudio.exe</code>)</h2>
+            <p style="font-size:14px; line-height:1.6; color:#333;">
+              A high-performance, native Win32/C++ companion tool located directly in the root of the repository. PlusOS Disk Studio provides a complete graphical operating system builder, non-blocking multi-threaded compiler with real-time log streaming, dual-boot system configurator, and full dual-pane Macintosh HFS hard drive manager.
+            </p>
+          </div>
+
+          <div class="features-grid">
+            <div class="feature-card" style="border-left:4px solid #0055ff;">
+              <h3>⚡ Non-Blocking Async Compiler</h3>
+              <p>Compilations (<code>make install</code> &amp; <code>make floppy</code>) execute in dedicated background worker threads. Windows never freezes or shows "(Not Responding)", while compiler stdout/stderr streams line-by-line into the live log window in real time.</p>
+            </div>
+
+            <div class="feature-card" style="border-left:4px solid #00aa44;">
+              <h3>📦 66-App Checklist &amp; Boot Core Sizing</h3>
+              <p>Granular checkbox control over all 66 packages. Automatically includes the mandatory <strong>Base OS Core (~191 KB Kernel, Boot Blocks, and HFS overhead)</strong> required to boot before calculating total footprint, ensuring disks truly fit on hardware.</p>
+            </div>
+
+            <div class="feature-card" style="border-left:4px solid #d4aa00;">
+              <h3>💾 Floppy Capacity Rules (800K vs 1.44M)</h3>
+              <p>Real-time capacity tracking against vintage floppy hardware limits. Automatically guides you to keep software under <strong>~609 KB (Total &lt; 800 KB)</strong> for standard 800K Macintosh Plus/SE disks, or up to <strong>1.44 MB</strong> for High Density SuperDrives, with safety prompts.</p>
+            </div>
+
+            <div class="feature-card" style="border-left:4px solid #aa00bb;">
+              <h3>🔍 Automatic Compile Directory Scanner</h3>
+              <p>Both Disk Studio and <code>install.py</code> automatically scan <code>build/apps/*.pex</code>. Any newly compiled 68000 binary is detected instantly, added to the package checklist with its exact size, and marked for installation.</p>
+            </div>
+
+            <div class="feature-card" style="border-left:4px solid #ff4400;">
+              <h3>🔄 Classic Mac OS "Return to PlusOS" Injector</h3>
+              <p>Dual-booting between System 7 and PlusOS? Inject the native Classic Mac OS executable (<code>APPL</code>/<code>PLOS</code>) into any image or external disk. Launching it inside Mac OS rewrites XPRAM offset <code>$78</code> and issues <code>_Restart</code> (<code>$A888</code>) to seamlessly return to PlusOS.</p>
+            </div>
+
+            <div class="feature-card" style="border-left:4px solid #008888;">
+              <h3>🗂️ Dual-Pane Drag &amp; Drop HFS Explorer</h3>
+              <p>Browse folder hierarchies and files with Mac FourCC Type/Creator inspection. Drag files from Windows Explorer directly into vintage HFS disk images with automatic metadata tagging, export files, or delete items.</p>
+            </div>
+
+            <div class="feature-card" style="border-left:4px solid #118833;">
+              <h3>🌐 Universal Portability &amp; BlueSCSI Auto-Scan</h3>
+              <p>Runs portably in any folder without hardcoded drive assumptions. If the PlusOS repository is missing, it offers to download and set it up automatically from GitHub. Automatically scans drives <code>D:</code> through <code>Z:</code> to detect BlueSCSI SD cards.</p>
+            </div>
+
+            <div class="feature-card" style="border-left:4px solid #7722cc;">
+              <h3>🐧 Native Linux Edition &amp; TUI (<code>make studio</code>)</h3>
+              <p>Linux developers can compile and run Disk Studio natively without Windows (<code>./PlusOSDiskStudio</code> or <code>make studio</code>). Includes an interactive terminal TUI and CLI commands to inspect partitions, list HFS trees, extract/import files, and compile images.</p>
+            </div>
+
+            <div class="feature-card" style="border-left:4px solid #cc2244;">
+              <h3>🔒 Mandatory Shell Lock &amp; Env Setup</h3>
+              <p>The core PlusOS Command Shell (<code>SHELL</code>) is permanently locked as required to boot across all package selection presets. Includes a one-click <strong>Setup Environment</strong> button to install <code>requirements.txt</code> and verify WSL Ubuntu.</p>
+            </div>
+          </div>
+
+          <!-- Quick Wiki & Floppy Highlight Banner -->
+          <div style="background:#f4f7fb; border:1px solid #c0d0e6; border-radius:6px; padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <div>
+                <strong style="font-size:16px; color:#1a365d;">💽 Minimal Bootable Installer Floppy (<code style="font-size:14px;">PlusOS_Floppy.dsk</code>)</strong>
+                <p style="margin:4px 0 0 0; font-size:13px; color:#4a5568;">
+                  A zero-bloat ~500 KB bootable floppy disk image containing only the essential bootloader, kernel, shell, desktop, and the guided hard drive installer (<code>installer.pex</code>) with strictly zero games. Boot on physical hardware or Mini vMac to partition, format, and provision any SCSI hard drive.
+                </p>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <a href="/downloads/PlusOS_Floppy.dsk" class="btn-cta btn-cta-download" style="padding:8px 16px; font-size:13px;">💾 Download Floppy (.dsk)</a>
+                <a href="/wiki/14-bootable-floppy-and-installer" class="btn-mac btn-primary" style="padding:8px 14px; font-size:13px;">Floppy Guide &rarr;</a>
+                <a href="/wiki/13-plusos-disk-studio-and-compiler" class="btn-mac" style="background:#0055ff; color:#fff; border-color:#0033aa; padding:8px 14px; font-size:13px;">Studio &amp; Compiler Wiki &rarr;</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FULL 25-SCREENSHOT SHOWCASE SECTION -->
+    <section class="mac-window" id="showcase">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">PlusOS Showcase Tour (25 Captured Screenshots)</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="mac-content">
+        <div class="showcase-header">
+          <div>
+            <strong>Interactive Showcase Tour</strong>
+            <p style="font-size:12px; color:#555;">Click any card to inspect in full resolution. Filter by category below:</p>
+          </div>
+          <div class="showcase-filters">
+            <button class="showcase-filter-btn active" data-category="all">All (25)</button>
+            <button class="showcase-filter-btn" data-category="desktop">Desktop &amp; GUI</button>
+            <button class="showcase-filter-btn" data-category="3d">3D &amp; Gfx</button>
+            <button class="showcase-filter-btn" data-category="network">Networking</button>
+            <button class="showcase-filter-btn" data-category="system">System &amp; CLI</button>
+          </div>
+        </div>
+
+        <div class="showcase-grid">
+          <!-- 21 Desktop Clean -->
+          <div class="showcase-item zoomable-img" data-category="desktop" data-src="/docs/screenshots/22_desktop-clean.png" data-caption="Desktop: Clean view with Matrix digital rain wallpaper, desktop icons, and Apple menu bar.">
+            <img src="/docs/screenshots/22_desktop-clean.png" alt="PlusOS Desktop">
+            <div class="showcase-info">
+              <div class="showcase-title">Desktop Environment</div>
+              <div class="showcase-tag">Desktop</div>
+            </div>
+          </div>
+
+          <!-- 23 Desktop Programs -->
+          <div class="showcase-item zoomable-img" data-category="desktop" data-src="/docs/screenshots/23_desktop-programs.png" data-caption="Programs Launcher: Visual categorized launcher showing every executable and game in :bin:.">
+            <img src="/docs/screenshots/23_desktop-programs.png" alt="Programs Launcher">
+            <div class="showcase-info">
+              <div class="showcase-title">Programs Launcher</div>
+              <div class="showcase-tag">Desktop</div>
+            </div>
+          </div>
+
+          <!-- 25 Task Manager GUI -->
+          <div class="showcase-item zoomable-img" data-category="desktop" data-src="/docs/screenshots/25_desktop-taskman-gui.png" data-caption="Task Manager: Graphical process manager with real-time CPU usage bars and process termination.">
+            <img src="/docs/screenshots/25_desktop-taskman-gui.png" alt="Task Manager GUI">
+            <div class="showcase-info">
+              <div class="showcase-title">GUI Task Manager</div>
+              <div class="showcase-tag">Desktop</div>
+            </div>
+          </div>
+
+          <!-- 24 Desktop Files -->
+          <div class="showcase-item zoomable-img" data-category="desktop" data-src="/docs/screenshots/24_desktop-files.png" data-caption="Files Explorer: Interactive HFS volume browser with folder navigation and double-click launching.">
+            <img src="/docs/screenshots/24_desktop-files.png" alt="Files Explorer">
+            <div class="showcase-info">
+              <div class="showcase-title">HFS Files Explorer</div>
+              <div class="showcase-tag">Desktop</div>
+            </div>
+          </div>
+
+          <!-- 20 3D Wireframe -->
+          <div class="showcase-item zoomable-img" data-category="3d" data-src="/docs/screenshots/20_cube3d-wireframe.png" data-caption="cube3d Engine: Real-time 16.16 fixed-point 3D wireframe mesh rotation.">
+            <img src="/docs/screenshots/20_cube3d-wireframe.png" alt="3D Wireframe">
+            <div class="showcase-info">
+              <div class="showcase-title">3D Engine (Wireframe)</div>
+              <div class="showcase-tag">3D &amp; Gfx</div>
+            </div>
+          </div>
+
+          <!-- 19 3D Solid -->
+          <div class="showcase-item zoomable-img" data-category="3d" data-src="/docs/screenshots/19_cube3d-solid.png" data-caption="cube3d Solid: 16-shade 4x4 Bayer dithered solid shaded 3D mesh rasterization.">
+            <img src="/docs/screenshots/19_cube3d-solid.png" alt="3D Solid Mesh">
+            <div class="showcase-info">
+              <div class="showcase-title">3D Engine (Solid Dither)</div>
+              <div class="showcase-tag">3D &amp; Gfx</div>
+            </div>
+          </div>
+
+          <!-- 10 Net Interface -->
+          <div class="showcase-item zoomable-img" data-category="network" data-src="/docs/screenshots/10_net-interface.png" data-caption="PlusNET: DaynaPORT Ethernet adapter initialization, DHCP lease, and IP configuration.">
+            <img src="/docs/screenshots/10_net-interface.png" alt="Network Interface">
+            <div class="showcase-info">
+              <div class="showcase-title">PlusNET Interface (net)</div>
+              <div class="showcase-tag">Networking</div>
+            </div>
+          </div>
+
+          <!-- 11 Ping -->
+          <div class="showcase-item zoomable-img" data-category="network" data-src="/docs/screenshots/11_ping.png" data-caption="ICMP Ping: Resolving google.com via DNS and measuring round-trip latency over BlueSCSI.">
+            <img src="/docs/screenshots/11_ping.png" alt="Ping Tool">
+            <div class="showcase-info">
+              <div class="showcase-title">ICMP Ping Utility</div>
+              <div class="showcase-tag">Networking</div>
+            </div>
+          </div>
+
+          <!-- 12 Telnet -->
+          <div class="showcase-item zoomable-img" data-category="network" data-src="/docs/screenshots/12_telnet-usage.png" data-caption="Telnet Client: Connecting to remote TCP telnet servers and BBS systems.">
+            <img src="/docs/screenshots/12_telnet-usage.png" alt="Telnet Client">
+            <div class="showcase-info">
+              <div class="showcase-title">Telnet Client</div>
+              <div class="showcase-tag">Networking</div>
+            </div>
+          </div>
+
+          <!-- 13 IRC -->
+          <div class="showcase-item zoomable-img" data-category="network" data-src="/docs/screenshots/13_irc-usage.png" data-caption="IRC Client: Native Internet Relay Chat client for chatting online from your Mac.">
+            <img src="/docs/screenshots/13_irc-usage.png" alt="IRC Client">
+            <div class="showcase-info">
+              <div class="showcase-title">Internet Relay Chat (irc)</div>
+              <div class="showcase-tag">Networking</div>
+            </div>
+          </div>
+
+          <!-- 08 Help All Commands -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/08_help-all-commands.png" data-caption="Shell Help: Full listing of built-in and external system utilities, games, and tools.">
+            <img src="/docs/screenshots/08_help-all-commands.png" alt="Shell Commands">
+            <div class="showcase-info">
+              <div class="showcase-title">Shell Commands Suite</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 01 Sysinfo -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/01_sysinfo.png" data-caption="sysinfo: Displays CPU type, RAM capacity, free heap, uptime, and process count.">
+            <img src="/docs/screenshots/01_sysinfo.png" alt="System Info">
+            <div class="showcase-info">
+              <div class="showcase-title">System Info (sysinfo)</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 03 Memory -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/03_memory.png" data-caption="mem: Memory map, kernel load boundaries, stack, and dynamic free heap.">
+            <img src="/docs/screenshots/03_memory.png" alt="Memory Map">
+            <div class="showcase-info">
+              <div class="showcase-title">Memory Map (mem)</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 04 Processes -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/04_processes.png" data-caption="ps: Active process listing with PID, execution ring, state, and binary name.">
+            <img src="/docs/screenshots/04_processes.png" alt="Process Table">
+            <div class="showcase-info">
+              <div class="showcase-title">Process Table (ps)</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 06 Files LS -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/06_files-ls.png" data-caption="ls: Volume file listing with file type, creator code, and data/resource fork byte sizes.">
+            <img src="/docs/screenshots/06_files-ls.png" alt="File Listing">
+            <div class="showcase-info">
+              <div class="showcase-title">Volume Listing (ls)</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 07 Registry -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/07_registry.png" data-caption="reg: PlusOS persistent key-value configuration registry.">
+            <img src="/docs/screenshots/07_registry.png" alt="System Registry">
+            <div class="showcase-info">
+              <div class="showcase-title">Registry Manager (reg)</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 14 Calculator -->
+          <div class="showcase-item zoomable-img" data-category="desktop" data-src="/docs/screenshots/14_calculator.png" data-caption="Calculator: Classic desk accessory with arithmetic functions.">
+            <img src="/docs/screenshots/14_calculator.png" alt="Calculator">
+            <div class="showcase-info">
+              <div class="showcase-title">Calculator Accessory</div>
+              <div class="showcase-tag">Desktop</div>
+            </div>
+          </div>
+
+          <!-- 15 Notepad -->
+          <div class="showcase-item zoomable-img" data-category="desktop" data-src="/docs/screenshots/15_notepad.png" data-caption="Note Pad: Multi-page persistent scratchpad.">
+            <img src="/docs/screenshots/15_notepad.png" alt="Notepad">
+            <div class="showcase-info">
+              <div class="showcase-title">Note Pad Accessory</div>
+              <div class="showcase-tag">Desktop</div>
+            </div>
+          </div>
+
+          <!-- 16 15-Puzzle -->
+          <div class="showcase-item zoomable-img" data-category="desktop" data-src="/docs/screenshots/16_15-puzzle.png" data-caption="15-Puzzle: The iconic sliding tile desk accessory from the 1984 Macintosh.">
+            <img src="/docs/screenshots/16_15-puzzle.png" alt="15-Puzzle">
+            <div class="showcase-info">
+              <div class="showcase-title">15-Puzzle Desk Accessory</div>
+              <div class="showcase-tag">Desktop</div>
+            </div>
+          </div>
+
+          <!-- 17 Hex Editor -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/17_hex-editor.png" data-caption="hexedit: Dual-pane hexadecimal and ASCII file viewer/editor.">
+            <img src="/docs/screenshots/17_hex-editor.png" alt="Hex Editor">
+            <div class="showcase-info">
+              <div class="showcase-title">Hex Editor (hexedit)</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 18 Sound Synth -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/18_sound-synth.png" data-caption="sound: 4-voice PWM hardware sound synthesizer demonstrating hardware audio.">
+            <img src="/docs/screenshots/18_sound-synth.png" alt="Sound Synth">
+            <div class="showcase-info">
+              <div class="showcase-title">Sound Synth (sound)</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 02 Version -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/02_version.png" data-caption="ver: Operating system version and machine identification.">
+            <img src="/docs/screenshots/02_version.png" alt="Version">
+            <div class="showcase-info">
+              <div class="showcase-title">Version (ver)</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 05 Date -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/05_date.png" data-caption="date: Real-time clock battery-backed PRAM date and time.">
+            <img src="/docs/screenshots/05_date.png" alt="Date">
+            <div class="showcase-info">
+              <div class="showcase-title">RTC Date &amp; Time</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 09 Task Manager Text -->
+          <div class="showcase-item zoomable-img" data-category="system" data-src="/docs/screenshots/09_task-manager-text.png" data-caption="top / taskman: Terminal-based real-time process monitor.">
+            <img src="/docs/screenshots/09_task-manager-text.png" alt="Text Task Manager">
+            <div class="showcase-info">
+              <div class="showcase-title">Text Task Manager</div>
+              <div class="showcase-tag">System &amp; CLI</div>
+            </div>
+          </div>
+
+          <!-- 21 Desktop General -->
+          <div class="showcase-item zoomable-img" data-category="desktop" data-src="/docs/screenshots/21_desktop.png" data-caption="Desktop: System 7.1 look and feel with window drag composite.">
+            <img src="/docs/screenshots/21_desktop.png" alt="Desktop Theme">
+            <div class="showcase-info">
+              <div class="showcase-title">Mac 7.1 Desktop Theme</div>
+              <div class="showcase-tag">Desktop</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HARDWARE SPECIFICATIONS -->
+    <section class="mac-window" id="specs">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">Hardware Compatibility Matrix</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="mac-content">
+        <table class="specs-table">
+          <thead>
+            <tr>
+              <th>Specification</th>
+              <th>Macintosh Plus</th>
+              <th>Macintosh SE &amp; Classic</th>
+              <th>Macintosh LC III / Performa 450</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Processor &amp; Architecture</strong></td>
+              <td>Motorola 68000 @ 8 MHz (16-bit)</td>
+              <td>Motorola 68000 @ 8 MHz (16-bit)</td>
+              <td>Motorola 68030 @ 25 MHz (32-bit Bus)</td>
+            </tr>
+            <tr>
+              <td><strong>ROM Architecture</strong></td>
+              <td>128 KB ROM (version $0075)</td>
+              <td>256 KB / 512 KB ROM (version $0276)</td>
+              <td>1 MB ROM (version $067C, 32-bit Clean)</td>
+            </tr>
+            <tr>
+              <td><strong>Screen &amp; Display</strong></td>
+              <td>512 &times; 342 (64 bytes/row)</td>
+              <td>512 &times; 342 (64 bytes/row)</td>
+              <td>640 &times; 480 (80 bytes/row, Sonora)</td>
+            </tr>
+            <tr>
+              <td><strong>Keyboard Subsystem</strong></td>
+              <td>Mac Plus serial protocol</td>
+              <td>Apple Desktop Bus (ADB)</td>
+              <td>Apple Desktop Bus (ADB)</td>
+            </tr>
+            <tr>
+              <td><strong>SCSI Interface</strong></td>
+              <td>NCR 5380 SCSI Controller</td>
+              <td>NCR 5380 SCSI Controller</td>
+              <td>NCR 53C96 High-Speed SCSI</td>
+            </tr>
+            <tr>
+              <td><strong>RAM Capacity</strong></td>
+              <td>1 MB min (4 MB max 30-pin SIMM)</td>
+              <td>1 MB min (4 MB max 30-pin SIMM)</td>
+              <td>4 MB onboard (up to 36 MB 72-pin SIMM)</td>
+            </tr>
+            <tr>
+              <td><strong>Multi-OS Chain-Boot</strong></td>
+              <td>Boots highest SCSI ID</td>
+              <td>Dynamic PRAM/SCSI selection</td>
+              <td>SCSI ID selection &amp; MultiBoot</td>
+            </tr>
+            <tr>
+              <td><strong>Compiler Target</strong></td>
+              <td><code>MACHINE=plus</code> (-m68000)</td>
+              <td><code>MACHINE=se</code> (-m68000)</td>
+              <td><code>MACHINE=lc3</code> (-m68030)</td>
+            </tr>
+            <tr>
+              <td><strong>Universal Loader (3.1)</strong></td>
+              <td colspan="3" style="text-align:center;">✅ <code>MACHINE=universal</code> — one image boots all of the above, detecting the CPU at run time via <code>CPUFlag&nbsp;($012F)</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- COMMUNITY & ECOSYSTEM HUB (WIKI, DISCORD, GITHUB) -->
+    <section class="mac-window">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">Join the PlusOS Ecosystem</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="mac-content">
+        <p style="text-align:center; max-width:680px; margin:0 auto 12px; font-size:14px;">
+          Whether you want to build custom 68000 applications, read deep kernel internals, or chat with fellow vintage Mac enthusiasts, our community has everything you need:
+        </p>
+        <div class="hub-links-grid">
+          <!-- WIKI CARD -->
+          <a href="/wiki" class="hub-link-card">
+            <div class="hub-icon">📖</div>
+            <h4>Technical Wiki</h4>
+            <p>19 comprehensive articles detailing boot flow, memory internals, the modular kernel, crash debugger, Universal Loader, syscall ABI, graphics, and SDK app development.</p>
+            <div class="hub-action">Read Documentation &rarr;</div>
+          </a>
+
+          <!-- DISCORD CARD -->
+          <a href="https://discord.gg/hkpe76G7AU" target="_blank" rel="noopener" class="hub-link-card">
+            <div class="hub-icon">💬</div>
+            <h4>Discord Community</h4>
+            <p>Join the official Discord server to talk with creator the1Domo, share hardware setups, and get real-time assistance.</p>
+            <div class="hub-action">Join Discord Server &rarr;</div>
+          </a>
+
+          <!-- GITHUB CARD -->
+          <a href="https://github.com/g91/PlusOS" target="_blank" rel="noopener" class="hub-link-card">
+            <div class="hub-icon">🐙</div>
+            <h4>GitHub Repository</h4>
+            <p>Star the repository, explore the open-source C and assembly codebase, file issues, and submit pull requests.</p>
+            <div class="hub-action">Browse GitHub Repo &rarr;</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOWNLOAD SECTION -->
+    <section class="mac-window" id="download">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">Download PlusOS 3.1 &amp; Developer Tools</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="mac-content">
+        <p style="margin-bottom: 16px; font-size: 14px;">
+          Choose your desired installation target below. PlusOS is available as a complete pre-built hard drive image, a minimal bootable floppy disk image, or you can build and explore custom disk images using PlusOS Disk Studio on Windows.
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:12px; max-width:760px;">
+          <!-- 1. PlusOS Disk Studio (Windows) -->
+          <div style="border:2px solid #0055ff; padding:14px; background:#f0f5ff; display:flex; justify-content:space-between; align-items:center; border-radius:6px; flex-wrap:wrap; gap:10px;">
+            <div>
+              <strong style="font-size:15px; color:#0033aa;">PlusOSDiskStudio.exe — Native Windows C++ GUI Suite</strong><br>
+              <small style="color:#555;">OS Builder, Async Multi-Threaded Compiler, 66-App Checklist, Dual-Boot Configurator, and Drag-and-Drop HFS Explorer (500 KB).</small>
+            </div>
+            <a href="/downloads/PlusOSDiskStudio.exe" class="btn-cta" style="background:#0055ff; color:#fff; border-color:#0033aa; padding:8px 16px; font-size:13px;">⚡ Download Windows .EXE</a>
+          </div>
+
+          <!-- 2. PlusOS Disk Studio (Linux Native Edition) -->
+          <div style="border:2px solid #7722cc; padding:14px; background:#f8f2ff; display:flex; justify-content:space-between; align-items:center; border-radius:6px; flex-wrap:wrap; gap:10px;">
+            <div>
+              <strong style="font-size:15px; color:#5511aa;">PlusOSDiskStudio_linux — Native Linux Binary &amp; Launcher</strong><br>
+              <small style="color:#555;">Compile natively via <code>make studio</code> or run <code>./PlusOSDiskStudio</code> on Linux / Ubuntu / WSL without Windows (TUI &amp; CLI).</small>
+            </div>
+            <a href="/downloads/PlusOSDiskStudio_linux" class="btn-cta" style="background:#7722cc; color:#fff; border-color:#5511aa; padding:8px 16px; font-size:13px;">🐧 Download Linux Binary</a>
+          </div>
+
+          <!-- 3. Bootable Minimal Installer Floppy -->
+          <div style="border:2px solid #008844; padding:14px; background:#f0faf3; display:flex; justify-content:space-between; align-items:center; border-radius:6px; flex-wrap:wrap; gap:10px;">
+            <div>
+              <strong style="font-size:15px; color:#006633;">PlusOS_Floppy.dsk — Bootable Minimal Installer Floppy</strong><br>
+              <small style="color:#555;">Minimal ~500 KB recovery footprint. 800K &amp; 1.44M compatible with guided SCSI hard drive installer (1.44 MB image).</small>
+            </div>
+            <a href="/downloads/PlusOS_Floppy.dsk" class="btn-cta btn-cta-download" style="padding:8px 16px; font-size:13px;">💽 Download .DSK</a>
+          </div>
+
+          <!-- 4. Full BlueSCSI Hard Drive Image -->
+          <div style="border:2px solid var(--mac-border); padding:14px; background:var(--mac-lightgray); display:flex; justify-content:space-between; align-items:center; border-radius:6px; flex-wrap:wrap; gap:10px;">
+            <div>
+              <strong style="font-size:15px;">PlusOS.hda — Complete BlueSCSI Hard Drive Image (3.1 Universal)</strong><br>
+              <small style="color:#555;">Ready-to-boot HFS image built with the <strong>Universal Loader</strong> — one image boots a Plus, SE, Classic, or LC III. Includes all apps, 13 games, 6 themes, and network clients (33.5 MB).</small>
+            </div>
+            <a href="/downloads/PlusOS.hda" class="btn-cta btn-cta-download" style="padding:8px 16px; font-size:13px;">💾 Download .HDA</a>
+          </div>
+
+          <!-- 5. GitHub Source Code & SDKs -->
+          <div style="border:1px solid var(--mac-border); padding:14px; background:var(--mac-white); display:flex; justify-content:space-between; align-items:center; border-radius:6px; flex-wrap:wrap; gap:10px;">
+            <div>
+              <strong style="font-size:15px;">PlusOS Source Code &amp; SDKs</strong><br>
+              <small style="color:#555;">Full repository archive with Mac Plus and SE SDKs, kernel source, tools, and package repository server.</small>
+            </div>
+            <a href="https://github.com/g91/PlusOS" target="_blank" rel="noopener" class="btn-mac btn-primary">🐙 View on GitHub</a>
+          </div>
+
+          <!-- 6. Archived PlusOS 2.0 -->
+          <div style="border:1px dashed #aa7700; padding:14px; background:#fffdf5; display:flex; justify-content:space-between; align-items:center; border-radius:6px; flex-wrap:wrap; gap:10px;">
+            <div>
+              <strong style="font-size:15px; color:#8a6300;">📦 Looking for PlusOS 2.0?</strong><br>
+              <small style="color:#555;">The previous 2.0 release and its original builds are preserved for archive purposes — the full 2.0 site and downloads remain available.</small>
+            </div>
+            <a href="/2.0" class="btn-mac" style="background:#f5c96a; color:#5a3d00; border-color:#aa7700; padding:8px 16px; font-size:13px;">→ Visit the 2.0 Archive</a>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; padding:16px; background:#fffae0; border:1px solid #d4aa00; border-radius:4px; font-size:13px; line-height:1.6;">
+          <strong>⚡ Quick 3-Step Setup for BlueSCSI V2:</strong>
+          <ol style="margin-left: 20px; margin-top: 6px;">
+            <li>Copy <code>PlusOS.hda</code> onto the root of your MicroSD card and name it <code>HD60_512 PlusOS.hda</code> (SCSI ID 6).</li>
+            <li>(Optional for Wi-Fi) In <code>bluescsi.ini</code>, enter your <code>WiFiSSID</code> and <code>WiFiPassword</code>, and create an empty file named <code>NE4.hda</code>.</li>
+            <li>Insert the card into your BlueSCSI, power on your Macintosh Plus or SE, and enjoy PlusOS 3.1!</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- LIGHTBOX MODAL -->
+  <div id="image-modal" class="image-modal">
+    <div class="modal-content-box">
+      <img id="modal-img" src="" alt="Enlarged View">
+      <div class="modal-caption-bar">
+        <span id="modal-caption"></span>
+        <button id="modal-close" class="modal-close-btn">&times; Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Classic Footer -->
+  <footer class="mac-footer">
+    <div style="margin-bottom:6px;">
+      <strong>PlusOS 3.1</strong> &bull; Designed &amp; Created by <strong>the1Domo</strong> &bull; Hosted at <a href="https://plusos.d0a.net">plusos.d0a.net</a>
+      <strong>PlusOS 3.1</strong> &bull; Designed &amp; Created by <strong>the1Domo</strong> &bull; Licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU GPL v3.0</a> &bull; Hosted at <a href="https://plusos.d0a.net">plusos.d0a.net</a>
+    </div>
+    <div style="display:flex; justify-content:center; gap:20px; font-size:12px; margin-top:6px;">
+      <a href="/wiki">Technical Wiki</a>
+      <a href="https://discord.gg/hkpe76G7AU" target="_blank" rel="noopener">Discord Server</a>
+      <a href="https://github.com/g91/PlusOS" target="_blank" rel="noopener">GitHub Repository</a>
+      <a href="#showcase">Showcase</a>
+      <a href="#download">Downloads</a>
+      <a href="/2.0">PlusOS 2.0 Archive</a>
+      <a href="https://github.com/jonathanschilling/mac_rom" target="_blank" rel="noopener">Macintosh ROM Project</a>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

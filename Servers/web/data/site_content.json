@@ -1,0 +1,9 @@
+{
+  "site_title": "PlusOS 3.1 by the1Domo — The Bare-Metal Operating System for Every 680x0 Macintosh",
+  "hero_badge": "🚀 PLUSOS 3.1 • THE UNIVERSAL LOADER RELEASE",
+  "hero_title": "One Image. Every Macintosh.",
+  "hero_subtitle": "Meet PlusOS 3.1, created by the1Domo. A bare-metal operating system with the new Universal Loader — a single image that boots a Macintosh Plus, SE, Classic, or LC III, detecting the CPU at run time — built on a modular, self-healing kernel engineered from the silicon up.",
+  "pitch_headline": "Breathe Modern Power into 1980s Hardware",
+  "pitch_body": "For over three decades, vintage compact Macs were constrained by cooperative multitasking and memory fragility. PlusOS 3.1 changes everything. Written in clean C and 68000 assembly, PlusOS replaces the traditional System Folder with a preemptive, multi-ring Unix-like kernel that runs directly on bare metal — and now ships a Universal Loader that boots every 680x0 Macintosh from one image, with a modular kernel that isolates and restarts failed drivers and services instead of crashing.",
+  "announcement_banner": "PlusOS 3.1 is here — the Universal Loader release! One image now boots the Plus, SE, Classic, and LC III. Looking for the old build? The 2.0 archive is still available at /2.0."
+}

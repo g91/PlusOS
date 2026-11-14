@@ -2,6 +2,7 @@
 #include "explorer_window.h"
 #include <commdlg.h>
 #include <shellapi.h>
+#include <wininet.h>
 #include <sstream>
 #include <fstream>
 #include <algorithm>
@@ -12,6 +13,7 @@
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
 #pragma comment(lib, "comdlg32.lib")
+#pragma comment(lib, "wininet.lib")
 
 static std::wstring to_wide(const std::string& str) {
     if (str.empty()) return L"";
@@ -304,7 +306,7 @@ BuilderWindow::BuilderWindow()
       m_hBtnAppsSysOnly(nullptr), m_hBtnAppsGamesOnly(nullptr), m_hBtnAppsAdd(nullptr),
       m_hBtnAppsRemove(nullptr), m_hStaticBaseSystem(nullptr), m_hStaticAppCount(nullptr),
       m_hStaticTotalDisk(nullptr), m_hStaticFloppyStatus(nullptr), m_hStaticFloppyTip(nullptr),
-      m_hBtnBuildImage(nullptr), m_hBtnBuildFloppy(nullptr), m_hBtnOpenExplorer(nullptr),
+      m_hBtnBuildImage(nullptr), m_hBtnPushUpdate(nullptr), m_hBtnBuildFloppy(nullptr), m_hBtnOpenExplorer(nullptr),
       m_hBtnSaveConfig(nullptr), m_hBtnInjectApp(nullptr), m_hBtnSetupEnv(nullptr),
       m_hBtnBootVM(nullptr),
       m_hGroupLog(nullptr), m_hEditBuildLog(nullptr),
@@ -602,35 +604,46 @@ void BuilderWindow::create_controls()
 
     // Group 4: Build Execution & Disk Manager
     HWND grpActions = CreateWindowExW(0, L"BUTTON", L" 4. Build Execution & Disk Manager ",
-        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 15, 510, 450, 205, m_hWnd, nullptr, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 15, 510, 450, 228, m_hWnd, nullptr, m_hInstance, nullptr);
     SendMessageW(grpActions, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
-    m_hBtnBuildImage = CreateWindowExW(0, L"BUTTON", L"Compile & Build Hard Drive Image",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_DEFPUSHBUTTON, 25, 532, 210, 32, m_hWnd, (HMENU)IDB_BUILD_BTN, m_hInstance, nullptr);
+    m_hBtnBuildImage = CreateWindowExW(0, L"BUTTON", L"Compile && Build Hard Drive Image (fresh)",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_DEFPUSHBUTTON, 25, 532, 430, 32, m_hWnd, (HMENU)IDB_BUILD_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnBuildImage, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
-    m_hBtnBuildFloppy = CreateWindowExW(0, L"BUTTON", L"Build Bootable Floppy (.dsk)",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 245, 532, 210, 32, m_hWnd, (HMENU)IDB_BUILD_FLOPPY_BTN, m_hInstance, nullptr);
-    SendMessageW(m_hBtnBuildFloppy, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
+    m_hBtnUpdate = CreateWindowExW(0, L"BUTTON", L"Update (recompile && refresh, keep my files)",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 568, 430, 32, m_hWnd, (HMENU)IDB_UPDATE_BTN, m_hInstance, nullptr);
+    SendMessageW(m_hBtnUpdate, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
 
-    m_hBtnOpenExplorer = CreateWindowExW(0, L"BUTTON", L"Open Disk Explorer / Manager",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 568, 210, 30, m_hWnd, (HMENU)IDB_OPEN_EXPLORER_BTN, m_hInstance, nullptr);
+    // Admin: compile + publish an OTA release to the update server. Gated by the
+    // server's admin password (entered once per session) and, server-side, by the
+    // signing key, so a stranger running Disk Studio still cannot publish.
+    m_hBtnPushUpdate = CreateWindowExW(0, L"BUTTON", L"Push Update (admin)...",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 604, 135, 30, m_hWnd, (HMENU)IDB_PUSH_UPDATE_BTN, m_hInstance, nullptr);
+    SendMessageW(m_hBtnPushUpdate, WM_SETFONT, (WPARAM)m_hBoldFont, TRUE);
+
+    m_hBtnBuildFloppy = CreateWindowExW(0, L"BUTTON", L"Floppy (.dsk)",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 168, 604, 135, 30, m_hWnd, (HMENU)IDB_BUILD_FLOPPY_BTN, m_hInstance, nullptr);
+    SendMessageW(m_hBtnBuildFloppy, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
+
+    m_hBtnOpenExplorer = CreateWindowExW(0, L"BUTTON", L"Disk Explorer",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 311, 604, 144, 30, m_hWnd, (HMENU)IDB_OPEN_EXPLORER_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnOpenExplorer, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnSaveConfig = CreateWindowExW(0, L"BUTTON", L"Save Configuration",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 245, 568, 210, 30, m_hWnd, (HMENU)IDB_SAVE_CFG_BTN, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 638, 210, 28, m_hWnd, (HMENU)IDB_SAVE_CFG_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnSaveConfig, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
-    m_hBtnInjectApp = CreateWindowExW(0, L"BUTTON", L"Inject 'Return to PlusOS' to External Disk / Floppy...",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 602, 430, 30, m_hWnd, (HMENU)IDB_INJECT_BTN, m_hInstance, nullptr);
+    m_hBtnInjectApp = CreateWindowExW(0, L"BUTTON", L"Inject 'Return to PlusOS'...",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 245, 638, 210, 28, m_hWnd, (HMENU)IDB_INJECT_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnInjectApp, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnSetupEnv = CreateWindowExW(0, L"BUTTON", L"Setup Build Environment (build P68 compilers with MSVC)...",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 636, 430, 30, m_hWnd, (HMENU)IDB_SETUP_ENV_BTN, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 670, 430, 28, m_hWnd, (HMENU)IDB_SETUP_ENV_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnSetupEnv, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     m_hBtnBootVM = CreateWindowExW(0, L"BUTTON", L"Boot Hard Drive Image in Mini vMac (BlueSCSI)...",
-        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 670, 430, 30, m_hWnd, (HMENU)IDB_BOOT_VM_BTN, m_hInstance, nullptr);
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 25, 700, 430, 28, m_hWnd, (HMENU)IDB_BOOT_VM_BTN, m_hInstance, nullptr);
     SendMessageW(m_hBtnBootVM, WM_SETFONT, (WPARAM)hNormalFont, TRUE);
 
     // Group 5: Software Applications & Floppy Capacity (Column 2)
@@ -1715,6 +1728,85 @@ void BuilderWindow::action_open_explorer()
     }
 }
 
+// ----------------------------------------------------------------------------
+// Minimal modal text prompt (Win32 has no InputBox). Builds a dialog in memory
+// with a label, an edit box (optionally a password box), and OK/Cancel. Returns
+// true and fills `out` on OK; false on Cancel/close.
+// ----------------------------------------------------------------------------
+struct PromptCtx { const wchar_t* label; std::wstring* out; bool password; };
+
+static INT_PTR CALLBACK PromptDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    static PromptCtx* ctx = nullptr;
+    switch (msg) {
+    case WM_INITDIALOG:
+        ctx = (PromptCtx*)lParam;
+        SetWindowTextW(hDlg, L"PlusOS Disk Studio");
+        SetDlgItemTextW(hDlg, 1001, ctx->label);
+        if (ctx->password) SendDlgItemMessageW(hDlg, 1002, EM_SETPASSWORDCHAR, (WPARAM)L'*', 0);
+        SetDlgItemTextW(hDlg, 1002, ctx->out->c_str());
+        SetFocus(GetDlgItem(hDlg, 1002));
+        return FALSE;
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK) {
+            wchar_t buf[512] = {};
+            GetDlgItemTextW(hDlg, 1002, buf, 511);
+            if (ctx && ctx->out) *ctx->out = buf;
+            EndDialog(hDlg, IDOK);
+            return TRUE;
+        }
+        if (LOWORD(wParam) == IDCANCEL) { EndDialog(hDlg, IDCANCEL); return TRUE; }
+        break;
+    }
+    return FALSE;
+}
+
+static bool prompt_text(HWND parent, HINSTANCE hInst, const wchar_t* label,
+                        std::wstring& out, bool password)
+{
+    // In-memory dialog template: 220x80 DLU, with a static, an edit and 2 buttons.
+    struct { DLGTEMPLATE dt; WORD menu, cls; WCHAR title[1]; } hdr = {};
+    // Building a full DLGTEMPLATE by hand is error-prone across items, so use a
+    // byte buffer and the documented layout.
+    std::vector<BYTE> buf(1024, 0);
+    BYTE* p = buf.data();
+    auto align4 = [&](BYTE*& q){ while ((((UINT_PTR)q) & 3) != 0) *q++ = 0; };
+    DLGTEMPLATE* dlg = (DLGTEMPLATE*)p;
+    dlg->style = DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_SETFONT;
+    dlg->dwExtendedStyle = 0;
+    dlg->cdit = 4;
+    dlg->x = 0; dlg->y = 0; dlg->cx = 230; dlg->cy = 86;
+    p += sizeof(DLGTEMPLATE);
+    *(WORD*)p = 0; p += 2;                 // no menu
+    *(WORD*)p = 0; p += 2;                 // default class
+    *(WORD*)p = 0; p += 2;                 // empty title
+    *(WORD*)p = 8; p += 2;                 // font size
+    const wchar_t* fnt = L"Segoe UI";
+    wmemcpy((wchar_t*)p, fnt, wcslen(fnt) + 1); p += (wcslen(fnt) + 1) * 2;
+
+    auto add_item = [&](DWORD style, short x, short y, short cx, short cy, WORD id,
+                        WORD cls, const wchar_t* text) {
+        align4(p);
+        DLGITEMTEMPLATE* it = (DLGITEMTEMPLATE*)p;
+        it->style = style; it->dwExtendedStyle = 0;
+        it->x = x; it->y = y; it->cx = cx; it->cy = cy; it->id = id;
+        p += sizeof(DLGITEMTEMPLATE);
+        *(WORD*)p = 0xFFFF; p += 2; *(WORD*)p = cls; p += 2;   // predefined class
+        wmemcpy((wchar_t*)p, text, wcslen(text) + 1); p += (wcslen(text) + 1) * 2;
+        *(WORD*)p = 0; p += 2;             // no creation data
+    };
+    add_item(WS_VISIBLE | WS_CHILD | SS_LEFT, 8, 7, 214, 18, 1001, 0x0082, L"");       // static
+    add_item(WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL,
+             8, 28, 214, 14, 1002, 0x0081, L"");                                        // edit
+    add_item(WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_DEFPUSHBUTTON, 118, 60, 50, 16, IDOK, 0x0080, L"OK");
+    add_item(WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON, 172, 60, 50, 16, IDCANCEL, 0x0080, L"Cancel");
+
+    PromptCtx ctx{ label, &out, password };
+    INT_PTR r = DialogBoxIndirectParamW(hInst, (LPCDLGTEMPLATEW)buf.data(), parent,
+                                        PromptDlgProc, (LPARAM)&ctx);
+    return r == IDOK;
+}
+
 static void RunProcessAsyncWithLogging(HWND hWnd, UINT completeMsg, const std::wstring& cmd, const std::wstring& fallbackCmd, const std::wstring& rootDir)
 {
     std::thread([hWnd, completeMsg, cmd, fallbackCmd, rootDir]() {
@@ -1920,9 +2012,43 @@ void BuilderWindow::action_build_image()
 
 void BuilderWindow::on_build_finished(DWORD exitCode)
 {
+    bool wasUpdate = m_isUpdate;
     m_isBuilding = false;
+    m_isUpdate = false;
     EnableWindow(m_hBtnBuildImage, TRUE);
+    EnableWindow(m_hBtnUpdate, TRUE);
+    EnableWindow(m_hBtnPushUpdate, TRUE);
     EnableWindow(m_hBtnBuildFloppy, TRUE);
+
+    // An in-place UPDATE has its own flow: it already wrote the kernel/software
+    // over the existing disk (user files kept, driver reused). No card-copy step.
+    if (wasUpdate) {
+        if (exitCode == 0) {
+            append_log(L"--------------------------------------------------");
+            append_log(L"[SUCCESS] PlusOS updated in place. Kernel + software refreshed.");
+            append_log(L"User files were preserved and the Apple SCSI driver was reused.");
+            if (!m_lastBuiltImage.empty()) append_log(L"Updated disk: " + m_lastBuiltImage);
+            populate_apps_list();
+            bool onCard = !m_blueScsiDrive.empty() &&
+                          m_lastBuiltImage.rfind(m_blueScsiDrive, 0) == 0;
+            MessageBoxW(m_hWnd,
+                (L"PlusOS was updated on the disk, keeping all your files:\r\n\r\n    "
+                 + m_lastBuiltImage + L"\r\n\r\n"
+                 L"The kernel and all applications were recompiled and refreshed.\r\n\r\n"
+                 + (onCard
+                    ? std::wstring(L"Safely EJECT the SD card from Windows, put it back in the BlueSCSI, and restart the Mac.")
+                    : std::wstring(L"Write this disk to your BlueSCSI SD card to boot the updated system."))).c_str(),
+                L"Update Successful", MB_ICONINFORMATION | MB_OK);
+        } else {
+            append_log(L"--------------------------------------------------");
+            append_log(L"[ERROR] Update finished with exit code: " + std::to_wstring(exitCode));
+            MessageBoxW(m_hWnd,
+                L"The update failed. Your existing disk was NOT modified (the new image is written to a "
+                L"temporary file first and only moved into place on success). See the build log for details.",
+                L"Update Failed", MB_ICONWARNING | MB_OK);
+        }
+        return;
+    }
 
     if (exitCode == 0) {
         append_log(L"--------------------------------------------------");
@@ -1974,6 +2100,205 @@ void BuilderWindow::on_build_finished(DWORD exitCode)
         append_log(L"[ERROR] Build finished with exit code: " + std::to_wstring(exitCode));
         MessageBoxW(m_hWnd, L"Build failed or completed with errors. See build log for details.", L"Build Warning", MB_ICONWARNING | MB_OK);
     }
+}
+
+// Recompile the kernel + software and write them into an EXISTING PlusOS disk
+// (the one on the BlueSCSI SD card) WITHOUT reformatting it: the HFS volume's
+// user data (home, etc, documents, Desktop items) is carried across, and the
+// disk's own Apple SCSI driver is reused. This is the "update, don't reinstall"
+// path - unlike "Build Hard Drive Image", which creates a fresh blank volume.
+void BuilderWindow::action_update_image()
+{
+    if (m_isBuilding) {
+        MessageBoxW(m_hWnd, L"A build is already in progress. Please wait for it to complete.", L"Build Running", MB_ICONINFORMATION | MB_OK);
+        return;
+    }
+    if (m_backend != BB_P68_NATIVE) {
+        int r = MessageBoxW(m_hWnd,
+            L"The PlusOS native compilers (toolchain\\bin\\p68-cc.exe ...) are not built yet.\r\n\r\n"
+            L"Click 'Setup Build Environment' to build them once with Visual Studio's C++ tools (MSVC).\r\n\r\n"
+            L"Build them now?",
+            L"P68 Toolchain Required", MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON1);
+        if (r == IDYES) action_setup_environment();
+        return;
+    }
+
+    // The update target is the existing PlusOS image to refresh. Prefer the one
+    // on the BlueSCSI SD card; otherwise the last local image we built.
+    std::wstring target;
+    if (!m_blueScsiDrive.empty()) {
+        std::wstring onCard = m_blueScsiDrive + L"HD60_512 PlusOS.hda";
+        if (GetFileAttributesW(onCard.c_str()) != INVALID_FILE_ATTRIBUTES)
+            target = onCard;
+    }
+    if (target.empty()) {
+        std::wstring local = m_repoRoot + L"\\build_p68\\PlusOS_disk.hda";
+        if (GetFileAttributesW(local.c_str()) != INVALID_FILE_ATTRIBUTES)
+            target = local;
+    }
+    if (target.empty()) {
+        MessageBoxW(m_hWnd,
+            L"No existing PlusOS disk was found to update.\r\n\r\n"
+            L"'Update' refreshes the kernel and software on a disk you already built, keeping your "
+            L"files. There is nothing to update yet - use 'Compile & Build Hard Drive Image' first to "
+            L"create the disk (insert the BlueSCSI SD card so it is written there).",
+            L"Nothing to Update", MB_ICONINFORMATION | MB_OK);
+        return;
+    }
+
+    std::wstring shown = target;
+    int c = MessageBoxW(m_hWnd,
+        (L"Update PlusOS on this disk, keeping all your files?\r\n\r\n    " + shown + L"\r\n\r\n"
+         L"The kernel, boot blocks and every application will be recompiled and written over the disk. "
+         L"Your documents and settings (home, etc, Desktop items) are preserved, and the disk's Apple "
+         L"SCSI boot driver is reused.\r\n\r\nProceed?").c_str(),
+        L"Update PlusOS (keep my files)", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1);
+    if (c != IDYES) return;
+
+    update_cfg_from_controls();
+    save_config_to_file();
+
+    m_isBuilding = true;
+    m_isUpdate = true;
+    EnableWindow(m_hBtnBuildImage, FALSE);
+    EnableWindow(m_hBtnUpdate, FALSE);
+    EnableWindow(m_hBtnBuildFloppy, FALSE);
+
+    std::wstring machine = machine_keyword(m_cfg.target_hardware);
+    if (m_cfg.target_hardware == 3) machine = L"universal";   // LC III -> reliable universal loader
+
+    // The update writes in place, so there is no separate card-copy step.
+    m_cardTarget.clear();
+    m_lastBuiltImage = target;
+
+    append_log(L"\r\n==================================================");
+    append_log(L"[UPDATE] Refresh PlusOS kernel + software, keep user files");
+    append_log(L"Target disk: " + target);
+    append_log(L"Target Machine: " + machine);
+    append_log(L"User data (home, etc, Desktop items) will be preserved; Apple SCSI driver reused.");
+    append_log(L"Compiling & updating...");
+
+    // make.cmd <machine> update UPDIMG=<target>
+    // The target path can contain spaces ("HD60_512 PlusOS.hda"); make.cmd passes
+    // %* through verbatim and the Makefile/hdbuild quote it, so wrap it in quotes.
+    std::wstring extra = L" UPDIMG=\"" + target + L"\"";
+    std::wstring cmd = build_make_command(machine + L" update", extra);
+    RunProcessAsyncWithLogging(m_hWnd, WM_BUILD_COMPLETED, cmd, L"", m_repoRoot);
+}
+
+// Check an admin password against the OTA server's /admin/login. Returns true
+// if the server accepts it. Uses WinINet so there is no extra dependency.
+static bool ota_check_admin(const std::wstring& serverUrl, const std::wstring& password,
+                            std::wstring& err)
+{
+    // Parse scheme://host[:port]
+    URL_COMPONENTSW uc = {}; uc.dwStructSize = sizeof(uc);
+    wchar_t host[256] = {}, path[1024] = {};
+    uc.lpszHostName = host; uc.dwHostNameLength = 255;
+    uc.lpszUrlPath = path; uc.dwUrlPathLength = 1023;
+    if (!InternetCrackUrlW(serverUrl.c_str(), 0, 0, &uc)) { err = L"bad server URL"; return false; }
+    bool https = (uc.nScheme == INTERNET_SCHEME_HTTPS);
+    INTERNET_PORT port = uc.nPort ? uc.nPort : (https ? 443 : 80);
+
+    HINTERNET hNet = InternetOpenW(L"PlusOSDiskStudio", INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, 0);
+    if (!hNet) { err = L"InternetOpen failed"; return false; }
+    bool ok = false;
+    HINTERNET hConn = InternetConnectW(hNet, host, port, nullptr, nullptr, INTERNET_SERVICE_HTTP, 0, 0);
+    if (hConn) {
+        DWORD flags = INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE | (https ? INTERNET_FLAG_SECURE : 0);
+        HINTERNET hReq = HttpOpenRequestW(hConn, L"POST", L"/admin/login", nullptr, nullptr, nullptr, flags, 0);
+        if (hReq) {
+            // JSON body {"password":"..."} — escape backslashes and quotes.
+            std::string pw;
+            for (wchar_t c : password) {
+                if (c == L'"' || c == L'\\') pw += '\\';
+                if (c < 128) pw += (char)c; else pw += '?';
+            }
+            std::string body = "{\"password\":\"" + pw + "\"}";
+            const wchar_t* hdrs = L"Content-Type: application/json\r\n";
+            if (HttpSendRequestW(hReq, hdrs, (DWORD)wcslen(hdrs), (LPVOID)body.data(), (DWORD)body.size())) {
+                DWORD code = 0, len = sizeof(code);
+                HttpQueryInfoW(hReq, HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, &code, &len, nullptr);
+                ok = (code == 200);
+                if (!ok) err = L"server rejected the password (HTTP " + std::to_wstring(code) + L")";
+            } else {
+                err = L"could not reach the server";
+            }
+            InternetCloseHandle(hReq);
+        }
+        InternetCloseHandle(hConn);
+    } else {
+        err = L"could not connect to the server";
+    }
+    InternetCloseHandle(hNet);
+    return ok;
+}
+
+void BuilderWindow::action_push_update()
+{
+    if (m_isBuilding) {
+        MessageBoxW(m_hWnd, L"A build is already in progress. Please wait.", L"Build Running", MB_ICONINFORMATION | MB_OK);
+        return;
+    }
+    if (m_backend != BB_P68_NATIVE) {
+        int r = MessageBoxW(m_hWnd,
+            L"The PlusOS native compilers are not built yet.\r\n\r\nBuild them now with Visual Studio's C++ tools?",
+            L"P68 Toolchain Required", MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON1);
+        if (r == IDYES) action_setup_environment();
+        return;
+    }
+
+    // 1. Server URL (remembered across prompts via a static).
+    static std::wstring server = L"https://ota.d0a.net";
+    if (!prompt_text(m_hWnd, m_hInstance, L"OTA update server URL:", server, false)) return;
+    if (server.empty()) return;
+
+    // 2. Admin login (once per session). The server verifies it; the actual
+    //    publish is additionally gated by the signing key (otaserver\.publish_key),
+    //    so this password alone cannot publish from a machine without the key.
+    if (!m_otaAdmin) {
+        std::wstring pw;
+        if (!prompt_text(m_hWnd, m_hInstance, L"OTA admin password:", pw, true)) return;
+        std::wstring err;
+        if (!ota_check_admin(server, pw, err)) {
+            MessageBoxW(m_hWnd, (L"Admin login failed: " + err).c_str(),
+                        L"Push Update", MB_ICONERROR | MB_OK);
+            return;
+        }
+        m_otaAdmin = true;
+    }
+
+    // 3. Channel + title for this release.
+    static std::wstring channel = L"stable";
+    if (!prompt_text(m_hWnd, m_hInstance, L"Release channel (stable / beta / nightly):", channel, false)) return;
+    std::wstring title = L"";
+    if (!prompt_text(m_hWnd, m_hInstance, L"Short title for this update:", title, false)) return;
+
+    update_cfg_from_controls();
+    save_config_to_file();
+
+    std::wstring machine = machine_keyword(m_cfg.target_hardware);
+    if (m_cfg.target_hardware == 3) machine = L"universal";
+
+    m_isBuilding = true;
+    EnableWindow(m_hBtnBuildImage, FALSE);
+    EnableWindow(m_hBtnUpdate, FALSE);
+    EnableWindow(m_hBtnPushUpdate, FALSE);
+    EnableWindow(m_hBtnBuildFloppy, FALSE);
+
+    append_log(L"\r\n==================================================");
+    append_log(L"[PUSH UPDATE] Compile + publish a release to the OTA server");
+    append_log(L"Server: " + server);
+    append_log(L"Channel: " + channel + L"   Machine: " + machine);
+    if (!title.empty()) append_log(L"Title: " + title);
+    append_log(L"The AI assistant will generate release notes + per-app changelogs.");
+    append_log(L"Compiling & publishing (signed with otaserver\\.publish_key)...");
+
+    // make.cmd <machine> ota OTA_SERVER=.. OTA_CHANNEL=.. OTA_TITLE=".."
+    std::wstring extra = L" OTA_SERVER=\"" + server + L"\" OTA_CHANNEL=" + channel;
+    if (!title.empty()) extra += L" OTA_TITLE=\"" + title + L"\"";
+    std::wstring cmd = build_make_command(machine + L" ota", extra);
+    RunProcessAsyncWithLogging(m_hWnd, WM_BUILD_COMPLETED, cmd, L"", m_repoRoot);
 }
 
 void BuilderWindow::action_build_floppy()
@@ -2432,6 +2757,8 @@ LRESULT BuilderWindow::handle_message(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
         switch (id) {
         case IDB_IMAGE_BROWSE_BTN: action_browse_image(); break;
         case IDB_BUILD_BTN: action_build_image(); break;
+        case IDB_UPDATE_BTN: action_update_image(); break;
+        case IDB_PUSH_UPDATE_BTN: action_push_update(); break;
         case IDB_BUILD_FLOPPY_BTN: action_build_floppy(); break;
         case IDB_OPEN_EXPLORER_BTN: action_open_explorer(); break;
         case IDB_SAVE_CFG_BTN:

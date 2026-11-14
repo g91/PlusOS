@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IKANET</title>
+<link rel="icon" href="assets/squid14.png">
+<link rel="stylesheet" href="css/ikanet.css">
+</head>
+<body class="light">
+<div class="desk">
+
+  <!-- ============ LOGIN SCREEN (mockup #3) ============ -->
+  <div id="loginScreen" class="screen login">
+    <div class="brand"><img class="squid" src="assets/cursor.png" alt="">IKANET</div>
+    <div class="row">
+      <label for="luser">User</label>
+      <input id="luser" autocomplete="username" spellcheck="false">
+    </div>
+    <div class="row">
+      <label for="lpass">Pass</label>
+      <input id="lpass" type="password" autocomplete="current-password">
+    </div>
+    <div class="buttons">
+      <button class="btn" id="btnJoin">JOIN IKANET</button>
+      <button class="btn" id="btnLogin">LOGIN</button>
+    </div>
+    <div class="err" id="loginErr"></div>
+  </div>
+
+  <!-- ============ CHAT CLIENT (mockups #2 / #4) ============ -->
+  <div id="chatScreen" class="screen hidden">
+    <!-- menubar -->
+    <div class="menubar" id="menubar">
+      <div class="m apple" data-menu="apple"></div>
+      <div class="m" data-menu="file">File
+        <div class="menu">
+          <div class="item" data-act="upload">Upload File</div>
+          <div class="item" data-act="download">Download File</div>
+          <div class="sep"></div>
+          <div class="item" data-act="appear-online">Appear As Online</div>
+          <div class="item" data-act="appear-offline">Appear As Offline</div>
+          <div class="sep"></div>
+          <div class="item" data-act="icon-editor">User Icon…</div>
+          <div class="sep"></div>
+          <div class="item" data-act="logout">Log Out</div>
+        </div>
+      </div>
+      <div class="m" data-menu="edit">Edit
+        <div class="menu">
+          <div class="item" data-act="copy">Copy <span>⌘C</span></div>
+          <div class="item" data-act="paste">Paste <span>⌘V</span></div>
+        </div>
+      </div>
+      <div class="m" data-menu="channel">Channel
+        <div class="menu">
+          <div class="item" data-act="chan-list">Go To Channel List…</div>
+          <div class="item" data-act="chan-add">Add Channel</div>
+          <div class="item" data-act="chan-leave">Leave Channel</div>
+        </div>
+      </div>
+      <div class="m" data-menu="font">Font
+        <div class="menu">
+          <div class="item check" data-font="ChicagoFLF">Chicago</div>
+          <div class="item check" data-font="Times New Roman">Times New Roman</div>
+          <div class="item check" data-font="Arial">Arial</div>
+          <div class="item check" data-font="compact">Compact Font</div>
+        </div>
+      </div>
+      <div class="m" data-menu="darkmode" id="darkToggle">DarkMode</div>
+      <div class="m" data-menu="settings" id="settingsBtn">Settings</div>
+    </div>
+
+    <!-- title / status row -->
+    <div class="titlebar">
+      <img class="uicon" id="tbIcon" src="assets/squid14.png" alt="">
+      <span id="tbName">—</span>
+      <span class="pill" id="tbOnline">Online</span>
+      <span class="appearoff" id="tbAppear">○ Appearing As Offline</span>
+      <span class="grow"></span>
+      <span class="ping" id="tbPing" title="avg ping, updates every 10s">
+        <span class="bars" id="pingBars"><i></i><i></i><i></i><i></i></span>
+        <span id="pingLabel">… Ping</span>
+        <span id="pingMs">--</span>
+        <img src="assets/squid14.png" style="width:12px;height:12px">
+      </span>
+    </div>
+
+    <!-- messages -->
+    <div class="chatbody">
+      <div class="messages" id="messages"></div>
+    </div>
+
+    <!-- composer -->
+    <div class="composer">
+      <div class="myicon"><img id="composerIcon" src="assets/squid14.png" alt=""></div>
+      <input id="composerInput" placeholder="" spellcheck="false" autocomplete="off">
+      <div class="tool" id="btnDownload" title="Download image or file">
+        <img src="assets/cursor.png" alt="dl">
+      </div>
+      <div class="tool" id="btnUpload" title="Upload image or file">
+        <img src="assets/cursor_dl.png" alt="up">
+      </div>
+      <div class="send" id="btnSend">SEND</div>
+    </div>
+
+    <!-- status strip -->
+    <div class="statusstrip">
+      <div class="quote" id="quote">LONG LIVE THE APPLE III</div>
+      <div class="activity" id="activity"></div>
+      <div class="brandmark">IKANET <img src="assets/squid14.png" alt=""></div>
+    </div>
+
+    <!-- floating windows get injected here -->
+    <input type="file" id="fileInput" class="hidden">
+  </div>
+
+</div>
+<script src="js/ikanet.js"></script>
+</body>
+</html>

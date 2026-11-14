@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "test_id": 1,
+    "user": "the1domo",
+    "machine": "Macintosh SE",
+    "title": "Initial verification of BlueSCSI WiFi and 68000 preemption",
+    "severity": "Minor",
+    "repro_steps": "1. Boot from HD60_512 PlusOS.hda\n2. Run `net`\n3. Run `ping google.com`",
+    "expected": "IP acquired and ICMP response",
+    "actual": "Acquired 192.168.1.50 and round-trip time 12ms",
+    "review": "Preemptive scheduler runs smoothly even under network load.",
+    "status": "Verified",
+    "admin_reply": "Verified on hardware, BSS buffers verified below BufPtr.",
+    "date": "2026-11-08T04:22:00Z"
+  }
+]

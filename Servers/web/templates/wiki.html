@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}} — PlusOS 3.1 Wiki by the1Domo</title>
+  <meta name="description" content="{{SUMMARY}}">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
+</head>
+<body>
+
+  <!-- Retro Apple Menu Bar -->
+  <header class="mac-menubar">
+    <div class="menu-left">
+      <span class="apple-logo"></span>
+      <a href="/">🏠 Main Site</a>
+      <a href="/wiki" style="font-weight:900;">📖 Technical Wiki</a>
+      {{WIKI_NEW_BTN_HTML}}
+      <a href="https://discord.gg/hkpe76G7AU" target="_blank" rel="noopener">💬 Discord</a>
+      <a href="https://github.com/g91/PlusOS" target="_blank" rel="noopener">🐙 GitHub</a>
+    </div>
+    <div class="menu-right">
+      {{AUTH_MENUBAR_HTML}}
+      <a href="#" id="theme-toggle">CRT Mode: OFF</a>
+      <span id="menubar-clock">12:00 PM</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="wiki-container">
+
+      <!-- Wiki Navigation Sidebar -->
+      <aside class="wiki-sidebar">
+        <input type="text" id="wiki-search-input" class="wiki-search" placeholder="🔍 Search PlusOS Wiki..." autocomplete="off">
+        
+        <div class="wiki-nav-groups">
+          {{NAV_HTML}}
+        </div>
+
+        <div style="margin-top: 20px; padding-top: 12px; border-top: 1px solid #ccc; font-size: 11px;">
+          <a href="/wiki/new" style="font-weight:bold; color:var(--mac-black);">+ Add New Article</a><br>
+          <span style="color:#666;">Wiki maintained by the1Domo</span>
+        </div>
+      </aside>
+
+      <!-- Main Article Window -->
+      <section class="wiki-article">
+        <div class="wiki-header">
+          <div>
+            <div style="font-size:11px; text-transform:uppercase; color:var(--mac-darkgray); font-weight:bold;">{{CATEGORY}}</div>
+            <h1>{{TITLE}}</h1>
+          </div>
+          <div>
+            {{WIKI_EDIT_BTN_HTML}}
+          </div>
+        </div>
+
+        <div class="wiki-content">
+          {{CONTENT_HTML}}
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="mac-footer">
+    <div><strong>PlusOS 3.1 Wiki</strong> &bull; Created by <strong>the1Domo</strong> &bull; Hosted at <a href="https://plusos.d0a.net">plusos.d0a.net</a></div>
+    <div style="display:flex; justify-content:center; gap:16px; margin-top:4px;">
+      <a href="/">Main Site</a>
+      <a href="https://discord.gg/hkpe76G7AU" target="_blank" rel="noopener">Discord Community</a>
+      <a href="https://github.com/g91/PlusOS" target="_blank" rel="noopener">GitHub Repository</a>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

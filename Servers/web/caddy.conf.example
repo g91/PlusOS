@@ -1,0 +1,6 @@
+# Caddy configuration for plusos.d0a.net with automatic Let's Encrypt HTTPS
+# Append to /etc/caddy/Caddyfile
+
+plusos.d0a.net {
+    reverse_proxy 127.0.0.1:8080
+}

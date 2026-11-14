@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tester Operations Hub — PlusOS 2.0</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>">
+</head>
+<body>
+
+  <!-- Background Animated Matrix Digital Rain Canvas -->
+  <canvas id="matrix-canvas"></canvas>
+
+  <header class="mac-menubar">
+    <div class="menu-left">
+      <span class="apple-logo"></span>
+      <a href="/">PlusOS Home</a>
+      <a href="/wiki">Technical Wiki</a>
+      <span style="font-weight:900;">🧪 Tester Operations Hub</span>
+    </div>
+    <div class="menu-right">
+      <span style="font-size:11px; background:#e8f4fd; padding:2px 8px; border:1px solid #0070ba; border-radius:3px; margin-right:8px;">
+        👤 {{CURRENT_USER}} ({{CURRENT_ROLE}})
+      </span>
+      <a href="/api/auth/logout" style="color:#aa0000;">🚪 Log Out</a>
+      <span id="menubar-clock">12:00 PM</span>
+    </div>
+  </header>
+
+  <main class="container" style="max-width: 1080px;">
+
+    <!-- Tester Window -->
+    <div class="mac-window">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">PlusOS 2.0 Hardware &amp; System Tester Operations</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="mac-content">
+
+        <!-- Welcome Banner -->
+        <div style="background:#f4f9f4; border:1px solid #7bc67b; padding:14px; border-radius:4px; margin-bottom:20px;">
+          <h3 style="color:#1e7e34; margin-bottom:4px;">Welcome, Tester {{CURRENT_USER}}!</h3>
+          <p style="font-size:13px; color:#333; line-height:1.5;">
+            Thank you for helping test <strong>PlusOS 2.0 by the1Domo</strong>. Here you will find the newest test instructions, download targets, and can submit telemetry, bug reports, and performance reviews directly to the developer.
+          </p>
+        </div>
+
+        <!-- 1. Latest Active Test Instructions from the1Domo -->
+        <h3 style="margin-bottom:10px;">📋 Current Test Assignments &amp; Builds</h3>
+        <div style="margin-bottom:24px;">
+          {{ACTIVE_TESTS_HTML}}
+        </div>
+
+        <hr style="margin: 24px 0;">
+
+        <!-- 2. Bug Report / Feedback Submission Form -->
+        <div style="display:grid; grid-template-columns: 1.1fr 1fr; gap:24px;">
+          <div>
+            <h3>🐛 Submit Bug Report or Test Feedback</h3>
+            <p style="font-size:12px; color:#555; margin-bottom:12px;">Found an issue, crash, graphical glitch, or want to share review impressions? Submit below:</p>
+
+            <form id="tester-feedback-form" class="editor-container">
+              <div class="editor-field">
+                <label for="fb-title">Report Title:</label>
+                <input type="text" id="fb-title" class="editor-input" required placeholder="e.g. Screen blanker freeze when launching cube3d">
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="editor-field">
+                  <label for="fb-machine">Target Machine / Test Rig:</label>
+                  <select id="fb-machine" class="editor-input" style="background:#fff;">
+                    <option value="Macintosh SE (Real Hardware)">Macintosh SE (Real Hardware)</option>
+                    <option value="Macintosh Plus (Real Hardware)">Macintosh Plus (Real Hardware)</option>
+                    <option value="Macintosh SE FDHD (Real Hardware)">Macintosh SE FDHD (Real Hardware)</option>
+                    <option value="Mini vMac (Emulated Mac SE)">Mini vMac (Emulated Mac SE)</option>
+                    <option value="Mini vMac (Emulated Mac Plus)">Mini vMac (Emulated Mac Plus)</option>
+                    <option value="Other">Other / SCSI Emulation Setup</option>
+                  </select>
+                </div>
+
+                <div class="editor-field">
+                  <label for="fb-severity">Severity Level:</label>
+                  <select id="fb-severity" class="editor-input" style="background:#fff;">
+                    <option value="Blocker">🔴 Blocker (System Hang / Crash / White Screen)</option>
+                    <option value="Major">🟠 Major (Feature Broken / Memory Leak)</option>
+                    <option value="Minor" selected>🟡 Minor (Visual Glitch / Text Bug)</option>
+                    <option value="Review">🟢 Review / Performance Impression</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="editor-field">
+                <label for="fb-repro">Steps to Reproduce:</label>
+                <textarea id="fb-repro" class="editor-input" style="height:60px;" placeholder="1. Boot machine... 2. Run command..."></textarea>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="editor-field">
+                  <label for="fb-expected">Expected Behavior:</label>
+                  <input type="text" id="fb-expected" class="editor-input" placeholder="What should have happened">
+                </div>
+                <div class="editor-field">
+                  <label for="fb-actual">Observed Behavior:</label>
+                  <input type="text" id="fb-actual" class="editor-input" placeholder="What actually happened">
+                </div>
+              </div>
+
+              <div class="editor-field">
+                <label for="fb-review">Overall Impression &amp; Comments:</label>
+                <textarea id="fb-review" class="editor-input" style="height:60px;" placeholder="Any additional comments, speed observations, or thoughts..."></textarea>
+              </div>
+
+              <div style="margin-top:8px;">
+                <button type="submit" id="fb-submit-btn" class="btn-mac btn-primary" style="width:100%;">🚀 Submit Report to the1Domo</button>
+              </div>
+              <div id="fb-status-msg" style="display:none; font-size:12px; margin-top:8px;"></div>
+            </form>
+          </div>
+
+          <!-- 3. Your Submitted Reports & Dev Replies -->
+          <div>
+            <h3>📬 Your Previous Submissions &amp; Status</h3>
+            <p style="font-size:12px; color:#555; margin-bottom:12px;">Track developer responses and fixes from the1Domo:</p>
+            <div style="max-height:460px; overflow-y:auto; padding-right:4px;">
+              {{USER_FEEDBACK_HTML}}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="mac-footer">
+    <div><strong>PlusOS 2.0 Quality Assurance</strong> &bull; Developed by <strong>the1Domo</strong> &bull; <a href="/">Return to Site</a></div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+  <script>
+    document.getElementById('tester-feedback-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('fb-status-msg');
+      const btn = document.getElementById('fb-submit-btn');
+      btn.disabled = true;
+      msg.style.display = 'none';
+
+      const payload = {
+        title: document.getElementById('fb-title').value.trim(),
+        machine: document.getElementById('fb-machine').value,
+        severity: document.getElementById('fb-severity').value,
+        repro_steps: document.getElementById('fb-repro').value,
+        expected: document.getElementById('fb-expected').value,
+        actual: document.getElementById('fb-actual').value,
+        review: document.getElementById('fb-review').value
+      };
+
+      try {
+        const res = await fetch('/api/tester/feedback/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          msg.textContent = 'Report submitted successfully! Thank you!';
+          msg.style.color = '#1e7e34';
+          msg.style.display = 'block';
+          setTimeout(() => location.reload(), 1200);
+        } else {
+          msg.textContent = data.error || 'Failed to submit report';
+          msg.style.color = '#c82333';
+          msg.style.display = 'block';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        msg.textContent = 'Error: ' + err.message;
+        msg.style.color = '#c82333';
+        msg.style.display = 'block';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

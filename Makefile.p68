@@ -184,6 +184,32 @@ image: all
 	    $(_DRVFLAG) --size 64M --out "$(OUTIMG)"
 	@echo Hard drive image: $(OUTIMG)
 
+# Update an EXISTING image/card in place: recompile the kernel + software and
+# write them over the volume WITHOUT reformatting, so all user files (home, etc,
+# documents, Desktop items) are preserved and the disk's own Apple SCSI driver is
+# reused. UPDIMG is the image or BlueSCSI .hda to update; OUTIMG (optional) sends
+# the result elsewhere instead of overwriting it.
+UPDIMG    ?=
+_UPDOUT    = $(if $(filter images/PlusOS_p68.hda,$(OUTIMG)),,--out "$(OUTIMG)")
+update: all
+	@$(HDBUILD) update "$(UPDIMG)" --build $(OUT) \
+	    --loader $(OUT)/boot/loader.bin --kernel $(OUT)/kernel/kernel.pex $(_UPDOUT)
+	@echo Updated: $(UPDIMG)
+
+# Publish an OTA release to the update server after a compile. Only works on the
+# maintainer's machine, where otaserver/.publish_key exists (the signing secret).
+# OTA_SERVER overrides the target (default https://ota.d0a.net); OTA_CHANNEL the
+# channel; OTA_TITLE / OTA_NOTES annotate the release. Depends on `all` so it
+# always publishes freshly-built outputs for the current MACHINE.
+OTA_SERVER  ?= https://ota.d0a.net
+OTA_CHANNEL ?= stable
+OTA_TITLE   ?=
+OTA_NOTES   ?=
+ota: all
+	@$(PY) otaserver/publish_cli.py --server "$(OTA_SERVER)" --channel "$(OTA_CHANNEL)" \
+	    --machine "$(MACHINE)" --build $(OUT) --title "$(OTA_TITLE)" --notes "$(OTA_NOTES)"
+	@echo Published OTA release from $(OUT) to $(OTA_SERVER)
+
 floppy: all
 	@$(CC) -m68000 $(MDEF) -DKERNEL_OFFSET="(100*512)" -DKERNEL_BYTES="(512*512)" -c boot/loader.S -o $(OUT)/boot/loader_floppy.o
 	@$(LD) --oformat binary -Ttext 0 -o $(OUT)/boot/loader_floppy.bin $(OUT)/boot/loader_floppy.o
@@ -195,4 +221,4 @@ clean:
 	@echo cleaning $(OUT)
 	@$(PY) -c "import shutil,sys; shutil.rmtree('$(OUT)', ignore_errors=True)"
 
-.PHONY: all sdks kernel loader apps rt image floppy clean
+.PHONY: all sdks kernel loader apps rt image floppy ota clean

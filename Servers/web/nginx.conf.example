@@ -1,0 +1,35 @@
+# Nginx reverse proxy configuration for plusos.d0a.net
+# Place in /etc/nginx/sites-available/plusos.d0a.net and symlink to sites-enabled
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name plusos.d0a.net;
+
+    # Redirect all HTTP traffic to HTTPS (certbot will auto-configure this if used)
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name plusos.d0a.net;
+
+    # SSL certificates (e.g. from certbot / Let's Encrypt)
+    ssl_certificate /etc/letsencrypt/live/plusos.d0a.net/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/plusos.d0a.net/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    # Maximum file upload size (for disk image downloads or wiki uploads)
+    client_max_body_size 64M;
+
+    location / {
+        proxy_pass http://127.0.0.1:8997;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

@@ -103,6 +103,8 @@ enum {
     IDB_APPS_FLOPPY_STATUS_STATIC,
     IDB_APPS_FLOPPY_TIP_STATIC,
     IDB_BUILD_BTN,
+    IDB_UPDATE_BTN,
+    IDB_PUSH_UPDATE_BTN,
     IDB_BUILD_FLOPPY_BTN,
     IDB_OPEN_EXPLORER_BTN,
     IDB_SAVE_CFG_BTN,
@@ -130,7 +132,9 @@ public:
     bool save_config_to_file();
     void append_log(const std::wstring& text);
     void action_build_image();
+    void action_update_image();
     void action_build_floppy();
+    void action_push_update();        // admin: compile + publish a release to the OTA server
     void action_open_explorer();
 
 private:
@@ -178,7 +182,10 @@ private:
     HWND m_hStaticFloppyTip;
 
     HWND m_hBtnBuildImage;
+    HWND m_hBtnUpdate;
+    HWND m_hBtnPushUpdate;
     HWND m_hBtnBuildFloppy;
+    bool m_otaAdmin = false;          // true once the admin password was entered this session
     HWND m_hBtnOpenExplorer;
     HWND m_hBtnSaveConfig;
     HWND m_hBtnInjectApp;
@@ -193,6 +200,7 @@ private:
     HWND m_hCheckKMod[KMOD_COUNT] = {};
     bool m_populatingApps = false;
     bool m_isBuilding = false;
+    bool m_isUpdate = false;         // the in-progress build is an in-place update (keeps user files)
     std::wstring m_repoRoot;
     std::wstring m_blueScsiDrive;
     std::wstring m_lastBuiltImage;   // local path of the image the last build produced

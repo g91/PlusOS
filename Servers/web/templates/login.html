@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Login — PlusOS 2.0</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔑</text></svg>">
+</head>
+<body>
+
+  <!-- Background Animated Matrix Digital Rain Canvas -->
+  <canvas id="matrix-canvas"></canvas>
+
+  <header class="mac-menubar">
+    <div class="menu-left">
+      <span class="apple-logo"></span>
+      <a href="/">PlusOS Home</a>
+      <a href="/wiki">Technical Wiki</a>
+      <span style="font-weight:900;">User Authentication</span>
+    </div>
+    <div class="menu-right">
+      <span id="menubar-clock">12:00 PM</span>
+    </div>
+  </header>
+
+  <main class="container" style="max-width: 460px; margin-top: 80px;">
+    <div class="mac-window">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">🔑 PlusOS System Sign-In</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="mac-content">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="font-size: 36px; margin-bottom: 6px;">🍎</div>
+          <h2 style="font-size: 18px; font-weight: 900;">PlusOS Control Center</h2>
+          <p style="font-size: 12px; color: #555;">Private access for Admins, Wiki Editors, and Testers.</p>
+          <p style="font-size: 11px; color: #888; margin-top: 4px;"><em>(Registration is closed; accounts are issued by the1Domo only)</em></p>
+        </div>
+
+        <form id="login-form" class="editor-container">
+          <div class="editor-field">
+            <label for="login-username">Username:</label>
+            <input type="text" id="login-username" class="editor-input" required autocomplete="username" placeholder="e.g. the1domo">
+          </div>
+
+          <div class="editor-field">
+            <label for="login-password">Password:</label>
+            <input type="password" id="login-password" class="editor-input" required autocomplete="current-password" placeholder="••••••••">
+          </div>
+
+          <div id="login-error" style="display:none; color:#d9534f; background:#fdf7f7; border:1px solid #d9534f; padding:8px; font-size:12px; border-radius:3px; margin-top:6px;"></div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+            <a href="/" class="btn-mac">Cancel</a>
+            <button type="submit" id="login-btn" class="btn-mac btn-primary">🔓 Sign In</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="mac-footer">
+    <div><strong>PlusOS 2.0 Access Control</strong> &bull; Created by <strong>the1Domo</strong></div>
+    <div>Hosted at <a href="https://plusos.d0a.net">plusos.d0a.net</a></div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+      errEl.style.display = 'none';
+
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          // Redirect based on role
+          if (data.role === 'admin') window.location.href = '/admin';
+          else if (data.role === 'tester') window.location.href = '/tester';
+          else window.location.href = '/wiki';
+        } else {
+          errEl.textContent = data.error || 'Invalid credentials';
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = '🔓 Sign In';
+        }
+      } catch (err) {
+        errEl.textContent = 'Server connection error: ' + err.message;
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = '🔓 Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

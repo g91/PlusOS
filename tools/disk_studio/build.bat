@@ -6,7 +6,7 @@ echo =========================================================================
 echo  Building PlusOS Disk Studio (Native C++ Win32 GUI)
 echo =========================================================================
 
-REM ── Locate and initialise Visual Studio C++ (vcvars64.bat) ────────────────
+REM --- Locate and initialise Visual Studio C++ (vcvars64.bat) ---------------
 where cl >nul 2>nul && goto :have_cl
 set "VCVARS="
 set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
@@ -31,17 +31,17 @@ call "%VCVARS%" >nul
 where cl >nul 2>nul || ( echo ERROR: cl.exe not on PATH after vcvars. & exit /b 1 )
 :have_cl
 
-REM ── Compile resource file ────────────────────────────────────────────────
+REM --- Compile resource file ------------------------------------------------
 rc /nologo /fo resource.res resource.rc 2>nul
 if errorlevel 1 echo Warning: resource compiler had warnings ^(continuing^)
 
-REM ── Compile the application ──────────────────────────────────────────────
+REM --- Compile the application ----------------------------------------------
 cl /nologo /O2 /W3 /EHsc /std:c++17 /utf-8 /DUNICODE /D_UNICODE ^
     main.cpp disk_image.cpp hfs_filesystem.cpp ^
     builder_window.cpp explorer_window.cpp ^
     resource.res ^
     /Fe:PlusOSDiskStudio.exe ^
-    /link user32.lib gdi32.lib comctl32.lib shell32.lib comdlg32.lib ole32.lib ^
+    /link user32.lib gdi32.lib comctl32.lib shell32.lib comdlg32.lib ole32.lib wininet.lib ^
           /SUBSYSTEM:WINDOWS
 
 if errorlevel 1 (
@@ -53,7 +53,7 @@ if errorlevel 1 (
 echo.
 echo Build successful: %~dp0PlusOSDiskStudio.exe
 
-REM ── Copy to repo root ────────────────────────────────────────────────────
+REM --- Copy to repo root ----------------------------------------------------
 set "REPO_ROOT=%~dp0..\.."
 copy /y PlusOSDiskStudio.exe "%REPO_ROOT%\PlusOSDiskStudio.exe" >nul
 if errorlevel 1 (

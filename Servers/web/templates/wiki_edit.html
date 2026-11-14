@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ACTION_TITLE}} — PlusOS 2.0 Wiki Editor</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+</head>
+<body>
+
+  <!-- Retro Apple Menu Bar -->
+  <header class="mac-menubar">
+    <div class="menu-left">
+      <span class="apple-logo"></span>
+      <a href="/">🏠 Main Site</a>
+      <a href="/wiki">📖 Technical Wiki</a>
+      <a href="https://discord.gg/hkpe76G7AU" target="_blank" rel="noopener">💬 Discord</a>
+      <a href="https://github.com/g91/PlusOS" target="_blank" rel="noopener">🐙 GitHub</a>
+      <span style="font-weight:900;">Article Editor</span>
+    </div>
+    <div class="menu-right">
+      <span id="menubar-clock">12:00 PM</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="mac-window">
+      <div class="mac-titlebar">
+        <div class="mac-close-box"></div>
+        <div class="title-box">{{ACTION_TITLE}} — PlusOS Server System</div>
+        <div class="mac-zoom-box"></div>
+      </div>
+      <div class="mac-content">
+        <form id="wiki-editor-form" class="editor-container">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="editor-field">
+              <label for="edit-slug">Article Slug (URL identifier, e.g. 13-my-new-feature):</label>
+              <input type="text" id="edit-slug" class="editor-input" value="{{SLUG}}" required {{SLUG_READONLY}}>
+            </div>
+            <div class="editor-field">
+              <label for="edit-category">Category (e.g. Kernel, Hardware, Userland, Drivers):</label>
+              <input type="text" id="edit-category" class="editor-input" value="{{CATEGORY}}" required placeholder="Kernel">
+            </div>
+          </div>
+
+          <div class="editor-field">
+            <label for="edit-title">Article Title:</label>
+            <input type="text" id="edit-title" class="editor-input" value="{{TITLE}}" required placeholder="e.g. Sound Subsystem Architecture">
+          </div>
+
+          <div class="editor-field">
+            <label for="edit-summary">Short Summary / Teaser:</label>
+            <input type="text" id="edit-summary" class="editor-input" value="{{SUMMARY}}" required placeholder="Brief description for search and listings">
+          </div>
+
+          <div class="editor-field">
+            <label for="edit-content">Article Content (Markdown supported):</label>
+            <textarea id="edit-content" class="editor-textarea" required placeholder="Write your technical documentation here in Markdown...">{{RAW_CONTENT}}</textarea>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #ccc; padding-top:12px;">
+            <div class="editor-field" style="max-width:280px;">
+              <label for="edit-key">Admin Password Key:</label>
+              <input type="password" id="edit-key" class="editor-input" value="plusos2026" placeholder="Configured in config.json">
+            </div>
+            <div class="editor-actions">
+              <span id="editor-status" style="font-size:12px; margin-right:8px; align-self:center;"></span>
+              <a href="/wiki" class="btn-mac">Cancel</a>
+              <button type="submit" id="editor-submit-btn" class="btn-mac btn-primary">💾 Save Article to Server</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="mac-footer">
+    <div><strong>PlusOS 2.0 Wiki Editor</strong> &bull; Created by <strong>the1Domo</strong> &bull; Hosted at <a href="https://plusos.d0a.net">plusos.d0a.net</a></div>
+    <div style="display:flex; justify-content:center; gap:16px; margin-top:4px;">
+      <a href="/">Main Site</a>
+      <a href="https://discord.gg/hkpe76G7AU" target="_blank" rel="noopener">Discord Community</a>
+      <a href="https://github.com/g91/PlusOS" target="_blank" rel="noopener">GitHub Repository</a>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

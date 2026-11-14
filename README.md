@@ -34,6 +34,7 @@ The studio features two distinct, dedicated dialogues:
 
 ### 1. OS Builder & Dual-Boot System Configurator
 - **Compile & Build Hard Drive Images**: One-click build pipeline running `make install` inside WSL / `build.bat`, writing the boot blocks, kernel, and applications directly to `images/PlusOS.hda` and connected BlueSCSI SD cards (`F:`).
+- **Update (recompile & refresh, keep my files)**: A companion to the fresh build. Recompiles the kernel and all software and writes them over an **existing** disk or BlueSCSI card **without reinitializing the filesystem** — your personal data (`home/`, `etc/`, documents, Desktop items) is carried across untouched and the disk's Apple SCSI boot driver is reused. The update builds to a temp file and is moved into place only after it verifies, so a failed update can never corrupt your disk. CLI equivalent: `make.cmd universal update UPDIMG="<disk-or-card.hda>"`. See the wiki: *[PlusOS Disk Studio & Compiler Pipeline → In-Place Update](Servers/web/wiki/13-plusos-disk-studio-and-compiler.md)*.
 - **Dual-Boot & Multi-Boot System Setup**:
   - Configure the boot behavior: Boot directly into **Mac OS** (System 7.5.5, 7.1, 6.0.8, etc.), **PlusOS Desktop**, **PlusOS Shell**, or the **Interactive Multi-Boot Menu**.
   - Edit boot records (`multiboot.cfg`): Add custom operating system entries, cycle boot target SCSI IDs (`0`–`7`, Shell, Desktop), remove, and reorder entries.

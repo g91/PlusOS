@@ -1,0 +1,17 @@
+[Unit]
+Description=PlusOS 2.0 Web & Wiki Server (plusos.d0a.net : 8997)
+After=network.target
+
+[Service]
+Type=simple
+User=vivian
+WorkingDirectory=/home/vivian/Vivian-api/PlusOS
+ExecStart=/usr/bin/python3 /home/vivian/Vivian-api/PlusOS/server.py --port 8997 --host 127.0.0.1
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=plusos-web
+
+[Install]
+WantedBy=multi-user.target

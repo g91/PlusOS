@@ -1,0 +1,18 @@
+{
+  "site_name": "PlusOS 3.1",
+  "domain": "plusos.d0a.net",
+  "creator": "the1Domo",
+  "version": "3.1.0",
+  "port": 8997,
+  "host": "127.0.0.1",
+  "admin_key": "00000000000000000000000000000000",
+  "github_url": "https://github.com/g91/PlusOS",
+  "discord_url": "https://discord.gg/hkpe76G7AU",
+  "rom_repo_url": "https://github.com/jonathanschilling/mac_rom",
+  "description": "A bare-metal operating system for the Macintosh Plus, SE, Classic, and LC III, created by the1Domo. Version 3.1 adds the Universal Loader \u2014 one image boots any 680x0 Mac.",
+  "downloads": {
+    "hda_image": "/downloads/PlusOS.hda",
+    "hda_title": "PlusOS 3.1 Universal Ready-to-Boot BlueSCSI HDA Image",
+    "source_archive": "/downloads/plusos-source.zip"
+  }
+}
