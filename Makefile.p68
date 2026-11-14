@@ -166,6 +166,7 @@ all: kernel loader apps
 # the app list is large and uniform, so a helper script compiles and links them).
 apps: sdks
 	@$(PY) $(TC)/mk_apps.py --out $(OUT) --cc $(CC) --ld $(LD)
+	@$(PY) apps/tools/Python/PlusOS/build.py --out $(OUT)/python --install $(OUT)/apps/python.pex
 
 # ---- hard-drive image -----------------------------------------------------
 # OUTIMG overrides the output path (Disk Studio passes the chosen .hda or a BlueSCSI SD card).
