@@ -51,6 +51,8 @@ def main():
         srcs = [os.path.join(d, f) for f in sorted(os.listdir(d))
                 if f.endswith((".c", ".S"))]
         cpps = [f for f in os.listdir(d) if f.endswith(".cpp")]
+        if not srcs and not cpps:
+            continue            # not a plain app folder (e.g. apps/tools/Python: built by its own build.py)
         if cpps and not srcs:
             skipped.append(name + " (C++)")
             continue

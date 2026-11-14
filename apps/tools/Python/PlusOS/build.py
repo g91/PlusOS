@@ -17,7 +17,7 @@ REPO = os.path.abspath(os.path.join(PY, "..", "..", ".."))
 # files from Makefile.pre.in we never build (JIT, perf, free-threading, other OSes)
 SKIP = {"Python/jit.c", "Python/jit_publish.c", "Python/perf_trampoline.c", "Python/perf_jit_trampoline.c",
         "Python/jit_unwind.c", "Python/remote_debugging.c", "Python/gc_free_threading.c",
-        "Python/dynamic_annotations.c", "Modules/config.c", "Python/importdl.c"}
+        "Python/dynamic_annotations.c", "Modules/config.c"}
 
 # extra built-in modules (name -> sources); everything here is statically linked
 MODULES = open(os.path.join(HERE, "modules.txt")).read().split("\n") if os.path.exists(os.path.join(HERE, "modules.txt")) else []
@@ -52,6 +52,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=os.path.join(REPO, "build_p68", "python"))
     ap.add_argument("--link", action="store_true")
+    ap.add_argument("--install", metavar="PEX", help="copy the linked python.pex here (implies --link)")
     ap.add_argument("--opt", default="-Os")
     ap.add_argument("--only", nargs="*")
     ap.add_argument("-j", type=int, default=os.cpu_count() or 4)
@@ -87,9 +88,14 @@ def main():
                 if a.v:
                     print("\n".join(lines[:10]))
     print("compiled %d ok, %d failed (of %d)" % (len(ok), len(bad), len(srcs)))
-    if bad or not a.link:
+    if bad or not (a.link or a.install):
         return 1 if bad else 0
-    return link(a.out, ok, sdk)
+    rc = link(a.out, ok, sdk)
+    if rc == 0 and a.install:
+        import shutil
+        os.makedirs(os.path.dirname(os.path.abspath(a.install)), exist_ok=True)
+        shutil.copyfile(os.path.join(a.out, "python.pex"), a.install)
+    return rc
 
 
 def link(out, objs, sdk):

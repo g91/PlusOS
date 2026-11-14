@@ -39,3 +39,5 @@ Modules/_zoneinfo.c
 Modules/_csv.c
 Modules/getbuildinfo.c
 Modules/getpath.c
+Python/frozen.c
+Python/dynload_stub.c

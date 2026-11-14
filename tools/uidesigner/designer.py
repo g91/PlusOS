@@ -396,7 +396,7 @@ class Designer(tk.Tk):
             b.bind("<ButtonRelease-1>", self.pal_release)
             self.pal[kind] = b
         ttk.Label(left, text="FORMS", font=("TkDefaultFont", 8, "bold")).pack(anchor="w", pady=(12, 2))
-        self.formlist = tk.Listbox(left, height=6, exportselection=False, activestyle="none")
+        self.formlist = tk.Listbox(left, height=4, exportselection=False, activestyle="none")
         self.formlist.pack(fill="x")
         self.formlist.bind("<<ListboxSelect>>", self.pick_form)
         row = ttk.Frame(left)

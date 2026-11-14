@@ -230,6 +230,18 @@ def markdown_to_html(md_text):
             links.append(f'<a href="{html.escape(url, quote=True)}">{html.escape(lbl)}</a>')
             return f"__LINK_TOKEN_{idx}__"
 
+        # Images: ![alt](/docs/screenshots/file.png). Only site-relative or http(s)
+        # sources are allowed; anything else falls through and renders as a link.
+        def img_repl(m):
+            alt, src = m.group(1), m.group(2).strip()
+            if not (src.startswith("/") or src.startswith("https://") or src.startswith("http://")):
+                return m.group(0)
+            idx = len(links)
+            links.append(f'<img src="{html.escape(src, quote=True)}" alt="{html.escape(alt, quote=True)}" '
+                         f'style="max-width:100%; height:auto; border:1px solid #000; image-rendering:pixelated;">')
+            return f"__LINK_TOKEN_{idx}__"
+
+        text = re.sub(r'!\[(.*?)\]\((.*?)\)', img_repl, text)
         text = re.sub(r'\[(.*?)\]\((.*?)\)', link_repl, text)
         text = html.escape(text)
         text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)

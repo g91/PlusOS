@@ -4,6 +4,7 @@
 #define Py_PYCONFIG_H
 
 #define PLUSOS 1
+#define static_assert _Static_assert
 #define _PYTHONFRAMEWORK ""
 #define F_GETFD 1
 #define F_SETFD 2
